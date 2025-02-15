@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    "argon2",
+    "boost-json",
+    "boost-program-options",
+    "boost-test",
+    "sqlite3",
+    "boost-algorithm"
+  ]
+}
