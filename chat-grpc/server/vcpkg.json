@@ -1,10 +1,12 @@
 {
   "dependencies": [
     "argon2",
+    "boost-algorithm",
     "boost-json",
     "boost-program-options",
     "boost-test",
+    "grpc",
     "sqlite3",
-    "boost-algorithm"
+    "protobuf"
   ]
 }

@@ -28,12 +28,23 @@ set(DIRS src src/gen/rpc/converse)
 # Find required packages
 find_package(Boost CONFIG REQUIRED COMPONENTS algorithm json program_options
                                               unit_test_framework)
+find_package(gRPC CONFIG REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
 find_package(unofficial-argon2 CONFIG REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 # Libraries to link
-set(LIBS Boost::algorithm Boost::json Boost::program_options
-         unofficial::argon2::libargon2 unofficial::sqlite3::sqlite3)
+set(LIBS
+    Boost::algorithm
+    Boost::json
+    Boost::program_options
+    unofficial::argon2::libargon2
+    unofficial::sqlite3::sqlite3
+    gRPC::gpr
+    gRPC::grpc
+    gRPC::grpc++
+    gRPC::grpc_cronet
+    Protobuf::libprotobuf)
 
 # Original executable (using main.cpp)
 set(EXE exe)

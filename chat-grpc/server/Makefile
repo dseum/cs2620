@@ -1,23 +1,11 @@
-dyde-all: dyde-build
+all: build
 	@.build/exe serve
 
-dyde-test: dyde-build
+test: build
 	@.build/exe_test
 
-dyde-build:
+build:
 	@if [ ! -d ".build" ]; then $(MAKE) install; fi
-	@cmake -DPROTOCOL=dyde -B .build -S .
-	@cmake --build .build
-
-json-all: json-build
-	@.build/exe serve
-
-json-test: json-build
-	@.build/exe_test
-
-json-build:
-	@if [ ! -d ".build" ]; then $(MAKE) install; fi
-	@cmake -DPROTOCOL=json -B .build -S .
 	@cmake --build .build
 
 install: clean
@@ -26,4 +14,4 @@ install: clean
 clean:
 	@rm -rf .build
 
-.PHONY: dyde-all dyde-test dyde-build json-all json-test json-build install clean
+.PHONY: all test build install clean
