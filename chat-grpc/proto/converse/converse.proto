@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package converse;
+
+message Message {
+  int64 message_id = 1;
+  int64 sender_id = 2;
+  bool is_read = 3;
+  string content = 4;
+}
+
+message Conversation {
+  int64 conversation_id = 1;
+  int64 recv_user_id = 2;
+  string recv_username = 3;
+  int64 unread_count = 4;
+}
+
+message User {
+  int64 user_id = 1;
+  string username = 2;
+}
+
+message SignupUserRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message SignupUserResponse { int64 user_id = 1; }
+
+message SigninUserRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message SigninUserResponse { int64 user_id = 1; }
+
+message SendMessageRequest {
+  int64 conversation_id = 1;
+  int64 sender_id = 2;
+  string content = 3;
+}
+
+message SendMessageResponse { int64 message_id = 1; }
+
+message SignoutUserRequest { int64 user_id = 1; }
+
+message SignoutUserResponse {
+  // Empty message, no fields.
+}
+
+message DeleteUserRequest {
+  int64 user_id = 1;
+  string password = 2;
+}
+
+message DeleteUserResponse {
+  // Empty message.
+}
+
+message GetOtherUsersRequest {
+  int64 user_id = 1;
+  string query = 2;
+  int64 limit = 3;
+  int64 offset = 4;
+}
+
+message GetOtherUsersResponse { repeated User users = 1; }
+
+message CreateConversationRequest {
+  int64 user_id = 1;
+  int64 other_user_id = 2;
+}
+
+message CreateConversationResponse { int64 conversation_id = 1; }
+
+message GetConversationRequest { int64 user_id = 1; }
+
+message GetConversationResponse { repeated Conversation conversations = 1; }
+
+message DeleteConversationRequest {
+  int64 user_id = 1;
+  int64 conversation_id = 2;
+}
+
+message DeleteConversationResponse {
+  // Empty message.
+}
+
+message GetMessagesRequest {
+  int64 conversation_id = 1;
+  int64 last_message_id = 2;
+}
+
+message GetMessagesResponse { repeated Message messages = 1; }
+
+message DeleteMessageRequest {
+  int64 conversation_id = 1;
+  int64 message_id = 2;
+}
+
+message DeleteMessageResponse {
+  // Empty message.
+}
+
+service ConverseService {
+  rpc SignupUser(SignupUserRequest) returns (SignupUserResponse);
+  rpc SigninUser(SigninUserRequest) returns (SigninUserResponse);
+  rpc SignoutUser(SignoutUserRequest) returns (SignoutUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc GetOtherUsers(GetOtherUsersRequest) returns (GetOtherUsersResponse);
+  rpc CreateConversation(CreateConversationRequest)
+      returns (CreateConversationResponse);
+  rpc GetConversation(GetConversationRequest) returns (GetConversationResponse);
+  rpc DeleteConversation(DeleteConversationRequest)
+      returns (DeleteConversationResponse);
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
+}
