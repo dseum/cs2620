@@ -33,6 +33,7 @@ static const char* ConverseService_method_names[] = {
   "/converse.ConverseService/SendMessage",
   "/converse.ConverseService/GetMessages",
   "/converse.ConverseService/DeleteMessage",
+  "/converse.ConverseService/ReceiveMessage",
 };
 
 std::unique_ptr< ConverseService::Stub> ConverseService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -53,6 +54,7 @@ ConverseService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& ch
   , rpcmethod_SendMessage_(ConverseService_method_names[8], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_GetMessages_(ConverseService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_DeleteMessage_(ConverseService_method_names[10], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_ReceiveMessage_(ConverseService_method_names[11], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
   {}
 
 ::grpc::Status ConverseService::Stub::SignupUser(::grpc::ClientContext* context, const ::converse::SignupUserRequest& request, ::converse::SignupUserResponse* response) {
@@ -308,6 +310,22 @@ void ConverseService::Stub::async::DeleteMessage(::grpc::ClientContext* context,
   return result;
 }
 
+::grpc::ClientReader< ::converse::Message>* ConverseService::Stub::ReceiveMessageRaw(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request) {
+  return ::grpc::internal::ClientReaderFactory< ::converse::Message>::Create(channel_.get(), rpcmethod_ReceiveMessage_, context, request);
+}
+
+void ConverseService::Stub::async::ReceiveMessage(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest* request, ::grpc::ClientReadReactor< ::converse::Message>* reactor) {
+  ::grpc::internal::ClientCallbackReaderFactory< ::converse::Message>::Create(stub_->channel_.get(), stub_->rpcmethod_ReceiveMessage_, context, request, reactor);
+}
+
+::grpc::ClientAsyncReader< ::converse::Message>* ConverseService::Stub::AsyncReceiveMessageRaw(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::converse::Message>::Create(channel_.get(), cq, rpcmethod_ReceiveMessage_, context, request, true, tag);
+}
+
+::grpc::ClientAsyncReader< ::converse::Message>* ConverseService::Stub::PrepareAsyncReceiveMessageRaw(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::converse::Message>::Create(channel_.get(), cq, rpcmethod_ReceiveMessage_, context, request, false, nullptr);
+}
+
 ConverseService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ConverseService_method_names[0],
@@ -419,6 +437,16 @@ ConverseService::Service::Service() {
              ::converse::DeleteMessageResponse* resp) {
                return service->DeleteMessage(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      ConverseService_method_names[11],
+      ::grpc::internal::RpcMethod::SERVER_STREAMING,
+      new ::grpc::internal::ServerStreamingHandler< ConverseService::Service, ::converse::ReceiveMessageRequest, ::converse::Message>(
+          [](ConverseService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::converse::ReceiveMessageRequest* req,
+             ::grpc::ServerWriter<::converse::Message>* writer) {
+               return service->ReceiveMessage(ctx, req, writer);
+             }, this)));
 }
 
 ConverseService::Service::~Service() {
@@ -498,6 +526,13 @@ ConverseService::Service::~Service() {
   (void) context;
   (void) request;
   (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status ConverseService::Service::ReceiveMessage(::grpc::ServerContext* context, const ::converse::ReceiveMessageRequest* request, ::grpc::ServerWriter< ::converse::Message>* writer) {
+  (void) context;
+  (void) request;
+  (void) writer;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 

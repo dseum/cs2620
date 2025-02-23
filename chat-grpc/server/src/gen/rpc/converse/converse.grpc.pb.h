@@ -112,6 +112,15 @@ class ConverseService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::DeleteMessageResponse>> PrepareAsyncDeleteMessage(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::DeleteMessageResponse>>(PrepareAsyncDeleteMessageRaw(context, request, cq));
     }
+    std::unique_ptr< ::grpc::ClientReaderInterface< ::converse::Message>> ReceiveMessage(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReaderInterface< ::converse::Message>>(ReceiveMessageRaw(context, request));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::Message>> AsyncReceiveMessage(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::Message>>(AsyncReceiveMessageRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::Message>> PrepareAsyncReceiveMessage(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::Message>>(PrepareAsyncReceiveMessageRaw(context, request, cq));
+    }
     class async_interface {
      public:
       virtual ~async_interface() {}
@@ -137,6 +146,7 @@ class ConverseService final {
       virtual void GetMessages(::grpc::ClientContext* context, const ::converse::GetMessagesRequest* request, ::converse::GetMessagesResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void DeleteMessage(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest* request, ::converse::DeleteMessageResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void DeleteMessage(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest* request, ::converse::DeleteMessageResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void ReceiveMessage(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest* request, ::grpc::ClientReadReactor< ::converse::Message>* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -164,6 +174,9 @@ class ConverseService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::GetMessagesResponse>* PrepareAsyncGetMessagesRaw(::grpc::ClientContext* context, const ::converse::GetMessagesRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::DeleteMessageResponse>* AsyncDeleteMessageRaw(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::DeleteMessageResponse>* PrepareAsyncDeleteMessageRaw(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientReaderInterface< ::converse::Message>* ReceiveMessageRaw(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::converse::Message>* AsyncReceiveMessageRaw(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::converse::Message>* PrepareAsyncReceiveMessageRaw(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -245,6 +258,15 @@ class ConverseService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::DeleteMessageResponse>> PrepareAsyncDeleteMessage(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::DeleteMessageResponse>>(PrepareAsyncDeleteMessageRaw(context, request, cq));
     }
+    std::unique_ptr< ::grpc::ClientReader< ::converse::Message>> ReceiveMessage(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReader< ::converse::Message>>(ReceiveMessageRaw(context, request));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::Message>> AsyncReceiveMessage(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::Message>>(AsyncReceiveMessageRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::Message>> PrepareAsyncReceiveMessage(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::Message>>(PrepareAsyncReceiveMessageRaw(context, request, cq));
+    }
     class async final :
       public StubInterface::async_interface {
      public:
@@ -270,6 +292,7 @@ class ConverseService final {
       void GetMessages(::grpc::ClientContext* context, const ::converse::GetMessagesRequest* request, ::converse::GetMessagesResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
       void DeleteMessage(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest* request, ::converse::DeleteMessageResponse* response, std::function<void(::grpc::Status)>) override;
       void DeleteMessage(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest* request, ::converse::DeleteMessageResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void ReceiveMessage(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest* request, ::grpc::ClientReadReactor< ::converse::Message>* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -303,6 +326,9 @@ class ConverseService final {
     ::grpc::ClientAsyncResponseReader< ::converse::GetMessagesResponse>* PrepareAsyncGetMessagesRaw(::grpc::ClientContext* context, const ::converse::GetMessagesRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::converse::DeleteMessageResponse>* AsyncDeleteMessageRaw(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::converse::DeleteMessageResponse>* PrepareAsyncDeleteMessageRaw(::grpc::ClientContext* context, const ::converse::DeleteMessageRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientReader< ::converse::Message>* ReceiveMessageRaw(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request) override;
+    ::grpc::ClientAsyncReader< ::converse::Message>* AsyncReceiveMessageRaw(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncReader< ::converse::Message>* PrepareAsyncReceiveMessageRaw(::grpc::ClientContext* context, const ::converse::ReceiveMessageRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_SignupUser_;
     const ::grpc::internal::RpcMethod rpcmethod_SigninUser_;
     const ::grpc::internal::RpcMethod rpcmethod_SignoutUser_;
@@ -314,6 +340,7 @@ class ConverseService final {
     const ::grpc::internal::RpcMethod rpcmethod_SendMessage_;
     const ::grpc::internal::RpcMethod rpcmethod_GetMessages_;
     const ::grpc::internal::RpcMethod rpcmethod_DeleteMessage_;
+    const ::grpc::internal::RpcMethod rpcmethod_ReceiveMessage_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -332,6 +359,7 @@ class ConverseService final {
     virtual ::grpc::Status SendMessage(::grpc::ServerContext* context, const ::converse::SendMessageRequest* request, ::converse::SendMessageResponse* response);
     virtual ::grpc::Status GetMessages(::grpc::ServerContext* context, const ::converse::GetMessagesRequest* request, ::converse::GetMessagesResponse* response);
     virtual ::grpc::Status DeleteMessage(::grpc::ServerContext* context, const ::converse::DeleteMessageRequest* request, ::converse::DeleteMessageResponse* response);
+    virtual ::grpc::Status ReceiveMessage(::grpc::ServerContext* context, const ::converse::ReceiveMessageRequest* request, ::grpc::ServerWriter< ::converse::Message>* writer);
   };
   template <class BaseClass>
   class WithAsyncMethod_SignupUser : public BaseClass {
@@ -553,7 +581,27 @@ class ConverseService final {
       ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_SignupUser<WithAsyncMethod_SigninUser<WithAsyncMethod_SignoutUser<WithAsyncMethod_DeleteUser<WithAsyncMethod_GetOtherUsers<WithAsyncMethod_CreateConversation<WithAsyncMethod_GetConversation<WithAsyncMethod_DeleteConversation<WithAsyncMethod_SendMessage<WithAsyncMethod_GetMessages<WithAsyncMethod_DeleteMessage<Service > > > > > > > > > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_ReceiveMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_ReceiveMessage() {
+      ::grpc::Service::MarkMethodAsync(11);
+    }
+    ~WithAsyncMethod_ReceiveMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status ReceiveMessage(::grpc::ServerContext* /*context*/, const ::converse::ReceiveMessageRequest* /*request*/, ::grpc::ServerWriter< ::converse::Message>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestReceiveMessage(::grpc::ServerContext* context, ::converse::ReceiveMessageRequest* request, ::grpc::ServerAsyncWriter< ::converse::Message>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(11, context, request, writer, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_SignupUser<WithAsyncMethod_SigninUser<WithAsyncMethod_SignoutUser<WithAsyncMethod_DeleteUser<WithAsyncMethod_GetOtherUsers<WithAsyncMethod_CreateConversation<WithAsyncMethod_GetConversation<WithAsyncMethod_DeleteConversation<WithAsyncMethod_SendMessage<WithAsyncMethod_GetMessages<WithAsyncMethod_DeleteMessage<WithAsyncMethod_ReceiveMessage<Service > > > > > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_SignupUser : public BaseClass {
    private:
@@ -851,7 +899,29 @@ class ConverseService final {
     virtual ::grpc::ServerUnaryReactor* DeleteMessage(
       ::grpc::CallbackServerContext* /*context*/, const ::converse::DeleteMessageRequest* /*request*/, ::converse::DeleteMessageResponse* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_SignupUser<WithCallbackMethod_SigninUser<WithCallbackMethod_SignoutUser<WithCallbackMethod_DeleteUser<WithCallbackMethod_GetOtherUsers<WithCallbackMethod_CreateConversation<WithCallbackMethod_GetConversation<WithCallbackMethod_DeleteConversation<WithCallbackMethod_SendMessage<WithCallbackMethod_GetMessages<WithCallbackMethod_DeleteMessage<Service > > > > > > > > > > > CallbackService;
+  template <class BaseClass>
+  class WithCallbackMethod_ReceiveMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_ReceiveMessage() {
+      ::grpc::Service::MarkMethodCallback(11,
+          new ::grpc::internal::CallbackServerStreamingHandler< ::converse::ReceiveMessageRequest, ::converse::Message>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::converse::ReceiveMessageRequest* request) { return this->ReceiveMessage(context, request); }));
+    }
+    ~WithCallbackMethod_ReceiveMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status ReceiveMessage(::grpc::ServerContext* /*context*/, const ::converse::ReceiveMessageRequest* /*request*/, ::grpc::ServerWriter< ::converse::Message>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerWriteReactor< ::converse::Message>* ReceiveMessage(
+      ::grpc::CallbackServerContext* /*context*/, const ::converse::ReceiveMessageRequest* /*request*/)  { return nullptr; }
+  };
+  typedef WithCallbackMethod_SignupUser<WithCallbackMethod_SigninUser<WithCallbackMethod_SignoutUser<WithCallbackMethod_DeleteUser<WithCallbackMethod_GetOtherUsers<WithCallbackMethod_CreateConversation<WithCallbackMethod_GetConversation<WithCallbackMethod_DeleteConversation<WithCallbackMethod_SendMessage<WithCallbackMethod_GetMessages<WithCallbackMethod_DeleteMessage<WithCallbackMethod_ReceiveMessage<Service > > > > > > > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_SignupUser : public BaseClass {
@@ -1036,6 +1106,23 @@ class ConverseService final {
     }
     // disable synchronous version of this method
     ::grpc::Status DeleteMessage(::grpc::ServerContext* /*context*/, const ::converse::DeleteMessageRequest* /*request*/, ::converse::DeleteMessageResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_ReceiveMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_ReceiveMessage() {
+      ::grpc::Service::MarkMethodGeneric(11);
+    }
+    ~WithGenericMethod_ReceiveMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status ReceiveMessage(::grpc::ServerContext* /*context*/, const ::converse::ReceiveMessageRequest* /*request*/, ::grpc::ServerWriter< ::converse::Message>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1258,6 +1345,26 @@ class ConverseService final {
     }
     void RequestDeleteMessage(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_ReceiveMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_ReceiveMessage() {
+      ::grpc::Service::MarkMethodRaw(11);
+    }
+    ~WithRawMethod_ReceiveMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status ReceiveMessage(::grpc::ServerContext* /*context*/, const ::converse::ReceiveMessageRequest* /*request*/, ::grpc::ServerWriter< ::converse::Message>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestReceiveMessage(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncWriter< ::grpc::ByteBuffer>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(11, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1501,6 +1608,28 @@ class ConverseService final {
     }
     virtual ::grpc::ServerUnaryReactor* DeleteMessage(
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
+  class WithRawCallbackMethod_ReceiveMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_ReceiveMessage() {
+      ::grpc::Service::MarkMethodRawCallback(11,
+          new ::grpc::internal::CallbackServerStreamingHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const::grpc::ByteBuffer* request) { return this->ReceiveMessage(context, request); }));
+    }
+    ~WithRawCallbackMethod_ReceiveMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status ReceiveMessage(::grpc::ServerContext* /*context*/, const ::converse::ReceiveMessageRequest* /*request*/, ::grpc::ServerWriter< ::converse::Message>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerWriteReactor< ::grpc::ByteBuffer>* ReceiveMessage(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/)  { return nullptr; }
   };
   template <class BaseClass>
   class WithStreamedUnaryMethod_SignupUser : public BaseClass {
@@ -1800,8 +1929,35 @@ class ConverseService final {
     virtual ::grpc::Status StreamedDeleteMessage(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::converse::DeleteMessageRequest,::converse::DeleteMessageResponse>* server_unary_streamer) = 0;
   };
   typedef WithStreamedUnaryMethod_SignupUser<WithStreamedUnaryMethod_SigninUser<WithStreamedUnaryMethod_SignoutUser<WithStreamedUnaryMethod_DeleteUser<WithStreamedUnaryMethod_GetOtherUsers<WithStreamedUnaryMethod_CreateConversation<WithStreamedUnaryMethod_GetConversation<WithStreamedUnaryMethod_DeleteConversation<WithStreamedUnaryMethod_SendMessage<WithStreamedUnaryMethod_GetMessages<WithStreamedUnaryMethod_DeleteMessage<Service > > > > > > > > > > > StreamedUnaryService;
-  typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_SignupUser<WithStreamedUnaryMethod_SigninUser<WithStreamedUnaryMethod_SignoutUser<WithStreamedUnaryMethod_DeleteUser<WithStreamedUnaryMethod_GetOtherUsers<WithStreamedUnaryMethod_CreateConversation<WithStreamedUnaryMethod_GetConversation<WithStreamedUnaryMethod_DeleteConversation<WithStreamedUnaryMethod_SendMessage<WithStreamedUnaryMethod_GetMessages<WithStreamedUnaryMethod_DeleteMessage<Service > > > > > > > > > > > StreamedService;
+  template <class BaseClass>
+  class WithSplitStreamingMethod_ReceiveMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithSplitStreamingMethod_ReceiveMessage() {
+      ::grpc::Service::MarkMethodStreamed(11,
+        new ::grpc::internal::SplitServerStreamingHandler<
+          ::converse::ReceiveMessageRequest, ::converse::Message>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerSplitStreamer<
+                     ::converse::ReceiveMessageRequest, ::converse::Message>* streamer) {
+                       return this->StreamedReceiveMessage(context,
+                         streamer);
+                  }));
+    }
+    ~WithSplitStreamingMethod_ReceiveMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status ReceiveMessage(::grpc::ServerContext* /*context*/, const ::converse::ReceiveMessageRequest* /*request*/, ::grpc::ServerWriter< ::converse::Message>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with split streamed
+    virtual ::grpc::Status StreamedReceiveMessage(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::converse::ReceiveMessageRequest,::converse::Message>* server_split_streamer) = 0;
+  };
+  typedef WithSplitStreamingMethod_ReceiveMessage<Service > SplitStreamedService;
+  typedef WithStreamedUnaryMethod_SignupUser<WithStreamedUnaryMethod_SigninUser<WithStreamedUnaryMethod_SignoutUser<WithStreamedUnaryMethod_DeleteUser<WithStreamedUnaryMethod_GetOtherUsers<WithStreamedUnaryMethod_CreateConversation<WithStreamedUnaryMethod_GetConversation<WithStreamedUnaryMethod_DeleteConversation<WithStreamedUnaryMethod_SendMessage<WithStreamedUnaryMethod_GetMessages<WithStreamedUnaryMethod_DeleteMessage<WithSplitStreamingMethod_ReceiveMessage<Service > > > > > > > > > > > > StreamedService;
 };
 
 }  // namespace converse

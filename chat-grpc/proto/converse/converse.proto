@@ -103,6 +103,9 @@ message DeleteMessageResponse {
   // Empty message.
 }
 
+message ReceiveMessageRequest { int64 conversation_id = 1; }
+
+
 service ConverseService {
   rpc SignupUser(SignupUserRequest) returns (SignupUserResponse);
   rpc SigninUser(SigninUserRequest) returns (SigninUserResponse);
@@ -117,4 +120,5 @@ service ConverseService {
   rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
   rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
   rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
+  rpc ReceiveMessage(ReceiveMessageRequest) returns (stream Message) {}
 }

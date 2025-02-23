@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from converse import converse_pb2 as converse_dot_converse__pb2
+from . import converse_pb2 as converse_dot_converse__pb2
 
 
 class ConverseServiceStub(object):
@@ -68,6 +68,11 @@ class ConverseServiceStub(object):
                 '/converse.ConverseService/DeleteMessage',
                 request_serializer=converse_dot_converse__pb2.DeleteMessageRequest.SerializeToString,
                 response_deserializer=converse_dot_converse__pb2.DeleteMessageResponse.FromString,
+                _registered_method=True)
+        self.ReceiveMessage = channel.unary_stream(
+                '/converse.ConverseService/ReceiveMessage',
+                request_serializer=converse_dot_converse__pb2.ReceiveMessageRequest.SerializeToString,
+                response_deserializer=converse_dot_converse__pb2.Message.FromString,
                 _registered_method=True)
 
 
@@ -140,6 +145,12 @@ class ConverseServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ReceiveMessage(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ConverseServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -197,6 +208,11 @@ def add_ConverseServiceServicer_to_server(servicer, server):
                     servicer.DeleteMessage,
                     request_deserializer=converse_dot_converse__pb2.DeleteMessageRequest.FromString,
                     response_serializer=converse_dot_converse__pb2.DeleteMessageResponse.SerializeToString,
+            ),
+            'ReceiveMessage': grpc.unary_stream_rpc_method_handler(
+                    servicer.ReceiveMessage,
+                    request_deserializer=converse_dot_converse__pb2.ReceiveMessageRequest.FromString,
+                    response_serializer=converse_dot_converse__pb2.Message.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -496,6 +512,33 @@ class ConverseService(object):
             '/converse.ConverseService/DeleteMessage',
             converse_dot_converse__pb2.DeleteMessageRequest.SerializeToString,
             converse_dot_converse__pb2.DeleteMessageResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ReceiveMessage(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/converse.ConverseService/ReceiveMessage',
+            converse_dot_converse__pb2.ReceiveMessageRequest.SerializeToString,
+            converse_dot_converse__pb2.Message.FromString,
             options,
             channel_credentials,
             insecure,

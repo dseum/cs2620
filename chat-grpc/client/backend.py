@@ -9,25 +9,11 @@ from PySide6.QtCore import (
     Signal,
     Property,
 )
-from PySide6.QtNetwork import QTcpSocket, QAbstractSocket
 from enum import IntEnum
-from protocols.utils import SizeWrapper, OperationCode, StatusCode
-
-
-from protocols.dyde.deserialize import deserialize
-from protocols.dyde.client import (
-    SignupUserRequest,
-    SigninUserRequest,
-    SignoutUserRequest,
-    DeleteUserRequest,
-    GetOtherUsersRequest,
-    CreateConversationRequest,
-    GetConversationsRequest,
-    DeleteConversationRequest,
-    SendMessageRequest,
-    GetMessagesRequest,
-    DeleteMessageRequest,
-)
+from gen.rpc.converse.converse_pb2_grpc import ConverseServiceStub
+import gen.rpc.converse.converse_pb2 as pb2
+import grpc
+import asyncio
 
 
 QML_IMPORT_NAME = "Backend"
@@ -393,20 +379,26 @@ class Backend(QObject):
         self.m_user = None
         self.m_conversation = None
 
-        self.socket = QTcpSocket(self)
-        self.socket.readyRead.connect(self.recv)
-        self.socket.connected.connect(self.onConnected)
-        self.socket.errorOccurred.connect(self.onErrorOccurred)
-        self.socket.connectToHost(host, port)
-
-        self.buffer = bytearray()
-        self.expected_size = None
-        self.request = None
-        self.response = None
+        self.channel = grpc.insecure_channel("localhost:50051")
+        self.stub = ConverseServiceStub(self.channel)
+        self.stream = None
 
     @Property(User, notify=userChanged)
     def user(self):
         return self.m_user
+
+    async def receive_message(self, conversation_id):
+        async for message in self.stub.ReceiveMessage(
+            pb2.ReceiveMessageRequest(conversation_id=conversation_id)
+        ):
+            self.serverSendMessageRequested.emit(
+                Message(
+                    message.message_id,
+                    message.sender_id,
+                    message.is_read,
+                    message.content,
+                )
+            )
 
     @user.setter
     def user(self, value):
@@ -428,225 +420,175 @@ class Backend(QObject):
         ):
             return
         self.m_conversation = value
+        if self.stream is not None:
+            self.stream.cancel()
+            self.stream = None
+        if value is not None:
+            self.stream = asyncio.create_task(self.receive_message(value.id))
         self.conversationChanged.emit()
 
     @Slot(int, int, str)
     def setConversation(self, id, recv_user_id, recv_user_username):
         self.conversation = Conversation(id, recv_user_id, recv_user_username)
 
-    def send(self, data: bytearray):
-        print("send", len(data))
-        self.socket.write(data)
-        self.socket.flush()
-
-    @Slot()
-    def recv(self):
-        header_size = SizeWrapper.size()
-        while self.socket.bytesAvailable() > 0:
-            data = self.socket.readAll()
-            self.buffer.extend(data)
-            while True:
-                # If we haven't yet read the header, try to read it.
-                if self.expected_size is None:
-                    if len(self.buffer) >= header_size:
-                        # Deserialize the size from the beginning of the buffer.
-                        self.expected_size, offset = SizeWrapper.deserialize_from(
-                            self.buffer, 0
-                        )
-
-                        # Remove the header bytes.
-                        self.buffer = self.buffer[offset:]
-                    else:
-                        break  # Wait for more data.
-                    # If we have the full payload, emit it.
-                if (
-                    self.expected_size is not None
-                    and len(self.buffer) >= self.expected_size
-                ):
-                    message_data = self.buffer[: self.expected_size]
-                    self.buffer = self.buffer[self.expected_size :]
-                    self.expected_size = None  # Reset for the next message.
-                    self.handle(message_data)
-                else:
-                    break
-
-    def handle(self, data: bytearray):
-        body = deserialize(data)
-        print("recv", len(data), body)
-        match body.operation_code:
-            case OperationCode.CLIENT_SIGNUP_USER:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientSignupUserResponded.emit(False)
-                    return
-                self.clientSignupUserResponded.emit(True)
-                self.user = User(body.user_id, self.request.username)
-            case OperationCode.CLIENT_SIGNIN_USER:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientSigninUserResponded.emit(False)
-                    return
-                self.clientSigninUserResponded.emit(True)
-                self.user = User(body.user_id, self.request.username)
-            case OperationCode.CLIENT_SIGNOUT_USER:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientSignoutUserResponded.emit(False)
-                    return
-                self.clientSignoutUserResponded.emit(True)
-                self.user = None
-            case OperationCode.CLIENT_DELETE_USER:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientDeleteUserResponded.emit(False)
-                    return
-                self.clientDeleteUserResponded.emit(True)
-                self.user = None
-            case OperationCode.CLIENT_GET_OTHER_USERS:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientGetOtherUsersResponded.emit(False, [])
-                    return
-                users = [
-                    User(user[0], user[1]) for user in body.users
-                ]  # This line is going to be commented out for json
-                self.clientGetOtherUsersResponded.emit(True, users)
-            case OperationCode.CLIENT_CREATE_CONVERSATION:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientCreateConversationResponded.emit(False, None)
-                    return
-                self.conversation = Conversation(
-                    body.conversation_id,
-                    body.recv_user_id,
-                    body.recv_user_username,
-                )
-                self.clientCreateConversationResponded.emit(
-                    True,
-                    Conversation(
-                        body.conversation_id,
-                        body.recv_user_id,
-                        body.recv_user_username,
-                    ),
-                )
-            case OperationCode.CLIENT_GET_CONVERSATIONS:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientGetConversationsResponded.emit(False)
-                    return
-                conversations = [
-                    Conversation(
-                        conversation[0],
-                        conversation[1],
-                        conversation[2],
-                        conversation[3],
-                    )
-                    for conversation in body.conversations
-                ]
-                self.clientGetConversationsResponded.emit(True, conversations)
-            case OperationCode.CLIENT_DELETE_CONVERSATION:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientDeleteConversationResponded.emit(False)
-                    return
-                self.clientDeleteConversationResponded.emit(True)
-                self.conversation = None
-            case OperationCode.CLIENT_SEND_MESSAGE:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientSendMessageResponded.emit(False)
-                    return
-                self.clientSendMessageResponded.emit(True)
-            case OperationCode.CLIENT_GET_MESSAGES:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientGetMessagesResponded.emit(False)
-                    return
-                messages = [
-                    Message(
-                        message[0],
-                        message[1],
-                        message[2],
-                        message[3],
-                    )
-                    for message in body.messages
-                    if message[3].strip() != ""
-                ]
-                self.clientGetMessagesResponded.emit(True, messages)
-            case OperationCode.CLIENT_DELETE_MESSAGE:
-                if body.status_code == StatusCode.FAILURE:
-                    self.clientDeleteMessageResponded.emit(False)
-                else:
-                    self.clientDeleteMessageResponded.emit(True)
-            case OperationCode.SERVER_SEND_MESSAGE:
-                if body.conversation_id == self.conversation.id:
-                    if not body.content.strip():
-                        return
-                    self.serverSendMessageRequested.emit(
-                        Message(
-                            body.message_id,
-                            body.send_user_id,
-                            False,
-                            body.content,
-                        ),
-                    )
-            case OperationCode.SERVER_UPDATE_UNREAD_COUNT:
-                print(1, body)
-
-    @Slot()
-    def onConnected(self):
-        print("Connected")
-
-    @Slot(QAbstractSocket.SocketError)
-    def onErrorOccurred(self, error):
-        print(f"Error: {self.socket.errorString()}")
-
     @Slot(str, str)
     def mSignIn(self, username: str, password: str):
-        self.request = SigninUserRequest(username, password)
-        self.send(self.request.serialize())
+        try:
+            res = self.stub.SigninUser(
+                pb2.SigninUserRequest(username=username, password=password)
+            )
+            self.user = User(res.user_id, username)
+            self.clientSigninUserResponded.emit(True)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientSigninUserResponded.emit(False)
 
     @Slot(str, str)
     def mSignUp(self, username: str, password: str):
-        self.request = SignupUserRequest(username, password)
-        self.send(self.request.serialize())
+        try:
+            res = self.stub.SignupUser(
+                pb2.SignupUserRequest(username=username, password=password)
+            )
+            self.user = User(res.user_id, username)
+            self.clientSignupUserResponded.emit(True)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientSignupUserResponded.emit(False)
 
     @Slot()
     def mSignOut(self):
-        self.request = SignoutUserRequest(self.user.id)
-        self.send(self.request.serialize())
+        try:
+            self.stub.SignoutUser(pb2.SignoutUserRequest(user_id=self.user.id))
+            self.user = None
+            self.clientSignoutUserResponded.emit(True)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientSignoutUserResponded.emit(False)
 
     @Slot(str)
     def mDeleteUser(self, password: str):
-        self.request = DeleteUserRequest(self.user.id, password)
-        self.send(self.request.serialize())
+        try:
+            self.stub.DeleteUser(
+                pb2.DeleteUserRequest(user_id=self.user.id, password=password)
+            )
+            self.user = None
+            self.clientDeleteUserResponded.emit(True)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientDeleteUserResponded.emit(False)
 
     @Slot(str)
     def mGetOtherUsers(self, query: str):
-        self.request = GetOtherUsersRequest(self.user.id, query, 10, 0)
-        self.send(self.request.serialize())
+        try:
+            res = self.stub.GetOtherUsers(
+                pb2.GetOtherUsersRequest(
+                    user_id=self.user.id, query=query, limit=10, offset=0
+                )
+            )
+            users = [(user.user_id, user.username) for user in res.users]
+            self.clientGetOtherUsersResponded.emit(True, users)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientGetOtherUsersResponded.emit(False, [])
 
     @Slot(int)
     def mCreateConversation(self, recv_user_id: int):
-        self.request = CreateConversationRequest(self.user.id, recv_user_id)
-        self.send(self.request.serialize())
+        try:
+            res = self.stub.CreateConversation(
+                pb2.CreateConversationRequest(
+                    user_id=self.user.id, recv_user_id=recv_user_id
+                )
+            )
+            self.conversation = Conversation(
+                res.conversation_id,
+                recv_user_id,
+                "",
+            )
+            self.clientCreateConversationResponded.emit(True, self.conversation)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientCreateConversationResponded.emit(False, None)
 
     @Slot()
     def mGetConversations(self):
-        self.request = GetConversationsRequest(self.user.id)
-        self.send(self.request.serialize())
+        try:
+            res = self.stub.GetConversations(
+                pb2.GetConversationsRequest(user_id=self.user.id)
+            )
+            conversations = [
+                (
+                    conversation.conversation_id,
+                    conversation.recv_user_id,
+                    conversation.recv_user_username,
+                    conversation.unread_count,
+                )
+                for conversation in res.conversations
+            ]
+            self.clientGetConversationsResponded.emit(True, conversations)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientGetConversationsResponded.emit(False, [])
 
     @Slot(int)
     def mDeleteConversation(self, conversation_id: int):
-        self.request = DeleteConversationRequest(conversation_id)
-        self.send(self.request.serialize())
+        try:
+            self.stub.DeleteConversation(
+                pb2.DeleteConversationRequest(conversation_id=conversation_id)
+            )
+            self.conversation = None
+            self.clientDeleteConversationResponded.emit(True)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientDeleteConversationResponded.emit(False)
 
     @Slot(str)
     def mSendMessage(self, content: str):
-        self.request = SendMessageRequest(self.conversation.id, self.user.id, content)
-        self.send(self.request.serialize())
+        try:
+            self.stub.SendMessage(
+                pb2.SendMessageRequest(
+                    conversation_id=self.conversation.id,
+                    send_user_id=self.user.id,
+                    content=content,
+                )
+            )
+            self.clientSendMessageResponded.emit(True)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientSendMessageResponded.emit(False)
 
     @Slot()
     def mGetMessages(self):
-        self.request = GetMessagesRequest(self.conversation.id)
-        self.send(self.request.serialize())
+        try:
+            res = self.stub.GetMessages(
+                pb2.GetMessagesRequest(conversation_id=self.conversation.id)
+            )
+            messages = [
+                (
+                    message.message_id,
+                    message.sender_id,
+                    message.is_read,
+                    message.content,
+                )
+                for message in res.messages
+            ]
+            self.clientGetMessagesResponded.emit(True, messages)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientGetMessagesResponded.emit(False, [])
 
     @Slot(int)
     def mDeleteMessage(self, message_id: int):
-        conversation_id = self.conversation.id
-        self.request = DeleteMessageRequest(conversation_id, message_id)
-        self.send(self.request.serialize())
+        try:
+            self.stub.DeleteMessage(
+                pb2.DeleteMessageRequest(
+                    conversation_id=self.conversation.id, message_id=message_id
+                )
+            )
+            self.clientDeleteMessageResponded.emit(True)
+        except grpc.RpcError as e:
+            print(e)
+            self.clientDeleteMessageResponded.emit(False)
 
     @Slot()
     def mCheck(self):
-        print(self.buffer, self.socket.bytesAvailable())
+        print("check")
