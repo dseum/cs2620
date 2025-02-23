@@ -19,7 +19,7 @@ endif()
 
 # Sources
 set(SRCS
-    src/connections.cpp src/database.cpp src/operations.cpp src/server.cpp
+    src/database.cpp src/operations.cpp src/server.cpp
     src/gen/rpc/converse/converse.pb.cc
     src/gen/rpc/converse/converse.grpc.pb.cc)
 

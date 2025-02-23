@@ -12,5 +12,5 @@
 #include "protocols/json/client.hpp"
 #endif
 
-std::unique_ptr<ClientResponse> handle_client_request(Connection& conn, Db& db,
-                                                      Data& data);
+// std::unique_ptr<ClientResponse> handle_client_request(Connection& conn, Db& db,
+//                                                       Data& data);
