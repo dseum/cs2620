@@ -238,7 +238,7 @@ inline constexpr SendMessageRequest::Impl_::Impl_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
         conversation_id_{::int64_t{0}},
-        sender_id_{::int64_t{0}},
+        send_user_id_{::int64_t{0}},
         _cached_size_{0} {}
 
 template <typename>
@@ -292,7 +292,7 @@ inline constexpr Message::Impl_::Impl_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
         message_id_{::int64_t{0}},
-        sender_id_{::int64_t{0}},
+        send_user_id_{::int64_t{0}},
         is_read_{false},
         _cached_size_{0} {}
 
@@ -703,7 +703,7 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::converse::Message, _impl_.message_id_),
-        PROTOBUF_FIELD_OFFSET(::converse::Message, _impl_.sender_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::Message, _impl_.send_user_id_),
         PROTOBUF_FIELD_OFFSET(::converse::Message, _impl_.is_read_),
         PROTOBUF_FIELD_OFFSET(::converse::Message, _impl_.content_),
         ~0u,  // no _has_bits_
@@ -775,7 +775,7 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::converse::SendMessageRequest, _impl_.conversation_id_),
-        PROTOBUF_FIELD_OFFSET(::converse::SendMessageRequest, _impl_.sender_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::SendMessageRequest, _impl_.send_user_id_),
         PROTOBUF_FIELD_OFFSET(::converse::SendMessageRequest, _impl_.content_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::converse::SendMessageResponse, _internal_metadata_),
@@ -1004,88 +1004,88 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 const char descriptor_table_protodef_converse_2fconverse_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\027converse/converse.proto\022\010converse\"x\n\007M"
-    "essage\022\035\n\nmessage_id\030\001 \001(\003R\tmessageId\022\033\n"
-    "\tsender_id\030\002 \001(\003R\010senderId\022\027\n\007is_read\030\003 "
-    "\001(\010R\006isRead\022\030\n\007content\030\004 \001(\tR\007content\"\241\001"
-    "\n\014Conversation\022\'\n\017conversation_id\030\001 \001(\003R"
-    "\016conversationId\022 \n\014recv_user_id\030\002 \001(\003R\nr"
-    "ecvUserId\022#\n\rrecv_username\030\003 \001(\tR\014recvUs"
-    "ername\022!\n\014unread_count\030\004 \001(\003R\013unreadCoun"
-    "t\";\n\004User\022\027\n\007user_id\030\001 \001(\003R\006userId\022\032\n\010us"
-    "ername\030\002 \001(\tR\010username\"K\n\021SignupUserRequ"
-    "est\022\032\n\010username\030\001 \001(\tR\010username\022\032\n\010passw"
-    "ord\030\002 \001(\tR\010password\"-\n\022SignupUserRespons"
-    "e\022\027\n\007user_id\030\001 \001(\003R\006userId\"K\n\021SigninUser"
-    "Request\022\032\n\010username\030\001 \001(\tR\010username\022\032\n\010p"
-    "assword\030\002 \001(\tR\010password\"-\n\022SigninUserRes"
-    "ponse\022\027\n\007user_id\030\001 \001(\003R\006userId\"t\n\022SendMe"
-    "ssageRequest\022\'\n\017conversation_id\030\001 \001(\003R\016c"
-    "onversationId\022\033\n\tsender_id\030\002 \001(\003R\010sender"
-    "Id\022\030\n\007content\030\003 \001(\tR\007content\"4\n\023SendMess"
-    "ageResponse\022\035\n\nmessage_id\030\001 \001(\003R\tmessage"
-    "Id\"-\n\022SignoutUserRequest\022\027\n\007user_id\030\001 \001("
-    "\003R\006userId\"\025\n\023SignoutUserResponse\"H\n\021Dele"
-    "teUserRequest\022\027\n\007user_id\030\001 \001(\003R\006userId\022\032"
-    "\n\010password\030\002 \001(\tR\010password\"\024\n\022DeleteUser"
-    "Response\"s\n\024GetOtherUsersRequest\022\027\n\007user"
-    "_id\030\001 \001(\003R\006userId\022\024\n\005query\030\002 \001(\tR\005query\022"
-    "\024\n\005limit\030\003 \001(\003R\005limit\022\026\n\006offset\030\004 \001(\003R\006o"
-    "ffset\"=\n\025GetOtherUsersResponse\022$\n\005users\030"
-    "\001 \003(\0132\016.converse.UserR\005users\"X\n\031CreateCo"
-    "nversationRequest\022\027\n\007user_id\030\001 \001(\003R\006user"
-    "Id\022\"\n\rother_user_id\030\002 \001(\003R\013otherUserId\"E"
-    "\n\032CreateConversationResponse\022\'\n\017conversa"
-    "tion_id\030\001 \001(\003R\016conversationId\"1\n\026GetConv"
-    "ersationRequest\022\027\n\007user_id\030\001 \001(\003R\006userId"
-    "\"W\n\027GetConversationResponse\022<\n\rconversat"
-    "ions\030\001 \003(\0132\026.converse.ConversationR\rconv"
-    "ersations\"]\n\031DeleteConversationRequest\022\027"
-    "\n\007user_id\030\001 \001(\003R\006userId\022\'\n\017conversation_"
-    "id\030\002 \001(\003R\016conversationId\"\034\n\032DeleteConver"
-    "sationResponse\"e\n\022GetMessagesRequest\022\'\n\017"
-    "conversation_id\030\001 \001(\003R\016conversationId\022&\n"
-    "\017last_message_id\030\002 \001(\003R\rlastMessageId\"D\n"
-    "\023GetMessagesResponse\022-\n\010messages\030\001 \003(\0132\021"
-    ".converse.MessageR\010messages\"^\n\024DeleteMes"
-    "sageRequest\022\'\n\017conversation_id\030\001 \001(\003R\016co"
-    "nversationId\022\035\n\nmessage_id\030\002 \001(\003R\tmessag"
-    "eId\"\027\n\025DeleteMessageResponse\"@\n\025ReceiveM"
-    "essageRequest\022\'\n\017conversation_id\030\001 \001(\003R\016"
-    "conversationId2\330\007\n\017ConverseService\022G\n\nSi"
-    "gnupUser\022\033.converse.SignupUserRequest\032\034."
-    "converse.SignupUserResponse\022G\n\nSigninUse"
-    "r\022\033.converse.SigninUserRequest\032\034.convers"
-    "e.SigninUserResponse\022J\n\013SignoutUser\022\034.co"
-    "nverse.SignoutUserRequest\032\035.converse.Sig"
-    "noutUserResponse\022G\n\nDeleteUser\022\033.convers"
-    "e.DeleteUserRequest\032\034.converse.DeleteUse"
-    "rResponse\022P\n\rGetOtherUsers\022\036.converse.Ge"
-    "tOtherUsersRequest\032\037.converse.GetOtherUs"
-    "ersResponse\022_\n\022CreateConversation\022#.conv"
-    "erse.CreateConversationRequest\032$.convers"
-    "e.CreateConversationResponse\022V\n\017GetConve"
-    "rsation\022 .converse.GetConversationReques"
-    "t\032!.converse.GetConversationResponse\022_\n\022"
-    "DeleteConversation\022#.converse.DeleteConv"
-    "ersationRequest\032$.converse.DeleteConvers"
-    "ationResponse\022J\n\013SendMessage\022\034.converse."
-    "SendMessageRequest\032\035.converse.SendMessag"
-    "eResponse\022J\n\013GetMessages\022\034.converse.GetM"
-    "essagesRequest\032\035.converse.GetMessagesRes"
-    "ponse\022P\n\rDeleteMessage\022\036.converse.Delete"
-    "MessageRequest\032\037.converse.DeleteMessageR"
-    "esponse\022H\n\016ReceiveMessage\022\037.converse.Rec"
-    "eiveMessageRequest\032\021.converse.Message\"\0000"
-    "\001B]\n\014com.converseB\rConverseProtoP\001\242\002\003CXX"
-    "\252\002\010Converse\312\002\010Converse\342\002\024Converse\\GPBMet"
-    "adata\352\002\010Converseb\006proto3"
+    "\n\027converse/converse.proto\022\010converse\"}\n\007M"
+    "essage\022\035\n\nmessage_id\030\001 \001(\003R\tmessageId\022 \n"
+    "\014send_user_id\030\002 \001(\003R\nsendUserId\022\027\n\007is_re"
+    "ad\030\003 \001(\010R\006isRead\022\030\n\007content\030\004 \001(\tR\007conte"
+    "nt\"\241\001\n\014Conversation\022\'\n\017conversation_id\030\001"
+    " \001(\003R\016conversationId\022 \n\014recv_user_id\030\002 \001"
+    "(\003R\nrecvUserId\022#\n\rrecv_username\030\003 \001(\tR\014r"
+    "ecvUsername\022!\n\014unread_count\030\004 \001(\003R\013unrea"
+    "dCount\";\n\004User\022\027\n\007user_id\030\001 \001(\003R\006userId\022"
+    "\032\n\010username\030\002 \001(\tR\010username\"K\n\021SignupUse"
+    "rRequest\022\032\n\010username\030\001 \001(\tR\010username\022\032\n\010"
+    "password\030\002 \001(\tR\010password\"-\n\022SignupUserRe"
+    "sponse\022\027\n\007user_id\030\001 \001(\003R\006userId\"K\n\021Signi"
+    "nUserRequest\022\032\n\010username\030\001 \001(\tR\010username"
+    "\022\032\n\010password\030\002 \001(\tR\010password\"-\n\022SigninUs"
+    "erResponse\022\027\n\007user_id\030\001 \001(\003R\006userId\"y\n\022S"
+    "endMessageRequest\022\'\n\017conversation_id\030\001 \001"
+    "(\003R\016conversationId\022 \n\014send_user_id\030\002 \001(\003"
+    "R\nsendUserId\022\030\n\007content\030\003 \001(\tR\007content\"4"
+    "\n\023SendMessageResponse\022\035\n\nmessage_id\030\001 \001("
+    "\003R\tmessageId\"-\n\022SignoutUserRequest\022\027\n\007us"
+    "er_id\030\001 \001(\003R\006userId\"\025\n\023SignoutUserRespon"
+    "se\"H\n\021DeleteUserRequest\022\027\n\007user_id\030\001 \001(\003"
+    "R\006userId\022\032\n\010password\030\002 \001(\tR\010password\"\024\n\022"
+    "DeleteUserResponse\"s\n\024GetOtherUsersReque"
+    "st\022\027\n\007user_id\030\001 \001(\003R\006userId\022\024\n\005query\030\002 \001"
+    "(\tR\005query\022\024\n\005limit\030\003 \001(\003R\005limit\022\026\n\006offse"
+    "t\030\004 \001(\003R\006offset\"=\n\025GetOtherUsersResponse"
+    "\022$\n\005users\030\001 \003(\0132\016.converse.UserR\005users\"X"
+    "\n\031CreateConversationRequest\022\027\n\007user_id\030\001"
+    " \001(\003R\006userId\022\"\n\rother_user_id\030\002 \001(\003R\013oth"
+    "erUserId\"E\n\032CreateConversationResponse\022\'"
+    "\n\017conversation_id\030\001 \001(\003R\016conversationId\""
+    "1\n\026GetConversationRequest\022\027\n\007user_id\030\001 \001"
+    "(\003R\006userId\"W\n\027GetConversationResponse\022<\n"
+    "\rconversations\030\001 \003(\0132\026.converse.Conversa"
+    "tionR\rconversations\"]\n\031DeleteConversatio"
+    "nRequest\022\027\n\007user_id\030\001 \001(\003R\006userId\022\'\n\017con"
+    "versation_id\030\002 \001(\003R\016conversationId\"\034\n\032De"
+    "leteConversationResponse\"e\n\022GetMessagesR"
+    "equest\022\'\n\017conversation_id\030\001 \001(\003R\016convers"
+    "ationId\022&\n\017last_message_id\030\002 \001(\003R\rlastMe"
+    "ssageId\"D\n\023GetMessagesResponse\022-\n\010messag"
+    "es\030\001 \003(\0132\021.converse.MessageR\010messages\"^\n"
+    "\024DeleteMessageRequest\022\'\n\017conversation_id"
+    "\030\001 \001(\003R\016conversationId\022\035\n\nmessage_id\030\002 \001"
+    "(\003R\tmessageId\"\027\n\025DeleteMessageResponse\"@"
+    "\n\025ReceiveMessageRequest\022\'\n\017conversation_"
+    "id\030\001 \001(\003R\016conversationId2\330\007\n\017ConverseSer"
+    "vice\022G\n\nSignupUser\022\033.converse.SignupUser"
+    "Request\032\034.converse.SignupUserResponse\022G\n"
+    "\nSigninUser\022\033.converse.SigninUserRequest"
+    "\032\034.converse.SigninUserResponse\022J\n\013Signou"
+    "tUser\022\034.converse.SignoutUserRequest\032\035.co"
+    "nverse.SignoutUserResponse\022G\n\nDeleteUser"
+    "\022\033.converse.DeleteUserRequest\032\034.converse"
+    ".DeleteUserResponse\022P\n\rGetOtherUsers\022\036.c"
+    "onverse.GetOtherUsersRequest\032\037.converse."
+    "GetOtherUsersResponse\022_\n\022CreateConversat"
+    "ion\022#.converse.CreateConversationRequest"
+    "\032$.converse.CreateConversationResponse\022V"
+    "\n\017GetConversation\022 .converse.GetConversa"
+    "tionRequest\032!.converse.GetConversationRe"
+    "sponse\022_\n\022DeleteConversation\022#.converse."
+    "DeleteConversationRequest\032$.converse.Del"
+    "eteConversationResponse\022J\n\013SendMessage\022\034"
+    ".converse.SendMessageRequest\032\035.converse."
+    "SendMessageResponse\022J\n\013GetMessages\022\034.con"
+    "verse.GetMessagesRequest\032\035.converse.GetM"
+    "essagesResponse\022P\n\rDeleteMessage\022\036.conve"
+    "rse.DeleteMessageRequest\032\037.converse.Dele"
+    "teMessageResponse\022H\n\016ReceiveMessage\022\037.co"
+    "nverse.ReceiveMessageRequest\032\021.converse."
+    "Message\"\0000\001B]\n\014com.converseB\rConversePro"
+    "toP\001\242\002\003CXX\252\002\010Converse\312\002\010Converse\342\002\024Conve"
+    "rse\\GPBMetadata\352\002\010Converseb\006proto3"
 };
 static ::absl::once_flag descriptor_table_converse_2fconverse_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_converse_2fconverse_2eproto = {
     false,
     false,
-    3024,
+    3034,
     descriptor_table_protodef_converse_2fconverse_2eproto,
     "converse/converse.proto",
     &descriptor_table_converse_2fconverse_2eproto_once,
@@ -1230,9 +1230,9 @@ const ::_pbi::TcParseTable<2, 4, 0, 32, 2> Message::_table_ = {
     // int64 message_id = 1 [json_name = "messageId"];
     {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(Message, _impl_.message_id_), 63>(),
      {8, 63, 0, PROTOBUF_FIELD_OFFSET(Message, _impl_.message_id_)}},
-    // int64 sender_id = 2 [json_name = "senderId"];
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(Message, _impl_.sender_id_), 63>(),
-     {16, 63, 0, PROTOBUF_FIELD_OFFSET(Message, _impl_.sender_id_)}},
+    // int64 send_user_id = 2 [json_name = "sendUserId"];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(Message, _impl_.send_user_id_), 63>(),
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(Message, _impl_.send_user_id_)}},
     // bool is_read = 3 [json_name = "isRead"];
     {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(Message, _impl_.is_read_), 63>(),
      {24, 63, 0, PROTOBUF_FIELD_OFFSET(Message, _impl_.is_read_)}},
@@ -1242,8 +1242,8 @@ const ::_pbi::TcParseTable<2, 4, 0, 32, 2> Message::_table_ = {
     // int64 message_id = 1 [json_name = "messageId"];
     {PROTOBUF_FIELD_OFFSET(Message, _impl_.message_id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kInt64)},
-    // int64 sender_id = 2 [json_name = "senderId"];
-    {PROTOBUF_FIELD_OFFSET(Message, _impl_.sender_id_), 0, 0,
+    // int64 send_user_id = 2 [json_name = "sendUserId"];
+    {PROTOBUF_FIELD_OFFSET(Message, _impl_.send_user_id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kInt64)},
     // bool is_read = 3 [json_name = "isRead"];
     {PROTOBUF_FIELD_OFFSET(Message, _impl_.is_read_), 0, 0,
@@ -1296,11 +1296,11 @@ PROTOBUF_NOINLINE void Message::Clear() {
                     stream, this_._internal_message_id(), target);
           }
 
-          // int64 sender_id = 2 [json_name = "senderId"];
-          if (this_._internal_sender_id() != 0) {
+          // int64 send_user_id = 2 [json_name = "sendUserId"];
+          if (this_._internal_send_user_id() != 0) {
             target = ::google::protobuf::internal::WireFormatLite::
                 WriteInt64ToArrayWithField<2>(
-                    stream, this_._internal_sender_id(), target);
+                    stream, this_._internal_send_user_id(), target);
           }
 
           // bool is_read = 3 [json_name = "isRead"];
@@ -1353,10 +1353,10 @@ PROTOBUF_NOINLINE void Message::Clear() {
               total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
                   this_._internal_message_id());
             }
-            // int64 sender_id = 2 [json_name = "senderId"];
-            if (this_._internal_sender_id() != 0) {
+            // int64 send_user_id = 2 [json_name = "sendUserId"];
+            if (this_._internal_send_user_id() != 0) {
               total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
-                  this_._internal_sender_id());
+                  this_._internal_send_user_id());
             }
             // bool is_read = 3 [json_name = "isRead"];
             if (this_._internal_is_read() != 0) {
@@ -1381,8 +1381,8 @@ void Message::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google:
   if (from._internal_message_id() != 0) {
     _this->_impl_.message_id_ = from._impl_.message_id_;
   }
-  if (from._internal_sender_id() != 0) {
-    _this->_impl_.sender_id_ = from._impl_.sender_id_;
+  if (from._internal_send_user_id() != 0) {
+    _this->_impl_.send_user_id_ = from._impl_.send_user_id_;
   }
   if (from._internal_is_read() != 0) {
     _this->_impl_.is_read_ = from._impl_.is_read_;
@@ -2961,9 +2961,9 @@ SendMessageRequest::SendMessageRequest(
                offsetof(Impl_, conversation_id_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, conversation_id_),
-           offsetof(Impl_, sender_id_) -
+           offsetof(Impl_, send_user_id_) -
                offsetof(Impl_, conversation_id_) +
-               sizeof(Impl_::sender_id_));
+               sizeof(Impl_::send_user_id_));
 
   // @@protoc_insertion_point(copy_constructor:converse.SendMessageRequest)
 }
@@ -2978,9 +2978,9 @@ inline void SendMessageRequest::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, conversation_id_),
            0,
-           offsetof(Impl_, sender_id_) -
+           offsetof(Impl_, send_user_id_) -
                offsetof(Impl_, conversation_id_) +
-               sizeof(Impl_::sender_id_));
+               sizeof(Impl_::send_user_id_));
 }
 SendMessageRequest::~SendMessageRequest() {
   // @@protoc_insertion_point(destructor:converse.SendMessageRequest)
@@ -3052,9 +3052,9 @@ const ::_pbi::TcParseTable<2, 3, 0, 43, 2> SendMessageRequest::_table_ = {
     // int64 conversation_id = 1 [json_name = "conversationId"];
     {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(SendMessageRequest, _impl_.conversation_id_), 63>(),
      {8, 63, 0, PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.conversation_id_)}},
-    // int64 sender_id = 2 [json_name = "senderId"];
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(SendMessageRequest, _impl_.sender_id_), 63>(),
-     {16, 63, 0, PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.sender_id_)}},
+    // int64 send_user_id = 2 [json_name = "sendUserId"];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(SendMessageRequest, _impl_.send_user_id_), 63>(),
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.send_user_id_)}},
     // string content = 3 [json_name = "content"];
     {::_pbi::TcParser::FastUS1,
      {26, 63, 0, PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.content_)}},
@@ -3064,8 +3064,8 @@ const ::_pbi::TcParseTable<2, 3, 0, 43, 2> SendMessageRequest::_table_ = {
     // int64 conversation_id = 1 [json_name = "conversationId"];
     {PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.conversation_id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kInt64)},
-    // int64 sender_id = 2 [json_name = "senderId"];
-    {PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.sender_id_), 0, 0,
+    // int64 send_user_id = 2 [json_name = "sendUserId"];
+    {PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.send_user_id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kInt64)},
     // string content = 3 [json_name = "content"];
     {PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.content_), 0, 0,
@@ -3088,8 +3088,8 @@ PROTOBUF_NOINLINE void SendMessageRequest::Clear() {
 
   _impl_.content_.ClearToEmpty();
   ::memset(&_impl_.conversation_id_, 0, static_cast<::size_t>(
-      reinterpret_cast<char*>(&_impl_.sender_id_) -
-      reinterpret_cast<char*>(&_impl_.conversation_id_)) + sizeof(_impl_.sender_id_));
+      reinterpret_cast<char*>(&_impl_.send_user_id_) -
+      reinterpret_cast<char*>(&_impl_.conversation_id_)) + sizeof(_impl_.send_user_id_));
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -3115,11 +3115,11 @@ PROTOBUF_NOINLINE void SendMessageRequest::Clear() {
                     stream, this_._internal_conversation_id(), target);
           }
 
-          // int64 sender_id = 2 [json_name = "senderId"];
-          if (this_._internal_sender_id() != 0) {
+          // int64 send_user_id = 2 [json_name = "sendUserId"];
+          if (this_._internal_send_user_id() != 0) {
             target = ::google::protobuf::internal::WireFormatLite::
                 WriteInt64ToArrayWithField<2>(
-                    stream, this_._internal_sender_id(), target);
+                    stream, this_._internal_send_user_id(), target);
           }
 
           // string content = 3 [json_name = "content"];
@@ -3165,10 +3165,10 @@ PROTOBUF_NOINLINE void SendMessageRequest::Clear() {
               total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
                   this_._internal_conversation_id());
             }
-            // int64 sender_id = 2 [json_name = "senderId"];
-            if (this_._internal_sender_id() != 0) {
+            // int64 send_user_id = 2 [json_name = "sendUserId"];
+            if (this_._internal_send_user_id() != 0) {
               total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
-                  this_._internal_sender_id());
+                  this_._internal_send_user_id());
             }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -3189,8 +3189,8 @@ void SendMessageRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, cons
   if (from._internal_conversation_id() != 0) {
     _this->_impl_.conversation_id_ = from._impl_.conversation_id_;
   }
-  if (from._internal_sender_id() != 0) {
-    _this->_impl_.sender_id_ = from._impl_.sender_id_;
+  if (from._internal_send_user_id() != 0) {
+    _this->_impl_.send_user_id_ = from._impl_.send_user_id_;
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -3210,8 +3210,8 @@ void SendMessageRequest::InternalSwap(SendMessageRequest* PROTOBUF_RESTRICT othe
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.content_, &other->_impl_.content_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.sender_id_)
-      + sizeof(SendMessageRequest::_impl_.sender_id_)
+      PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.send_user_id_)
+      + sizeof(SendMessageRequest::_impl_.send_user_id_)
       - PROTOBUF_FIELD_OFFSET(SendMessageRequest, _impl_.conversation_id_)>(
           reinterpret_cast<char*>(&_impl_.conversation_id_),
           reinterpret_cast<char*>(&other->_impl_.conversation_id_));

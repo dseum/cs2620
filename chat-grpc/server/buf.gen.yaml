@@ -6,5 +6,6 @@ plugins:
     out: src/gen/rpc
   - remote: buf.build/grpc/cpp:v1.70.1
     out: src/gen/rpc
+
 inputs:
   - directory: ../proto

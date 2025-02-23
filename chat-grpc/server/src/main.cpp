@@ -1,3 +1,5 @@
+#include <grpcpp/grpcpp.h>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
 #include <fstream>
@@ -8,8 +10,6 @@
 
 #include "database.hpp"
 #include "server.hpp"
-
-#include <grpcpp/grpcpp.h>
 
 namespace po = boost::program_options;
 
@@ -74,10 +74,10 @@ int main(int argc, char* argv[]) {
 
         // Serve options
         po::options_description serve_desc("Serve Options");
-        serve_desc.add_options()
-            ("help", "show help")
-            ("host,h", po::value<std::string>()->default_value("0.0.0.0"), "set server host")
-            ("port,p", po::value<int>()->default_value(54100), "set server port");
+        serve_desc.add_options()("help", "show help")(
+            "host,h", po::value<std::string>()->default_value("0.0.0.0"),
+            "set server host")("port,p", po::value<int>()->default_value(54100),
+                               "set server port");
 
         // Migrate options
         po::options_description migrate_desc("Migrate Options");
@@ -95,7 +95,9 @@ int main(int argc, char* argv[]) {
 
         if (subcommand == "serve") {
             po::variables_map serve_vm;
-            po::store(po::command_line_parser(sub_args).options(serve_desc).run(), serve_vm);
+            po::store(
+                po::command_line_parser(sub_args).options(serve_desc).run(),
+                serve_vm);
             po::notify(serve_vm);
 
             if (serve_vm.count("help")) {
@@ -106,7 +108,9 @@ int main(int argc, char* argv[]) {
             handle_serve(serve_vm);
         } else if (subcommand == "migrate") {
             po::variables_map migrate_vm;
-            po::store(po::command_line_parser(sub_args).options(migrate_desc).run(), migrate_vm);
+            po::store(
+                po::command_line_parser(sub_args).options(migrate_desc).run(),
+                migrate_vm);
             po::notify(migrate_vm);
 
             if (migrate_vm.count("help")) {
@@ -116,4 +120,13 @@ int main(int argc, char* argv[]) {
 
             handle_migrate(migrate_vm);
         } else {
-            print_m
+            print_main_help(global_desc);
+            return 1;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
+}

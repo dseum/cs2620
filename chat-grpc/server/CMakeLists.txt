@@ -18,12 +18,10 @@ else()
 endif()
 
 # Sources
-set(SRCS
-    src/database.cpp src/operations.cpp src/server.cpp
-    src/gen/rpc/converse/converse.pb.cc
-    src/gen/rpc/converse/converse.grpc.pb.cc)
+set(SRCS src/database.cpp src/server.cpp src/gen/rpc/converse/converse.pb.cc
+         src/gen/rpc/converse/converse.grpc.pb.cc)
 
-set(DIRS src src/gen/rpc/converse)
+set(DIRS src src/gen/rpc)
 
 # Find required packages
 find_package(Boost CONFIG REQUIRED COMPONENTS algorithm json program_options
@@ -43,8 +41,7 @@ set(LIBS
     gRPC::gpr
     gRPC::grpc
     gRPC::grpc++
-    gRPC::grpc_cronet
-    Protobuf::libprotobuf)
+    protobuf::libprotobuf)
 
 # Original executable (using main.cpp)
 set(EXE exe)

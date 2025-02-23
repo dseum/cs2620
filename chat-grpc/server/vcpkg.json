@@ -7,6 +7,9 @@
     "boost-test",
     "grpc",
     "sqlite3",
-    "protobuf"
+    {
+      "name": "protobuf",
+      "version>=": "5.29.3#0"
+    }
   ]
 }

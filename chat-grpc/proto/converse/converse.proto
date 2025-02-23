@@ -4,7 +4,7 @@ package converse;
 
 message Message {
   int64 message_id = 1;
-  int64 sender_id = 2;
+  int64 send_user_id = 2;
   bool is_read = 3;
   string content = 4;
 }
@@ -37,7 +37,7 @@ message SigninUserResponse { int64 user_id = 1; }
 
 message SendMessageRequest {
   int64 conversation_id = 1;
-  int64 sender_id = 2;
+  int64 send_user_id = 2;
   string content = 3;
 }
 

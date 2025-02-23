@@ -1833,7 +1833,7 @@ class SendMessageRequest final : public ::google::protobuf::Message
   enum : int {
     kContentFieldNumber = 3,
     kConversationIdFieldNumber = 1,
-    kSenderIdFieldNumber = 2,
+    kSendUserIdFieldNumber = 2,
   };
   // string content = 3 [json_name = "content"];
   void clear_content() ;
@@ -1861,14 +1861,14 @@ class SendMessageRequest final : public ::google::protobuf::Message
   void _internal_set_conversation_id(::int64_t value);
 
   public:
-  // int64 sender_id = 2 [json_name = "senderId"];
-  void clear_sender_id() ;
-  ::int64_t sender_id() const;
-  void set_sender_id(::int64_t value);
+  // int64 send_user_id = 2 [json_name = "sendUserId"];
+  void clear_send_user_id() ;
+  ::int64_t send_user_id() const;
+  void set_send_user_id(::int64_t value);
 
   private:
-  ::int64_t _internal_sender_id() const;
-  void _internal_set_sender_id(::int64_t value);
+  ::int64_t _internal_send_user_id() const;
+  void _internal_set_send_user_id(::int64_t value);
 
   public:
   // @@protoc_insertion_point(class_scope:converse.SendMessageRequest)
@@ -1896,7 +1896,7 @@ class SendMessageRequest final : public ::google::protobuf::Message
                           const SendMessageRequest& from_msg);
     ::google::protobuf::internal::ArenaStringPtr content_;
     ::int64_t conversation_id_;
-    ::int64_t sender_id_;
+    ::int64_t send_user_id_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -2243,7 +2243,7 @@ class Message final : public ::google::protobuf::Message
   enum : int {
     kContentFieldNumber = 4,
     kMessageIdFieldNumber = 1,
-    kSenderIdFieldNumber = 2,
+    kSendUserIdFieldNumber = 2,
     kIsReadFieldNumber = 3,
   };
   // string content = 4 [json_name = "content"];
@@ -2272,14 +2272,14 @@ class Message final : public ::google::protobuf::Message
   void _internal_set_message_id(::int64_t value);
 
   public:
-  // int64 sender_id = 2 [json_name = "senderId"];
-  void clear_sender_id() ;
-  ::int64_t sender_id() const;
-  void set_sender_id(::int64_t value);
+  // int64 send_user_id = 2 [json_name = "sendUserId"];
+  void clear_send_user_id() ;
+  ::int64_t send_user_id() const;
+  void set_send_user_id(::int64_t value);
 
   private:
-  ::int64_t _internal_sender_id() const;
-  void _internal_set_sender_id(::int64_t value);
+  ::int64_t _internal_send_user_id() const;
+  void _internal_set_send_user_id(::int64_t value);
 
   public:
   // bool is_read = 3 [json_name = "isRead"];
@@ -2317,7 +2317,7 @@ class Message final : public ::google::protobuf::Message
                           const Message& from_msg);
     ::google::protobuf::internal::ArenaStringPtr content_;
     ::int64_t message_id_;
-    ::int64_t sender_id_;
+    ::int64_t send_user_id_;
     bool is_read_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -5250,26 +5250,26 @@ inline void Message::_internal_set_message_id(::int64_t value) {
   _impl_.message_id_ = value;
 }
 
-// int64 sender_id = 2 [json_name = "senderId"];
-inline void Message::clear_sender_id() {
+// int64 send_user_id = 2 [json_name = "sendUserId"];
+inline void Message::clear_send_user_id() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.sender_id_ = ::int64_t{0};
+  _impl_.send_user_id_ = ::int64_t{0};
 }
-inline ::int64_t Message::sender_id() const {
-  // @@protoc_insertion_point(field_get:converse.Message.sender_id)
-  return _internal_sender_id();
+inline ::int64_t Message::send_user_id() const {
+  // @@protoc_insertion_point(field_get:converse.Message.send_user_id)
+  return _internal_send_user_id();
 }
-inline void Message::set_sender_id(::int64_t value) {
-  _internal_set_sender_id(value);
-  // @@protoc_insertion_point(field_set:converse.Message.sender_id)
+inline void Message::set_send_user_id(::int64_t value) {
+  _internal_set_send_user_id(value);
+  // @@protoc_insertion_point(field_set:converse.Message.send_user_id)
 }
-inline ::int64_t Message::_internal_sender_id() const {
+inline ::int64_t Message::_internal_send_user_id() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.sender_id_;
+  return _impl_.send_user_id_;
 }
-inline void Message::_internal_set_sender_id(::int64_t value) {
+inline void Message::_internal_set_send_user_id(::int64_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.sender_id_ = value;
+  _impl_.send_user_id_ = value;
 }
 
 // bool is_read = 3 [json_name = "isRead"];
@@ -5812,26 +5812,26 @@ inline void SendMessageRequest::_internal_set_conversation_id(::int64_t value) {
   _impl_.conversation_id_ = value;
 }
 
-// int64 sender_id = 2 [json_name = "senderId"];
-inline void SendMessageRequest::clear_sender_id() {
+// int64 send_user_id = 2 [json_name = "sendUserId"];
+inline void SendMessageRequest::clear_send_user_id() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.sender_id_ = ::int64_t{0};
+  _impl_.send_user_id_ = ::int64_t{0};
 }
-inline ::int64_t SendMessageRequest::sender_id() const {
-  // @@protoc_insertion_point(field_get:converse.SendMessageRequest.sender_id)
-  return _internal_sender_id();
+inline ::int64_t SendMessageRequest::send_user_id() const {
+  // @@protoc_insertion_point(field_get:converse.SendMessageRequest.send_user_id)
+  return _internal_send_user_id();
 }
-inline void SendMessageRequest::set_sender_id(::int64_t value) {
-  _internal_set_sender_id(value);
-  // @@protoc_insertion_point(field_set:converse.SendMessageRequest.sender_id)
+inline void SendMessageRequest::set_send_user_id(::int64_t value) {
+  _internal_set_send_user_id(value);
+  // @@protoc_insertion_point(field_set:converse.SendMessageRequest.send_user_id)
 }
-inline ::int64_t SendMessageRequest::_internal_sender_id() const {
+inline ::int64_t SendMessageRequest::_internal_send_user_id() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.sender_id_;
+  return _impl_.send_user_id_;
 }
-inline void SendMessageRequest::_internal_set_sender_id(::int64_t value) {
+inline void SendMessageRequest::_internal_set_send_user_id(::int64_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.sender_id_ = value;
+  _impl_.send_user_id_ = value;
 }
 
 // string content = 3 [json_name = "content"];
