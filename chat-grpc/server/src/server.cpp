@@ -149,7 +149,9 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
         auto rows = db_->execute<sqlite3_int64, std::string>(
             "SELECT id, username FROM users WHERE id != ? AND is_deleted = 0 "
             "AND username LIKE ? LIMIT ? OFFSET ?",
-            user_id, like_pattern, request->limit(), request->offset());
+            user_id, like_pattern,
+            static_cast<sqlite3_int64>(request->limit()),
+            static_cast<sqlite3_int64>(request->offset()));
         for (const auto& [id, username] : rows) {
             auto* user = response->add_users();
             user->set_user_id(id);
@@ -168,8 +170,8 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
     const converse::CreateConversationRequest* request,
     converse::CreateConversationResponse* response) {
     try {
-        sqlite3_int64 send_user_id = request->send_user_id();
-        sqlite3_int64 recv_user_id = request->recv_user_id();
+        sqlite3_int64 send_user_id = request->user_id();
+        sqlite3_int64 recv_user_id = request->other_user_id();
         db_->execute("BEGIN TRANSACTION");
         auto rows = db_->execute<sqlite3_int64>(
             "INSERT INTO conversations DEFAULT VALUES RETURNING id");
@@ -188,8 +190,6 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
         }
         auto [recv_user_username] = recv_user_rows.at(0);
         db_->execute("COMMIT");
-        response->set_conversation_id(conversation_id);
-        response->set_recv_user_username(recv_user_username);
         std::cout << "Processed CreateConversation for sender ID: "
                   << send_user_id << " and receiver ID: " << recv_user_id
                   << std::endl;
@@ -207,7 +207,8 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
     converse::GetConversationResponse* response) {
     try {
         sqlite3_int64 user_id = request->user_id();
-        auto rows = db_->execute<sqlite3_int64, std::string>(
+        auto rows = db_->execute<sqlite3_int64, sqlite3_int64,
+        std::string, sqlite3_int64>(
             "WITH conversation_data AS (SELECT cu.conversation_id, "
             "cu.user_id AS other_user_id, u.username AS "
             "other_user_username FROM conversations_users cu JOIN "
@@ -227,9 +228,9 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
         for (const auto& row : rows) {
             auto* conv = response->add_conversations();
             conv->set_conversation_id(std::get<0>(row));
-            conv->set_other_user_id(std::get<1>(row));
-            conv->set_other_user_username(std::get<2>(row));
-            conv->set_unread_messages(std::get<3>(row));
+            conv->set_recv_user_id(std::get<1>(row));
+            conv->set_recv_username(std::get<2>(row));
+            conv->set_unread_count(std::get<3>(row));
         }
         std::cout << "Processed GetConversation for user ID: " << user_id
                   << std::endl;
@@ -279,9 +280,6 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
             throw std::runtime_error("failed to find user");
         }
         auto [recv_user_id] = rows.at(0);
-        response->set_message_id(message_id);
-        response->set_recv_user_id(recv_user_id);
-        response->set_content(content);
         db_->execute("COMMIT");
         std::cout << "Processed SendMessage for conversation ID: "
                   << conversation_id << " and sender ID: " << send_user_id
@@ -309,7 +307,7 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
         for (const auto& [id, user_id, is_read, content] : rows) {
             auto* message = response->add_messages();
             message->set_message_id(id);
-            message->set_user_id(user_id);
+            message->set_send_user_id(user_id);
             message->set_is_read(is_read);
             message->set_content(content);
         }
