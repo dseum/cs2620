@@ -513,7 +513,7 @@ class Backend(QObject):
     def mSignUp(self, username: str, password: str):
         try:
             req = pb2.SignupUserRequest(username=username, password=password)
-            res = self.stub.SignupUser(res)
+            res = self.stub.SignupUser(req)
             print(f"SignupUser :req: {ms(req)} :res: {ms(res)}")
             self.user = User(res.user_id, username)
             self.clientSignupUserResponded.emit(True)
