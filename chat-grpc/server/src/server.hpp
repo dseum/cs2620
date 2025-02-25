@@ -7,10 +7,24 @@
 #include "database.hpp"
 #include "gen/rpc/converse/converse.grpc.pb.h"
 
+constexpr size_t HASHLEN = 32;
+constexpr size_t SALTLEN = 16;
+
+bool verify_password(const std::string& password,
+                     const std::string& password_encoded);
+
+std::string generate_password_encoded(
+    const std::string& password,
+    std::array<uint8_t, SALTLEN> salt = {0});
+
 class MyConverseServiceImpl final : public converse::ConverseService::Service {
    public:
     MyConverseServiceImpl();
     ~MyConverseServiceImpl() override;
+   
+    void setDb(std::unique_ptr<Db> db) {
+        db_ = std::move(db);
+    }
 
     ::grpc::Status SignupUser(::grpc::ServerContext* context,
                               const converse::SignupUserRequest* request,
@@ -59,7 +73,6 @@ class MyConverseServiceImpl final : public converse::ConverseService::Service {
         ::grpc::ServerWriter<converse::MessageWithConversationId>* writer)
         override;
 
-   private:
     std::unique_ptr<Db> db_;
     std::shared_mutex user_id_to_conversation_ids_mutex_;
     std::unordered_map<

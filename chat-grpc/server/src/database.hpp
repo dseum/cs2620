@@ -79,7 +79,7 @@ class Db {
 
    public:
     Db();
-
+    virtual ~Db() = default;
     template <typename... Ts, typename... Args>
     std::vector<std::tuple<Ts...>> execute(std::string_view sql, Args... args) {
         sqlite3_stmt* stmt;
