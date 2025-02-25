@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include <memory>
+#include <shared_mutex>
 
 #include "database.hpp"
 #include "gen/rpc/converse/converse.grpc.pb.h"
@@ -32,10 +33,10 @@ class MyConverseServiceImpl final : public converse::ConverseService::Service {
         ::grpc::ServerContext* context,
         const converse::CreateConversationRequest* request,
         converse::CreateConversationResponse* response) override;
-    ::grpc::Status GetConversation(
+    ::grpc::Status GetConversations(
         ::grpc::ServerContext* context,
-        const converse::GetConversationRequest* request,
-        converse::GetConversationResponse* response) override;
+        const converse::GetConversationsRequest* request,
+        converse::GetConversationsResponse* response) override;
     ::grpc::Status DeleteConversation(
         ::grpc::ServerContext* context,
         const converse::DeleteConversationRequest* request,
@@ -52,9 +53,18 @@ class MyConverseServiceImpl final : public converse::ConverseService::Service {
         ::grpc::ServerContext* context,
         const converse::DeleteMessageRequest* request,
         converse::DeleteMessageResponse* response) override;
+    ::grpc::Status ReceiveMessage(
+        ::grpc::ServerContext* context,
+        const converse::ReceiveMessageRequest* request,
+        ::grpc::ServerWriter<converse::MessageWithConversationId>* writer)
+        override;
 
    private:
     std::unique_ptr<Db> db_;
+    std::shared_mutex user_id_to_conversation_ids_mutex_;
+    std::unordered_map<
+        uint64_t, ::grpc::ServerWriter<converse::MessageWithConversationId>*>
+        user_id_to_writer_;
 };
 
 #endif  // SERVER_HPP

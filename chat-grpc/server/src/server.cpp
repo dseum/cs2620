@@ -149,8 +149,7 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
         auto rows = db_->execute<sqlite3_int64, std::string>(
             "SELECT id, username FROM users WHERE id != ? AND is_deleted = 0 "
             "AND username LIKE ? LIMIT ? OFFSET ?",
-            user_id, like_pattern,
-            static_cast<sqlite3_int64>(request->limit()),
+            user_id, like_pattern, static_cast<sqlite3_int64>(request->limit()),
             static_cast<sqlite3_int64>(request->offset()));
         for (const auto& [id, username] : rows) {
             auto* user = response->add_users();
@@ -190,6 +189,9 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
         }
         auto [recv_user_username] = recv_user_rows.at(0);
         db_->execute("COMMIT");
+        response->set_conversation_id(conversation_id);
+        response->set_recv_user_id(recv_user_id);
+        response->set_recv_username(recv_user_username);
         std::cout << "Processed CreateConversation for sender ID: "
                   << send_user_id << " and receiver ID: " << recv_user_id
                   << std::endl;
@@ -201,14 +203,14 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
     }
 }
 
-::grpc::Status MyConverseServiceImpl::GetConversation(
+::grpc::Status MyConverseServiceImpl::GetConversations(
     ::grpc::ServerContext* context,
-    const converse::GetConversationRequest* request,
-    converse::GetConversationResponse* response) {
+    const converse::GetConversationsRequest* request,
+    converse::GetConversationsResponse* response) {
     try {
         sqlite3_int64 user_id = request->user_id();
-        auto rows = db_->execute<sqlite3_int64, sqlite3_int64,
-        std::string, sqlite3_int64>(
+        auto rows = db_->execute<sqlite3_int64, sqlite3_int64, std::string,
+                                 sqlite3_int64>(
             "WITH conversation_data AS (SELECT cu.conversation_id, "
             "cu.user_id AS other_user_id, u.username AS "
             "other_user_username FROM conversations_users cu JOIN "
@@ -232,7 +234,7 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
             conv->set_recv_username(std::get<2>(row));
             conv->set_unread_count(std::get<3>(row));
         }
-        std::cout << "Processed GetConversation for user ID: " << user_id
+        std::cout << "Processed GetConversations for user ID: " << user_id
                   << std::endl;
         return ::grpc::Status::OK;
     } catch (const std::exception& e) {
@@ -280,6 +282,41 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
             throw std::runtime_error("failed to find user");
         }
         auto [recv_user_id] = rows.at(0);
+        {
+            std::shared_lock lock(user_id_to_conversation_ids_mutex_);
+            {
+                auto it = user_id_to_writer_.find(recv_user_id);
+                if (it != user_id_to_writer_.end()) {
+                    auto* writer = it->second;
+                    converse::MessageWithConversationId item;
+                    item.set_conversation_id(conversation_id);
+                    converse::Message message;
+                    message.set_message_id(message_id);
+                    message.set_send_user_id(send_user_id);
+                    message.set_is_read(false);
+                    message.set_content(content);
+                    item.set_allocated_message(&message);
+                    writer->Write(item);
+                    std::ignore = item.release_message();
+                }
+            }
+            {
+                auto it = user_id_to_writer_.find(send_user_id);
+                if (it != user_id_to_writer_.end()) {
+                    auto* writer = it->second;
+                    converse::MessageWithConversationId item;
+                    item.set_conversation_id(conversation_id);
+                    converse::Message message;
+                    message.set_message_id(message_id);
+                    message.set_send_user_id(send_user_id);
+                    message.set_is_read(true);
+                    message.set_content(content);
+                    item.set_allocated_message(&message);
+                    writer->Write(item);
+                    std::ignore = item.release_message();
+                }
+            }
+        }
         db_->execute("COMMIT");
         std::cout << "Processed SendMessage for conversation ID: "
                   << conversation_id << " and sender ID: " << send_user_id
@@ -336,4 +373,25 @@ MyConverseServiceImpl::~MyConverseServiceImpl() = default;
     } catch (const std::exception& e) {
         return ::grpc::Status(::grpc::StatusCode::INTERNAL, e.what());
     }
+}
+
+::grpc::Status MyConverseServiceImpl::ReceiveMessage(
+    ::grpc::ServerContext* context,
+    const converse::ReceiveMessageRequest* request,
+    ::grpc::ServerWriter<converse::MessageWithConversationId>* writer) {
+    std::cout << "Received stream for user ID: " << request->user_id()
+              << std::endl;
+    std::unique_lock lock(user_id_to_conversation_ids_mutex_);
+    user_id_to_writer_.emplace(request->user_id(), writer);
+    std::cout << "Added stream for user ID: " << request->user_id()
+              << std::endl;
+    lock.unlock();
+    while (!context->IsCancelled()) {
+    }
+    lock.lock();
+    std::cout << "Removed stream for user ID: " << request->user_id()
+              << std::endl;
+    user_id_to_writer_.erase(request->user_id());
+    lock.unlock();
+    return ::grpc::Status::CANCELLED;
 }

@@ -25,7 +25,6 @@ ApplicationWindow {
             }
         }
         function onConversationChanged() {
-            console.log("conversation changed")
             backend.mGetMessages()
         }
     }
@@ -416,6 +415,12 @@ ApplicationWindow {
                                                 messageContextMenu.popup(mouse.screenX, mouse.screenY)
                                             }
                                         }
+                                    }
+                                }
+                                Connections {
+                                    target: messagesModel
+                                    function onToBottom() {
+                                        messagesListView.positionViewAtEnd()
                                     }
                                 }
                             }

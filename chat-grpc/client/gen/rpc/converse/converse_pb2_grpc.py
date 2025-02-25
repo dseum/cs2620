@@ -44,10 +44,10 @@ class ConverseServiceStub(object):
                 request_serializer=converse_dot_converse__pb2.CreateConversationRequest.SerializeToString,
                 response_deserializer=converse_dot_converse__pb2.CreateConversationResponse.FromString,
                 _registered_method=True)
-        self.GetConversation = channel.unary_unary(
-                '/converse.ConverseService/GetConversation',
-                request_serializer=converse_dot_converse__pb2.GetConversationRequest.SerializeToString,
-                response_deserializer=converse_dot_converse__pb2.GetConversationResponse.FromString,
+        self.GetConversations = channel.unary_unary(
+                '/converse.ConverseService/GetConversations',
+                request_serializer=converse_dot_converse__pb2.GetConversationsRequest.SerializeToString,
+                response_deserializer=converse_dot_converse__pb2.GetConversationsResponse.FromString,
                 _registered_method=True)
         self.DeleteConversation = channel.unary_unary(
                 '/converse.ConverseService/DeleteConversation',
@@ -72,7 +72,7 @@ class ConverseServiceStub(object):
         self.ReceiveMessage = channel.unary_stream(
                 '/converse.ConverseService/ReceiveMessage',
                 request_serializer=converse_dot_converse__pb2.ReceiveMessageRequest.SerializeToString,
-                response_deserializer=converse_dot_converse__pb2.Message.FromString,
+                response_deserializer=converse_dot_converse__pb2.MessageWithConversationId.FromString,
                 _registered_method=True)
 
 
@@ -115,7 +115,7 @@ class ConverseServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetConversation(self, request, context):
+    def GetConversations(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -184,10 +184,10 @@ def add_ConverseServiceServicer_to_server(servicer, server):
                     request_deserializer=converse_dot_converse__pb2.CreateConversationRequest.FromString,
                     response_serializer=converse_dot_converse__pb2.CreateConversationResponse.SerializeToString,
             ),
-            'GetConversation': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetConversation,
-                    request_deserializer=converse_dot_converse__pb2.GetConversationRequest.FromString,
-                    response_serializer=converse_dot_converse__pb2.GetConversationResponse.SerializeToString,
+            'GetConversations': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetConversations,
+                    request_deserializer=converse_dot_converse__pb2.GetConversationsRequest.FromString,
+                    response_serializer=converse_dot_converse__pb2.GetConversationsResponse.SerializeToString,
             ),
             'DeleteConversation': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteConversation,
@@ -212,7 +212,7 @@ def add_ConverseServiceServicer_to_server(servicer, server):
             'ReceiveMessage': grpc.unary_stream_rpc_method_handler(
                     servicer.ReceiveMessage,
                     request_deserializer=converse_dot_converse__pb2.ReceiveMessageRequest.FromString,
-                    response_serializer=converse_dot_converse__pb2.Message.SerializeToString,
+                    response_serializer=converse_dot_converse__pb2.MessageWithConversationId.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -388,7 +388,7 @@ class ConverseService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetConversation(request,
+    def GetConversations(request,
             target,
             options=(),
             channel_credentials=None,
@@ -401,9 +401,9 @@ class ConverseService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/converse.ConverseService/GetConversation',
-            converse_dot_converse__pb2.GetConversationRequest.SerializeToString,
-            converse_dot_converse__pb2.GetConversationResponse.FromString,
+            '/converse.ConverseService/GetConversations',
+            converse_dot_converse__pb2.GetConversationsRequest.SerializeToString,
+            converse_dot_converse__pb2.GetConversationsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -538,7 +538,7 @@ class ConverseService(object):
             target,
             '/converse.ConverseService/ReceiveMessage',
             converse_dot_converse__pb2.ReceiveMessageRequest.SerializeToString,
-            converse_dot_converse__pb2.Message.FromString,
+            converse_dot_converse__pb2.MessageWithConversationId.FromString,
             options,
             channel_credentials,
             insecure,

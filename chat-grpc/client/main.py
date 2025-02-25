@@ -2,6 +2,7 @@ import sys
 import argparse
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
+from PySide6.QtCore import Qt
 from backend import *  # noqa: F403
 from backend import Backend, ConversationsModel, MessagesModel, OtherUsersModel
 
@@ -35,7 +36,9 @@ if __name__ == "__main__":
     backend.clientGetOtherUsersResponded.connect(
         lambda _, users: other_users_model.reset(users)
     )
-    backend.serverSendMessageRequested.connect(messages_model.append)
+    backend.serverSendMessageRequested.connect(
+        messages_model.append, Qt.BlockingQueuedConnection
+    )
     engine.rootContext().setContextProperty("backend", backend)
     engine.rootContext().setContextProperty("conversationsModel", conversations_model)
     engine.rootContext().setContextProperty("messagesModel", messages_model)

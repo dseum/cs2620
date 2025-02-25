@@ -14,10 +14,34 @@ from gen.rpc.converse.converse_pb2_grpc import ConverseServiceStub
 import gen.rpc.converse.converse_pb2 as pb2
 import grpc
 import asyncio
+from PySide6.QtCore import QThread
+
+
+def ms(message):
+    return len(message.SerializeToString())
 
 
 QML_IMPORT_NAME = "Backend"
 QML_IMPORT_MAJOR_VERSION = 1
+
+
+class AsyncioThread(QThread):
+    def __init__(self):
+        super().__init__()
+        self.loop = None
+
+    def run(self):
+        """Run an asyncio event loop in a separate thread."""
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_forever()
+
+    def stop(self):
+        """Stop the event loop safely."""
+        if self.loop:
+            self.loop.call_soon_threadsafe(self.loop.stop)
+        self.quit()
+        self.wait()
 
 
 class User(QObject):
@@ -234,6 +258,8 @@ class ConversationsModel(QAbstractListModel):
 
 
 class MessagesModel(QAbstractListModel):
+    toBottom = Signal()
+
     @QEnum
     class MessageRoles(IntEnum):
         IdRole = Qt.UserRole
@@ -295,12 +321,14 @@ class MessagesModel(QAbstractListModel):
         self.beginInsertRows(QModelIndex(), self.rowCount(), self.rowCount())
         self.m_messages.append(value)
         self.endInsertRows()
+        self.toBottom.emit()
 
     @Slot(list)
     def reset(self, messages):
         self.beginResetModel()
         self.m_messages = messages
         self.endResetModel()
+        self.toBottom.emit()
 
 
 class OtherUsersModel(QAbstractListModel):
@@ -379,25 +407,62 @@ class Backend(QObject):
         self.m_user = None
         self.m_conversation = None
 
-        self.channel = grpc.insecure_channel("localhost:50051")
+        self.channel = grpc.insecure_channel("localhost:54100")
         self.stub = ConverseServiceStub(self.channel)
         self.stream = None
+        self.stream_inner = None
+        self.asyncio_thread = AsyncioThread()
+        self.asyncio_thread.start()
+
+    def __del__(self):
+        if self.stream_inner is not None:
+            self.stream_inner.cancel()
+            self.stream_inner = None
+        if self.stream is not None:
+            self.stream.cancel()
+            self.stream = None
+        if self.asyncio_thread:
+            self.asyncio_thread.stop()
+        if self.channel is not None:
+            self.channel.close()
+            self.channel = None
 
     @Property(User, notify=userChanged)
     def user(self):
         return self.m_user
 
-    async def receive_message(self, conversation_id):
-        async for message in self.stub.ReceiveMessage(
-            pb2.ReceiveMessageRequest(conversation_id=conversation_id)
-        ):
-            self.serverSendMessageRequested.emit(
-                Message(
-                    message.message_id,
-                    message.sender_id,
-                    message.is_read,
-                    message.content,
-                )
+    async def receive_message(self, user_id):
+        print("stream start for" + str(user_id))
+        self.stream_inner = self.stub.ReceiveMessage(
+            pb2.ReceiveMessageRequest(user_id=user_id)
+        )
+        try:
+            for item in self.stream_inner:
+                conversation_id = item.conversation_id
+                if (
+                    self.conversation is not None
+                    and conversation_id == self.conversation.id
+                ):
+                    message = item.message
+                    self.serverSendMessageRequested.emit(
+                        Message(
+                            message.message_id,
+                            message.send_user_id,
+                            message.is_read,
+                            message.content,
+                        )
+                    )
+                else:
+                    print("unread count update")
+        except grpc.RpcError as e:
+            self.stream_inner = None
+            print(e)
+            print("stream end for" + str(user_id))
+
+    def start_receive_message(self, user_id):
+        if self.asyncio_thread.loop:
+            self.stream = asyncio.run_coroutine_threadsafe(
+                self.receive_message(user_id), self.asyncio_thread.loop
             )
 
     @user.setter
@@ -405,6 +470,12 @@ class Backend(QObject):
         if self.m_user is not None and value is not None and self.m_user.id == value.id:
             return
         self.m_user = value
+        if self.stream is not None:
+            self.stream_inner.cancel()
+            print("stream cancel")
+            self.stream = None
+        if value is not None:
+            self.start_receive_message(value.id)
         self.userChanged.emit()
 
     @Property(Conversation, notify=conversationChanged)
@@ -420,11 +491,6 @@ class Backend(QObject):
         ):
             return
         self.m_conversation = value
-        if self.stream is not None:
-            self.stream.cancel()
-            self.stream = None
-        if value is not None:
-            self.stream = asyncio.create_task(self.receive_message(value.id))
         self.conversationChanged.emit()
 
     @Slot(int, int, str)
@@ -434,9 +500,9 @@ class Backend(QObject):
     @Slot(str, str)
     def mSignIn(self, username: str, password: str):
         try:
-            res = self.stub.SigninUser(
-                pb2.SigninUserRequest(username=username, password=password)
-            )
+            req = pb2.SigninUserRequest(username=username, password=password)
+            res = self.stub.SigninUser(req)
+            print(f"SigninUser :req: {ms(req)} :res: {ms(res)}")
             self.user = User(res.user_id, username)
             self.clientSigninUserResponded.emit(True)
         except grpc.RpcError as e:
@@ -446,9 +512,9 @@ class Backend(QObject):
     @Slot(str, str)
     def mSignUp(self, username: str, password: str):
         try:
-            res = self.stub.SignupUser(
-                pb2.SignupUserRequest(username=username, password=password)
-            )
+            req = pb2.SignupUserRequest(username=username, password=password)
+            res = self.stub.SignupUser(res)
+            print(f"SignupUser :req: {ms(req)} :res: {ms(res)}")
             self.user = User(res.user_id, username)
             self.clientSignupUserResponded.emit(True)
         except grpc.RpcError as e:
@@ -458,7 +524,9 @@ class Backend(QObject):
     @Slot()
     def mSignOut(self):
         try:
-            self.stub.SignoutUser(pb2.SignoutUserRequest(user_id=self.user.id))
+            req = pb2.SignoutUserRequest(user_id=self.user.id)
+            res = self.stub.SignoutUser(req)
+            print(f"SignoutUser :req: {ms(req)} :res: {ms(res)}")
             self.user = None
             self.clientSignoutUserResponded.emit(True)
         except grpc.RpcError as e:
@@ -468,9 +536,9 @@ class Backend(QObject):
     @Slot(str)
     def mDeleteUser(self, password: str):
         try:
-            self.stub.DeleteUser(
-                pb2.DeleteUserRequest(user_id=self.user.id, password=password)
-            )
+            req = pb2.DeleteUserRequest(user_id=self.user.id, password=password)
+            res = self.stub.DeleteUser(req)
+            print(f"DeleteUser :req: {ms(req)} :res: {ms(res)}")
             self.user = None
             self.clientDeleteUserResponded.emit(True)
         except grpc.RpcError as e:
@@ -480,12 +548,12 @@ class Backend(QObject):
     @Slot(str)
     def mGetOtherUsers(self, query: str):
         try:
-            res = self.stub.GetOtherUsers(
-                pb2.GetOtherUsersRequest(
-                    user_id=self.user.id, query=query, limit=10, offset=0
-                )
+            req = pb2.GetOtherUsersRequest(
+                user_id=self.user.id, query=query, limit=10, offset=0
             )
-            users = [(user.user_id, user.username) for user in res.users]
+            res = self.stub.GetOtherUsers(req)
+            print(f"GetOtherUsers :req: {ms(req)} :res: {ms(res)}")
+            users = [User(user.user_id, user.username) for user in res.users]
             self.clientGetOtherUsersResponded.emit(True, users)
         except grpc.RpcError as e:
             print(e)
@@ -494,15 +562,15 @@ class Backend(QObject):
     @Slot(int)
     def mCreateConversation(self, recv_user_id: int):
         try:
-            res = self.stub.CreateConversation(
-                pb2.CreateConversationRequest(
-                    user_id=self.user.id, recv_user_id=recv_user_id
-                )
+            req = pb2.CreateConversationRequest(
+                user_id=self.user.id, other_user_id=recv_user_id
             )
+            res = self.stub.CreateConversation(req)
+            print(f"CreateConversation :req: {ms(req)} :res: {ms(res)}")
             self.conversation = Conversation(
                 res.conversation_id,
-                recv_user_id,
-                "",
+                res.recv_user_id,
+                res.recv_username,
             )
             self.clientCreateConversationResponded.emit(True, self.conversation)
         except grpc.RpcError as e:
@@ -512,14 +580,14 @@ class Backend(QObject):
     @Slot()
     def mGetConversations(self):
         try:
-            res = self.stub.GetConversations(
-                pb2.GetConversationsRequest(user_id=self.user.id)
-            )
+            req = pb2.GetConversationsRequest(user_id=self.user.id)
+            res = self.stub.GetConversations(req)
+            print(f"GetConversations :req: {ms(req)} :res: {ms(res)}")
             conversations = [
-                (
+                Conversation(
                     conversation.conversation_id,
                     conversation.recv_user_id,
-                    conversation.recv_user_username,
+                    conversation.recv_username,
                     conversation.unread_count,
                 )
                 for conversation in res.conversations
@@ -532,9 +600,9 @@ class Backend(QObject):
     @Slot(int)
     def mDeleteConversation(self, conversation_id: int):
         try:
-            self.stub.DeleteConversation(
-                pb2.DeleteConversationRequest(conversation_id=conversation_id)
-            )
+            req = pb2.DeleteConversationRequest(conversation_id=conversation_id)
+            res = self.stub.DeleteConversation(req)
+            print(f"DeleteConversation :req: {ms(req)} :res: {ms(res)}")
             self.conversation = None
             self.clientDeleteConversationResponded.emit(True)
         except grpc.RpcError as e:
@@ -544,13 +612,13 @@ class Backend(QObject):
     @Slot(str)
     def mSendMessage(self, content: str):
         try:
-            self.stub.SendMessage(
-                pb2.SendMessageRequest(
-                    conversation_id=self.conversation.id,
-                    send_user_id=self.user.id,
-                    content=content,
-                )
+            req = pb2.SendMessageRequest(
+                conversation_id=self.conversation.id,
+                send_user_id=self.user.id,
+                content=content,
             )
+            res = self.stub.SendMessage(req)
+            print(f"SendMessage :req: {ms(req)} :res: {ms(res)}")
             self.clientSendMessageResponded.emit(True)
         except grpc.RpcError as e:
             print(e)
@@ -559,13 +627,13 @@ class Backend(QObject):
     @Slot()
     def mGetMessages(self):
         try:
-            res = self.stub.GetMessages(
-                pb2.GetMessagesRequest(conversation_id=self.conversation.id)
-            )
+            req = pb2.GetMessagesRequest(conversation_id=self.conversation.id)
+            res = self.stub.GetMessages(req)
+            print(f"GetMessages :req: {ms(req)} :res: {ms(res)}")
             messages = [
-                (
+                Message(
                     message.message_id,
-                    message.sender_id,
+                    message.send_user_id,
                     message.is_read,
                     message.content,
                 )
@@ -579,11 +647,11 @@ class Backend(QObject):
     @Slot(int)
     def mDeleteMessage(self, message_id: int):
         try:
-            self.stub.DeleteMessage(
-                pb2.DeleteMessageRequest(
-                    conversation_id=self.conversation.id, message_id=message_id
-                )
+            req = pb2.DeleteMessageRequest(
+                conversation_id=self.conversation.id, message_id=message_id
             )
+            res = self.stub.DeleteMessage(req)
+            print(f"DeleteMessage :req: {ms(req)} :res: {ms(res)}")
             self.clientDeleteMessageResponded.emit(True)
         except grpc.RpcError as e:
             print(e)

@@ -263,7 +263,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 
 inline constexpr ReceiveMessageRequest::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : conversation_id_{::int64_t{0}},
+      : user_id_{::int64_t{0}},
         _cached_size_{0} {}
 
 template <typename>
@@ -372,13 +372,13 @@ struct GetMessagesRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetMessagesRequestDefaultTypeInternal _GetMessagesRequest_default_instance_;
 
-inline constexpr GetConversationRequest::Impl_::Impl_(
+inline constexpr GetConversationsRequest::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : user_id_{::int64_t{0}},
         _cached_size_{0} {}
 
 template <typename>
-PROTOBUF_CONSTEXPR GetConversationRequest::GetConversationRequest(::_pbi::ConstantInitialized)
+PROTOBUF_CONSTEXPR GetConversationsRequest::GetConversationsRequest(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -386,16 +386,16 @@ PROTOBUF_CONSTEXPR GetConversationRequest::GetConversationRequest(::_pbi::Consta
 #endif  // PROTOBUF_CUSTOM_VTABLE
       _impl_(::_pbi::ConstantInitialized()) {
 }
-struct GetConversationRequestDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR GetConversationRequestDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~GetConversationRequestDefaultTypeInternal() {}
+struct GetConversationsRequestDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR GetConversationsRequestDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~GetConversationsRequestDefaultTypeInternal() {}
   union {
-    GetConversationRequest _instance;
+    GetConversationsRequest _instance;
   };
 };
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetConversationRequestDefaultTypeInternal _GetConversationRequest_default_instance_;
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetConversationsRequestDefaultTypeInternal _GetConversationsRequest_default_instance_;
               template <typename>
 PROTOBUF_CONSTEXPR DeleteUserResponse::DeleteUserResponse(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -533,7 +533,11 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 
 inline constexpr CreateConversationResponse::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : conversation_id_{::int64_t{0}},
+      : recv_username_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        conversation_id_{::int64_t{0}},
+        recv_user_id_{::int64_t{0}},
         _cached_size_{0} {}
 
 template <typename>
@@ -612,6 +616,32 @@ struct ConversationDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ConversationDefaultTypeInternal _Conversation_default_instance_;
 
+inline constexpr MessageWithConversationId::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        message_{nullptr},
+        conversation_id_{::int64_t{0}} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR MessageWithConversationId::MessageWithConversationId(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct MessageWithConversationIdDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR MessageWithConversationIdDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~MessageWithConversationIdDefaultTypeInternal() {}
+  union {
+    MessageWithConversationId _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 MessageWithConversationIdDefaultTypeInternal _MessageWithConversationId_default_instance_;
+
 inline constexpr GetOtherUsersResponse::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : users_{},
@@ -662,13 +692,13 @@ struct GetMessagesResponseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetMessagesResponseDefaultTypeInternal _GetMessagesResponse_default_instance_;
 
-inline constexpr GetConversationResponse::Impl_::Impl_(
+inline constexpr GetConversationsResponse::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : conversations_{},
         _cached_size_{0} {}
 
 template <typename>
-PROTOBUF_CONSTEXPR GetConversationResponse::GetConversationResponse(::_pbi::ConstantInitialized)
+PROTOBUF_CONSTEXPR GetConversationsResponse::GetConversationsResponse(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -676,16 +706,16 @@ PROTOBUF_CONSTEXPR GetConversationResponse::GetConversationResponse(::_pbi::Cons
 #endif  // PROTOBUF_CUSTOM_VTABLE
       _impl_(::_pbi::ConstantInitialized()) {
 }
-struct GetConversationResponseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR GetConversationResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~GetConversationResponseDefaultTypeInternal() {}
+struct GetConversationsResponseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR GetConversationsResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~GetConversationsResponseDefaultTypeInternal() {}
   union {
-    GetConversationResponse _instance;
+    GetConversationsResponse _instance;
   };
 };
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetConversationResponseDefaultTypeInternal _GetConversationResponse_default_instance_;
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetConversationsResponseDefaultTypeInternal _GetConversationsResponse_default_instance_;
 }  // namespace converse
 static constexpr const ::_pb::EnumDescriptor**
     file_level_enum_descriptors_converse_2fconverse_2eproto = nullptr;
@@ -861,24 +891,26 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::converse::CreateConversationResponse, _impl_.conversation_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::CreateConversationResponse, _impl_.recv_user_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::CreateConversationResponse, _impl_.recv_username_),
         ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::converse::GetConversationRequest, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::converse::GetConversationsRequest, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::GetConversationRequest, _impl_.user_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::GetConversationsRequest, _impl_.user_id_),
         ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::converse::GetConversationResponse, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::converse::GetConversationsResponse, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::GetConversationResponse, _impl_.conversations_),
+        PROTOBUF_FIELD_OFFSET(::converse::GetConversationsResponse, _impl_.conversations_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::converse::DeleteConversationRequest, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -942,7 +974,19 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::ReceiveMessageRequest, _impl_.conversation_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::ReceiveMessageRequest, _impl_.user_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::MessageWithConversationId, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::converse::MessageWithConversationId, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::converse::MessageWithConversationId, _impl_.conversation_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::MessageWithConversationId, _impl_.message_),
+        ~0u,
+        0,
 };
 
 static const ::_pbi::MigrationSchema
@@ -964,15 +1008,16 @@ static const ::_pbi::MigrationSchema
         {139, -1, -1, sizeof(::converse::GetOtherUsersResponse)},
         {148, -1, -1, sizeof(::converse::CreateConversationRequest)},
         {158, -1, -1, sizeof(::converse::CreateConversationResponse)},
-        {167, -1, -1, sizeof(::converse::GetConversationRequest)},
-        {176, -1, -1, sizeof(::converse::GetConversationResponse)},
-        {185, -1, -1, sizeof(::converse::DeleteConversationRequest)},
-        {195, -1, -1, sizeof(::converse::DeleteConversationResponse)},
-        {203, -1, -1, sizeof(::converse::GetMessagesRequest)},
-        {213, -1, -1, sizeof(::converse::GetMessagesResponse)},
-        {222, -1, -1, sizeof(::converse::DeleteMessageRequest)},
-        {232, -1, -1, sizeof(::converse::DeleteMessageResponse)},
-        {240, -1, -1, sizeof(::converse::ReceiveMessageRequest)},
+        {169, -1, -1, sizeof(::converse::GetConversationsRequest)},
+        {178, -1, -1, sizeof(::converse::GetConversationsResponse)},
+        {187, -1, -1, sizeof(::converse::DeleteConversationRequest)},
+        {197, -1, -1, sizeof(::converse::DeleteConversationResponse)},
+        {205, -1, -1, sizeof(::converse::GetMessagesRequest)},
+        {215, -1, -1, sizeof(::converse::GetMessagesResponse)},
+        {224, -1, -1, sizeof(::converse::DeleteMessageRequest)},
+        {234, -1, -1, sizeof(::converse::DeleteMessageResponse)},
+        {242, -1, -1, sizeof(::converse::ReceiveMessageRequest)},
+        {251, 261, -1, sizeof(::converse::MessageWithConversationId)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::converse::_Message_default_instance_._instance,
@@ -992,8 +1037,8 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::converse::_GetOtherUsersResponse_default_instance_._instance,
     &::converse::_CreateConversationRequest_default_instance_._instance,
     &::converse::_CreateConversationResponse_default_instance_._instance,
-    &::converse::_GetConversationRequest_default_instance_._instance,
-    &::converse::_GetConversationResponse_default_instance_._instance,
+    &::converse::_GetConversationsRequest_default_instance_._instance,
+    &::converse::_GetConversationsResponse_default_instance_._instance,
     &::converse::_DeleteConversationRequest_default_instance_._instance,
     &::converse::_DeleteConversationResponse_default_instance_._instance,
     &::converse::_GetMessagesRequest_default_instance_._instance,
@@ -1001,6 +1046,7 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::converse::_DeleteMessageRequest_default_instance_._instance,
     &::converse::_DeleteMessageResponse_default_instance_._instance,
     &::converse::_ReceiveMessageRequest_default_instance_._instance,
+    &::converse::_MessageWithConversationId_default_instance_._instance,
 };
 const char descriptor_table_protodef_converse_2fconverse_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
@@ -1035,63 +1081,68 @@ const char descriptor_table_protodef_converse_2fconverse_2eproto[] ABSL_ATTRIBUT
     "\022$\n\005users\030\001 \003(\0132\016.converse.UserR\005users\"X"
     "\n\031CreateConversationRequest\022\027\n\007user_id\030\001"
     " \001(\003R\006userId\022\"\n\rother_user_id\030\002 \001(\003R\013oth"
-    "erUserId\"E\n\032CreateConversationResponse\022\'"
-    "\n\017conversation_id\030\001 \001(\003R\016conversationId\""
-    "1\n\026GetConversationRequest\022\027\n\007user_id\030\001 \001"
-    "(\003R\006userId\"W\n\027GetConversationResponse\022<\n"
-    "\rconversations\030\001 \003(\0132\026.converse.Conversa"
-    "tionR\rconversations\"]\n\031DeleteConversatio"
-    "nRequest\022\027\n\007user_id\030\001 \001(\003R\006userId\022\'\n\017con"
-    "versation_id\030\002 \001(\003R\016conversationId\"\034\n\032De"
-    "leteConversationResponse\"e\n\022GetMessagesR"
-    "equest\022\'\n\017conversation_id\030\001 \001(\003R\016convers"
-    "ationId\022&\n\017last_message_id\030\002 \001(\003R\rlastMe"
-    "ssageId\"D\n\023GetMessagesResponse\022-\n\010messag"
-    "es\030\001 \003(\0132\021.converse.MessageR\010messages\"^\n"
-    "\024DeleteMessageRequest\022\'\n\017conversation_id"
-    "\030\001 \001(\003R\016conversationId\022\035\n\nmessage_id\030\002 \001"
-    "(\003R\tmessageId\"\027\n\025DeleteMessageResponse\"@"
-    "\n\025ReceiveMessageRequest\022\'\n\017conversation_"
-    "id\030\001 \001(\003R\016conversationId2\330\007\n\017ConverseSer"
-    "vice\022G\n\nSignupUser\022\033.converse.SignupUser"
-    "Request\032\034.converse.SignupUserResponse\022G\n"
-    "\nSigninUser\022\033.converse.SigninUserRequest"
-    "\032\034.converse.SigninUserResponse\022J\n\013Signou"
-    "tUser\022\034.converse.SignoutUserRequest\032\035.co"
-    "nverse.SignoutUserResponse\022G\n\nDeleteUser"
-    "\022\033.converse.DeleteUserRequest\032\034.converse"
-    ".DeleteUserResponse\022P\n\rGetOtherUsers\022\036.c"
-    "onverse.GetOtherUsersRequest\032\037.converse."
-    "GetOtherUsersResponse\022_\n\022CreateConversat"
-    "ion\022#.converse.CreateConversationRequest"
-    "\032$.converse.CreateConversationResponse\022V"
-    "\n\017GetConversation\022 .converse.GetConversa"
-    "tionRequest\032!.converse.GetConversationRe"
-    "sponse\022_\n\022DeleteConversation\022#.converse."
-    "DeleteConversationRequest\032$.converse.Del"
-    "eteConversationResponse\022J\n\013SendMessage\022\034"
-    ".converse.SendMessageRequest\032\035.converse."
-    "SendMessageResponse\022J\n\013GetMessages\022\034.con"
-    "verse.GetMessagesRequest\032\035.converse.GetM"
-    "essagesResponse\022P\n\rDeleteMessage\022\036.conve"
-    "rse.DeleteMessageRequest\032\037.converse.Dele"
-    "teMessageResponse\022H\n\016ReceiveMessage\022\037.co"
-    "nverse.ReceiveMessageRequest\032\021.converse."
-    "Message\"\0000\001B]\n\014com.converseB\rConversePro"
-    "toP\001\242\002\003CXX\252\002\010Converse\312\002\010Converse\342\002\024Conve"
-    "rse\\GPBMetadata\352\002\010Converseb\006proto3"
+    "erUserId\"\214\001\n\032CreateConversationResponse\022"
+    "\'\n\017conversation_id\030\001 \001(\003R\016conversationId"
+    "\022 \n\014recv_user_id\030\002 \001(\003R\nrecvUserId\022#\n\rre"
+    "cv_username\030\003 \001(\tR\014recvUsername\"2\n\027GetCo"
+    "nversationsRequest\022\027\n\007user_id\030\001 \001(\003R\006use"
+    "rId\"X\n\030GetConversationsResponse\022<\n\rconve"
+    "rsations\030\001 \003(\0132\026.converse.ConversationR\r"
+    "conversations\"]\n\031DeleteConversationReque"
+    "st\022\027\n\007user_id\030\001 \001(\003R\006userId\022\'\n\017conversat"
+    "ion_id\030\002 \001(\003R\016conversationId\"\034\n\032DeleteCo"
+    "nversationResponse\"e\n\022GetMessagesRequest"
+    "\022\'\n\017conversation_id\030\001 \001(\003R\016conversationI"
+    "d\022&\n\017last_message_id\030\002 \001(\003R\rlastMessageI"
+    "d\"D\n\023GetMessagesResponse\022-\n\010messages\030\001 \003"
+    "(\0132\021.converse.MessageR\010messages\"^\n\024Delet"
+    "eMessageRequest\022\'\n\017conversation_id\030\001 \001(\003"
+    "R\016conversationId\022\035\n\nmessage_id\030\002 \001(\003R\tme"
+    "ssageId\"\027\n\025DeleteMessageResponse\"0\n\025Rece"
+    "iveMessageRequest\022\027\n\007user_id\030\001 \001(\003R\006user"
+    "Id\"q\n\031MessageWithConversationId\022\'\n\017conve"
+    "rsation_id\030\001 \001(\003R\016conversationId\022+\n\007mess"
+    "age\030\002 \001(\0132\021.converse.MessageR\007message2\355\007"
+    "\n\017ConverseService\022G\n\nSignupUser\022\033.conver"
+    "se.SignupUserRequest\032\034.converse.SignupUs"
+    "erResponse\022G\n\nSigninUser\022\033.converse.Sign"
+    "inUserRequest\032\034.converse.SigninUserRespo"
+    "nse\022J\n\013SignoutUser\022\034.converse.SignoutUse"
+    "rRequest\032\035.converse.SignoutUserResponse\022"
+    "G\n\nDeleteUser\022\033.converse.DeleteUserReque"
+    "st\032\034.converse.DeleteUserResponse\022P\n\rGetO"
+    "therUsers\022\036.converse.GetOtherUsersReques"
+    "t\032\037.converse.GetOtherUsersResponse\022_\n\022Cr"
+    "eateConversation\022#.converse.CreateConver"
+    "sationRequest\032$.converse.CreateConversat"
+    "ionResponse\022Y\n\020GetConversations\022!.conver"
+    "se.GetConversationsRequest\032\".converse.Ge"
+    "tConversationsResponse\022_\n\022DeleteConversa"
+    "tion\022#.converse.DeleteConversationReques"
+    "t\032$.converse.DeleteConversationResponse\022"
+    "J\n\013SendMessage\022\034.converse.SendMessageReq"
+    "uest\032\035.converse.SendMessageResponse\022J\n\013G"
+    "etMessages\022\034.converse.GetMessagesRequest"
+    "\032\035.converse.GetMessagesResponse\022P\n\rDelet"
+    "eMessage\022\036.converse.DeleteMessageRequest"
+    "\032\037.converse.DeleteMessageResponse\022Z\n\016Rec"
+    "eiveMessage\022\037.converse.ReceiveMessageReq"
+    "uest\032#.converse.MessageWithConversationI"
+    "d\"\0000\001B]\n\014com.converseB\rConverseProtoP\001\242\002"
+    "\003CXX\252\002\010Converse\312\002\010Converse\342\002\024Converse\\GP"
+    "BMetadata\352\002\010Converseb\006proto3"
 };
 static ::absl::once_flag descriptor_table_converse_2fconverse_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_converse_2fconverse_2eproto = {
     false,
     false,
-    3034,
+    3228,
     descriptor_table_protodef_converse_2fconverse_2eproto,
     "converse/converse.proto",
     &descriptor_table_converse_2fconverse_2eproto_once,
     nullptr,
     0,
-    26,
+    27,
     schemas,
     file_default_instances,
     TableStruct_converse_2fconverse_2eproto::offsets,
@@ -4912,19 +4963,49 @@ CreateConversationResponse::CreateConversationResponse(::google::protobuf::Arena
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:converse.CreateConversationResponse)
 }
+inline PROTOBUF_NDEBUG_INLINE CreateConversationResponse::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from, const ::converse::CreateConversationResponse& from_msg)
+      : recv_username_(arena, from.recv_username_),
+        _cached_size_{0} {}
+
 CreateConversationResponse::CreateConversationResponse(
-    ::google::protobuf::Arena* arena, const CreateConversationResponse& from)
-    : CreateConversationResponse(arena) {
-  MergeFrom(from);
+    ::google::protobuf::Arena* arena,
+    const CreateConversationResponse& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  CreateConversationResponse* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::memcpy(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, conversation_id_),
+           reinterpret_cast<const char *>(&from._impl_) +
+               offsetof(Impl_, conversation_id_),
+           offsetof(Impl_, recv_user_id_) -
+               offsetof(Impl_, conversation_id_) +
+               sizeof(Impl_::recv_user_id_));
+
+  // @@protoc_insertion_point(copy_constructor:converse.CreateConversationResponse)
 }
 inline PROTOBUF_NDEBUG_INLINE CreateConversationResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : _cached_size_{0} {}
+      : recv_username_(arena),
+        _cached_size_{0} {}
 
 inline void CreateConversationResponse::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.conversation_id_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, conversation_id_),
+           0,
+           offsetof(Impl_, recv_user_id_) -
+               offsetof(Impl_, conversation_id_) +
+               sizeof(Impl_::recv_user_id_));
 }
 CreateConversationResponse::~CreateConversationResponse() {
   // @@protoc_insertion_point(destructor:converse.CreateConversationResponse)
@@ -4934,6 +5015,7 @@ inline void CreateConversationResponse::SharedDtor(MessageLite& self) {
   CreateConversationResponse& this_ = static_cast<CreateConversationResponse&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.recv_username_.Destroy();
   this_._impl_.~Impl_();
 }
 
@@ -4942,7 +5024,7 @@ inline void* CreateConversationResponse::PlacementNew_(const void*, void* mem,
   return ::new (mem) CreateConversationResponse(arena);
 }
 constexpr auto CreateConversationResponse::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(CreateConversationResponse),
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(CreateConversationResponse),
                                             alignof(CreateConversationResponse));
 }
 PROTOBUF_CONSTINIT
@@ -4973,15 +5055,15 @@ const ::google::protobuf::internal::ClassData* CreateConversationResponse::GetCl
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> CreateConversationResponse::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 0, 57, 2> CreateConversationResponse::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     _class_data_.base(),
@@ -4991,18 +5073,34 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> CreateConversationResponse::_table_ = 
     ::_pbi::TcParser::GetTable<::converse::CreateConversationResponse>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
+    {::_pbi::TcParser::MiniParse, {}},
     // int64 conversation_id = 1 [json_name = "conversationId"];
     {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(CreateConversationResponse, _impl_.conversation_id_), 63>(),
      {8, 63, 0, PROTOBUF_FIELD_OFFSET(CreateConversationResponse, _impl_.conversation_id_)}},
+    // int64 recv_user_id = 2 [json_name = "recvUserId"];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(CreateConversationResponse, _impl_.recv_user_id_), 63>(),
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(CreateConversationResponse, _impl_.recv_user_id_)}},
+    // string recv_username = 3 [json_name = "recvUsername"];
+    {::_pbi::TcParser::FastUS1,
+     {26, 63, 0, PROTOBUF_FIELD_OFFSET(CreateConversationResponse, _impl_.recv_username_)}},
   }}, {{
     65535, 65535
   }}, {{
     // int64 conversation_id = 1 [json_name = "conversationId"];
     {PROTOBUF_FIELD_OFFSET(CreateConversationResponse, _impl_.conversation_id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kInt64)},
+    // int64 recv_user_id = 2 [json_name = "recvUserId"];
+    {PROTOBUF_FIELD_OFFSET(CreateConversationResponse, _impl_.recv_user_id_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt64)},
+    // string recv_username = 3 [json_name = "recvUsername"];
+    {PROTOBUF_FIELD_OFFSET(CreateConversationResponse, _impl_.recv_username_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
+    "\43\0\0\15\0\0\0\0"
+    "converse.CreateConversationResponse"
+    "recv_username"
   }},
 };
 
@@ -5013,7 +5111,10 @@ PROTOBUF_NOINLINE void CreateConversationResponse::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.conversation_id_ = ::int64_t{0};
+  _impl_.recv_username_.ClearToEmpty();
+  ::memset(&_impl_.conversation_id_, 0, static_cast<::size_t>(
+      reinterpret_cast<char*>(&_impl_.recv_user_id_) -
+      reinterpret_cast<char*>(&_impl_.conversation_id_)) + sizeof(_impl_.recv_user_id_));
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -5039,6 +5140,21 @@ PROTOBUF_NOINLINE void CreateConversationResponse::Clear() {
                     stream, this_._internal_conversation_id(), target);
           }
 
+          // int64 recv_user_id = 2 [json_name = "recvUserId"];
+          if (this_._internal_recv_user_id() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt64ToArrayWithField<2>(
+                    stream, this_._internal_recv_user_id(), target);
+          }
+
+          // string recv_username = 3 [json_name = "recvUsername"];
+          if (!this_._internal_recv_username().empty()) {
+            const std::string& _s = this_._internal_recv_username();
+            ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "converse.CreateConversationResponse.recv_username");
+            target = stream->WriteStringMaybeAliased(3, _s, target);
+          }
+
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
             target =
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -5062,11 +5178,22 @@ PROTOBUF_NOINLINE void CreateConversationResponse::Clear() {
           // Prevent compiler warnings about cached_has_bits being unused
           (void)cached_has_bits;
 
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
            {
+            // string recv_username = 3 [json_name = "recvUsername"];
+            if (!this_._internal_recv_username().empty()) {
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                              this_._internal_recv_username());
+            }
             // int64 conversation_id = 1 [json_name = "conversationId"];
             if (this_._internal_conversation_id() != 0) {
               total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
                   this_._internal_conversation_id());
+            }
+            // int64 recv_user_id = 2 [json_name = "recvUserId"];
+            if (this_._internal_recv_user_id() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
+                  this_._internal_recv_user_id());
             }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -5081,8 +5208,14 @@ void CreateConversationResponse::MergeImpl(::google::protobuf::MessageLite& to_m
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (!from._internal_recv_username().empty()) {
+    _this->_internal_set_recv_username(from._internal_recv_username());
+  }
   if (from._internal_conversation_id() != 0) {
     _this->_impl_.conversation_id_ = from._impl_.conversation_id_;
+  }
+  if (from._internal_recv_user_id() != 0) {
+    _this->_impl_.recv_user_id_ = from._impl_.recv_user_id_;
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -5097,8 +5230,16 @@ void CreateConversationResponse::CopyFrom(const CreateConversationResponse& from
 
 void CreateConversationResponse::InternalSwap(CreateConversationResponse* PROTOBUF_RESTRICT other) {
   using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-        swap(_impl_.conversation_id_, other->_impl_.conversation_id_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.recv_username_, &other->_impl_.recv_username_, arena);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(CreateConversationResponse, _impl_.recv_user_id_)
+      + sizeof(CreateConversationResponse::_impl_.recv_user_id_)
+      - PROTOBUF_FIELD_OFFSET(CreateConversationResponse, _impl_.conversation_id_)>(
+          reinterpret_cast<char*>(&_impl_.conversation_id_),
+          reinterpret_cast<char*>(&other->_impl_.conversation_id_));
 }
 
 ::google::protobuf::Metadata CreateConversationResponse::GetMetadata() const {
@@ -5106,81 +5247,81 @@ void CreateConversationResponse::InternalSwap(CreateConversationResponse* PROTOB
 }
 // ===================================================================
 
-class GetConversationRequest::_Internal {
+class GetConversationsRequest::_Internal {
  public:
 };
 
-GetConversationRequest::GetConversationRequest(::google::protobuf::Arena* arena)
+GetConversationsRequest::GetConversationsRequest(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, _class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:converse.GetConversationRequest)
+  // @@protoc_insertion_point(arena_constructor:converse.GetConversationsRequest)
 }
-GetConversationRequest::GetConversationRequest(
-    ::google::protobuf::Arena* arena, const GetConversationRequest& from)
-    : GetConversationRequest(arena) {
+GetConversationsRequest::GetConversationsRequest(
+    ::google::protobuf::Arena* arena, const GetConversationsRequest& from)
+    : GetConversationsRequest(arena) {
   MergeFrom(from);
 }
-inline PROTOBUF_NDEBUG_INLINE GetConversationRequest::Impl_::Impl_(
+inline PROTOBUF_NDEBUG_INLINE GetConversationsRequest::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
       : _cached_size_{0} {}
 
-inline void GetConversationRequest::SharedCtor(::_pb::Arena* arena) {
+inline void GetConversationsRequest::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   _impl_.user_id_ = {};
 }
-GetConversationRequest::~GetConversationRequest() {
-  // @@protoc_insertion_point(destructor:converse.GetConversationRequest)
+GetConversationsRequest::~GetConversationsRequest() {
+  // @@protoc_insertion_point(destructor:converse.GetConversationsRequest)
   SharedDtor(*this);
 }
-inline void GetConversationRequest::SharedDtor(MessageLite& self) {
-  GetConversationRequest& this_ = static_cast<GetConversationRequest&>(self);
+inline void GetConversationsRequest::SharedDtor(MessageLite& self) {
+  GetConversationsRequest& this_ = static_cast<GetConversationsRequest&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   this_._impl_.~Impl_();
 }
 
-inline void* GetConversationRequest::PlacementNew_(const void*, void* mem,
+inline void* GetConversationsRequest::PlacementNew_(const void*, void* mem,
                                         ::google::protobuf::Arena* arena) {
-  return ::new (mem) GetConversationRequest(arena);
+  return ::new (mem) GetConversationsRequest(arena);
 }
-constexpr auto GetConversationRequest::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(GetConversationRequest),
-                                            alignof(GetConversationRequest));
+constexpr auto GetConversationsRequest::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(GetConversationsRequest),
+                                            alignof(GetConversationsRequest));
 }
 PROTOBUF_CONSTINIT
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataFull GetConversationRequest::_class_data_ = {
+const ::google::protobuf::internal::ClassDataFull GetConversationsRequest::_class_data_ = {
     ::google::protobuf::internal::ClassData{
-        &_GetConversationRequest_default_instance_._instance,
+        &_GetConversationsRequest_default_instance_._instance,
         &_table_.header,
         nullptr,  // OnDemandRegisterArenaDtor
         nullptr,  // IsInitialized
-        &GetConversationRequest::MergeImpl,
-        ::google::protobuf::Message::GetNewImpl<GetConversationRequest>(),
+        &GetConversationsRequest::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<GetConversationsRequest>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        &GetConversationRequest::SharedDtor,
-        ::google::protobuf::Message::GetClearImpl<GetConversationRequest>(), &GetConversationRequest::ByteSizeLong,
-            &GetConversationRequest::_InternalSerialize,
+        &GetConversationsRequest::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<GetConversationsRequest>(), &GetConversationsRequest::ByteSizeLong,
+            &GetConversationsRequest::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
-        PROTOBUF_FIELD_OFFSET(GetConversationRequest, _impl_._cached_size_),
+        PROTOBUF_FIELD_OFFSET(GetConversationsRequest, _impl_._cached_size_),
         false,
     },
-    &GetConversationRequest::kDescriptorMethods,
+    &GetConversationsRequest::kDescriptorMethods,
     &descriptor_table_converse_2fconverse_2eproto,
     nullptr,  // tracker
 };
-const ::google::protobuf::internal::ClassData* GetConversationRequest::GetClassData() const {
+const ::google::protobuf::internal::ClassData* GetConversationsRequest::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> GetConversationRequest::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2> GetConversationsRequest::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -5195,17 +5336,17 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> GetConversationRequest::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::converse::GetConversationRequest>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::converse::GetConversationsRequest>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // int64 user_id = 1 [json_name = "userId"];
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(GetConversationRequest, _impl_.user_id_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(GetConversationRequest, _impl_.user_id_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(GetConversationsRequest, _impl_.user_id_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(GetConversationsRequest, _impl_.user_id_)}},
   }}, {{
     65535, 65535
   }}, {{
     // int64 user_id = 1 [json_name = "userId"];
-    {PROTOBUF_FIELD_OFFSET(GetConversationRequest, _impl_.user_id_), 0, 0,
+    {PROTOBUF_FIELD_OFFSET(GetConversationsRequest, _impl_.user_id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kInt64)},
   }},
   // no aux_entries
@@ -5213,8 +5354,8 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> GetConversationRequest::_table_ = {
   }},
 };
 
-PROTOBUF_NOINLINE void GetConversationRequest::Clear() {
-// @@protoc_insertion_point(message_clear_start:converse.GetConversationRequest)
+PROTOBUF_NOINLINE void GetConversationsRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:converse.GetConversationsRequest)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -5225,17 +5366,17 @@ PROTOBUF_NOINLINE void GetConversationRequest::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* GetConversationRequest::_InternalSerialize(
+        ::uint8_t* GetConversationsRequest::_InternalSerialize(
             const MessageLite& base, ::uint8_t* target,
             ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const GetConversationRequest& this_ = static_cast<const GetConversationRequest&>(base);
+          const GetConversationsRequest& this_ = static_cast<const GetConversationsRequest&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* GetConversationRequest::_InternalSerialize(
+        ::uint8_t* GetConversationsRequest::_InternalSerialize(
             ::uint8_t* target,
             ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const GetConversationRequest& this_ = *this;
+          const GetConversationsRequest& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:converse.GetConversationRequest)
+          // @@protoc_insertion_point(serialize_to_array_start:converse.GetConversationsRequest)
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
@@ -5251,18 +5392,18 @@ PROTOBUF_NOINLINE void GetConversationRequest::Clear() {
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
                     this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
           }
-          // @@protoc_insertion_point(serialize_to_array_end:converse.GetConversationRequest)
+          // @@protoc_insertion_point(serialize_to_array_end:converse.GetConversationsRequest)
           return target;
         }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t GetConversationRequest::ByteSizeLong(const MessageLite& base) {
-          const GetConversationRequest& this_ = static_cast<const GetConversationRequest&>(base);
+        ::size_t GetConversationsRequest::ByteSizeLong(const MessageLite& base) {
+          const GetConversationsRequest& this_ = static_cast<const GetConversationsRequest&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t GetConversationRequest::ByteSizeLong() const {
-          const GetConversationRequest& this_ = *this;
+        ::size_t GetConversationsRequest::ByteSizeLong() const {
+          const GetConversationsRequest& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:converse.GetConversationRequest)
+          // @@protoc_insertion_point(message_byte_size_start:converse.GetConversationsRequest)
           ::size_t total_size = 0;
 
           ::uint32_t cached_has_bits = 0;
@@ -5280,10 +5421,10 @@ PROTOBUF_NOINLINE void GetConversationRequest::Clear() {
                                                      &this_._impl_._cached_size_);
         }
 
-void GetConversationRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<GetConversationRequest*>(&to_msg);
-  auto& from = static_cast<const GetConversationRequest&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:converse.GetConversationRequest)
+void GetConversationsRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<GetConversationsRequest*>(&to_msg);
+  auto& from = static_cast<const GetConversationsRequest&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:converse.GetConversationsRequest)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -5294,129 +5435,129 @@ void GetConversationRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, 
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void GetConversationRequest::CopyFrom(const GetConversationRequest& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:converse.GetConversationRequest)
+void GetConversationsRequest::CopyFrom(const GetConversationsRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:converse.GetConversationsRequest)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 
-void GetConversationRequest::InternalSwap(GetConversationRequest* PROTOBUF_RESTRICT other) {
+void GetConversationsRequest::InternalSwap(GetConversationsRequest* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
         swap(_impl_.user_id_, other->_impl_.user_id_);
 }
 
-::google::protobuf::Metadata GetConversationRequest::GetMetadata() const {
+::google::protobuf::Metadata GetConversationsRequest::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
 
-class GetConversationResponse::_Internal {
+class GetConversationsResponse::_Internal {
  public:
 };
 
-GetConversationResponse::GetConversationResponse(::google::protobuf::Arena* arena)
+GetConversationsResponse::GetConversationsResponse(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, _class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:converse.GetConversationResponse)
+  // @@protoc_insertion_point(arena_constructor:converse.GetConversationsResponse)
 }
-inline PROTOBUF_NDEBUG_INLINE GetConversationResponse::Impl_::Impl_(
+inline PROTOBUF_NDEBUG_INLINE GetConversationsResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::converse::GetConversationResponse& from_msg)
+    const Impl_& from, const ::converse::GetConversationsResponse& from_msg)
       : conversations_{visibility, arena, from.conversations_},
         _cached_size_{0} {}
 
-GetConversationResponse::GetConversationResponse(
+GetConversationsResponse::GetConversationsResponse(
     ::google::protobuf::Arena* arena,
-    const GetConversationResponse& from)
+    const GetConversationsResponse& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, _class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  GetConversationResponse* const _this = this;
+  GetConversationsResponse* const _this = this;
   (void)_this;
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
 
-  // @@protoc_insertion_point(copy_constructor:converse.GetConversationResponse)
+  // @@protoc_insertion_point(copy_constructor:converse.GetConversationsResponse)
 }
-inline PROTOBUF_NDEBUG_INLINE GetConversationResponse::Impl_::Impl_(
+inline PROTOBUF_NDEBUG_INLINE GetConversationsResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
       : conversations_{visibility, arena},
         _cached_size_{0} {}
 
-inline void GetConversationResponse::SharedCtor(::_pb::Arena* arena) {
+inline void GetConversationsResponse::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
 }
-GetConversationResponse::~GetConversationResponse() {
-  // @@protoc_insertion_point(destructor:converse.GetConversationResponse)
+GetConversationsResponse::~GetConversationsResponse() {
+  // @@protoc_insertion_point(destructor:converse.GetConversationsResponse)
   SharedDtor(*this);
 }
-inline void GetConversationResponse::SharedDtor(MessageLite& self) {
-  GetConversationResponse& this_ = static_cast<GetConversationResponse&>(self);
+inline void GetConversationsResponse::SharedDtor(MessageLite& self) {
+  GetConversationsResponse& this_ = static_cast<GetConversationsResponse&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   this_._impl_.~Impl_();
 }
 
-inline void* GetConversationResponse::PlacementNew_(const void*, void* mem,
+inline void* GetConversationsResponse::PlacementNew_(const void*, void* mem,
                                         ::google::protobuf::Arena* arena) {
-  return ::new (mem) GetConversationResponse(arena);
+  return ::new (mem) GetConversationsResponse(arena);
 }
-constexpr auto GetConversationResponse::InternalNewImpl_() {
+constexpr auto GetConversationsResponse::InternalNewImpl_() {
   constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
-      PROTOBUF_FIELD_OFFSET(GetConversationResponse, _impl_.conversations_) +
-          decltype(GetConversationResponse::_impl_.conversations_)::
+      PROTOBUF_FIELD_OFFSET(GetConversationsResponse, _impl_.conversations_) +
+          decltype(GetConversationsResponse::_impl_.conversations_)::
               InternalGetArenaOffset(
                   ::google::protobuf::Message::internal_visibility()),
   });
   if (arena_bits.has_value()) {
     return ::google::protobuf::internal::MessageCreator::ZeroInit(
-        sizeof(GetConversationResponse), alignof(GetConversationResponse), *arena_bits);
+        sizeof(GetConversationsResponse), alignof(GetConversationsResponse), *arena_bits);
   } else {
-    return ::google::protobuf::internal::MessageCreator(&GetConversationResponse::PlacementNew_,
-                                 sizeof(GetConversationResponse),
-                                 alignof(GetConversationResponse));
+    return ::google::protobuf::internal::MessageCreator(&GetConversationsResponse::PlacementNew_,
+                                 sizeof(GetConversationsResponse),
+                                 alignof(GetConversationsResponse));
   }
 }
 PROTOBUF_CONSTINIT
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataFull GetConversationResponse::_class_data_ = {
+const ::google::protobuf::internal::ClassDataFull GetConversationsResponse::_class_data_ = {
     ::google::protobuf::internal::ClassData{
-        &_GetConversationResponse_default_instance_._instance,
+        &_GetConversationsResponse_default_instance_._instance,
         &_table_.header,
         nullptr,  // OnDemandRegisterArenaDtor
         nullptr,  // IsInitialized
-        &GetConversationResponse::MergeImpl,
-        ::google::protobuf::Message::GetNewImpl<GetConversationResponse>(),
+        &GetConversationsResponse::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<GetConversationsResponse>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        &GetConversationResponse::SharedDtor,
-        ::google::protobuf::Message::GetClearImpl<GetConversationResponse>(), &GetConversationResponse::ByteSizeLong,
-            &GetConversationResponse::_InternalSerialize,
+        &GetConversationsResponse::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<GetConversationsResponse>(), &GetConversationsResponse::ByteSizeLong,
+            &GetConversationsResponse::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
-        PROTOBUF_FIELD_OFFSET(GetConversationResponse, _impl_._cached_size_),
+        PROTOBUF_FIELD_OFFSET(GetConversationsResponse, _impl_._cached_size_),
         false,
     },
-    &GetConversationResponse::kDescriptorMethods,
+    &GetConversationsResponse::kDescriptorMethods,
     &descriptor_table_converse_2fconverse_2eproto,
     nullptr,  // tracker
 };
-const ::google::protobuf::internal::ClassData* GetConversationResponse::GetClassData() const {
+const ::google::protobuf::internal::ClassData* GetConversationsResponse::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 1, 0, 2> GetConversationResponse::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 1, 0, 2> GetConversationsResponse::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -5431,17 +5572,17 @@ const ::_pbi::TcParseTable<0, 1, 1, 0, 2> GetConversationResponse::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::converse::GetConversationResponse>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::converse::GetConversationsResponse>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // repeated .converse.Conversation conversations = 1 [json_name = "conversations"];
     {::_pbi::TcParser::FastMtR1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(GetConversationResponse, _impl_.conversations_)}},
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(GetConversationsResponse, _impl_.conversations_)}},
   }}, {{
     65535, 65535
   }}, {{
     // repeated .converse.Conversation conversations = 1 [json_name = "conversations"];
-    {PROTOBUF_FIELD_OFFSET(GetConversationResponse, _impl_.conversations_), 0, 0,
+    {PROTOBUF_FIELD_OFFSET(GetConversationsResponse, _impl_.conversations_), 0, 0,
     (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
     {::_pbi::TcParser::GetTable<::converse::Conversation>()},
@@ -5449,8 +5590,8 @@ const ::_pbi::TcParseTable<0, 1, 1, 0, 2> GetConversationResponse::_table_ = {
   }},
 };
 
-PROTOBUF_NOINLINE void GetConversationResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:converse.GetConversationResponse)
+PROTOBUF_NOINLINE void GetConversationsResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:converse.GetConversationsResponse)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -5461,17 +5602,17 @@ PROTOBUF_NOINLINE void GetConversationResponse::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* GetConversationResponse::_InternalSerialize(
+        ::uint8_t* GetConversationsResponse::_InternalSerialize(
             const MessageLite& base, ::uint8_t* target,
             ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const GetConversationResponse& this_ = static_cast<const GetConversationResponse&>(base);
+          const GetConversationsResponse& this_ = static_cast<const GetConversationsResponse&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* GetConversationResponse::_InternalSerialize(
+        ::uint8_t* GetConversationsResponse::_InternalSerialize(
             ::uint8_t* target,
             ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const GetConversationResponse& this_ = *this;
+          const GetConversationsResponse& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:converse.GetConversationResponse)
+          // @@protoc_insertion_point(serialize_to_array_start:converse.GetConversationsResponse)
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
@@ -5491,18 +5632,18 @@ PROTOBUF_NOINLINE void GetConversationResponse::Clear() {
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
                     this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
           }
-          // @@protoc_insertion_point(serialize_to_array_end:converse.GetConversationResponse)
+          // @@protoc_insertion_point(serialize_to_array_end:converse.GetConversationsResponse)
           return target;
         }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t GetConversationResponse::ByteSizeLong(const MessageLite& base) {
-          const GetConversationResponse& this_ = static_cast<const GetConversationResponse&>(base);
+        ::size_t GetConversationsResponse::ByteSizeLong(const MessageLite& base) {
+          const GetConversationsResponse& this_ = static_cast<const GetConversationsResponse&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t GetConversationResponse::ByteSizeLong() const {
-          const GetConversationResponse& this_ = *this;
+        ::size_t GetConversationsResponse::ByteSizeLong() const {
+          const GetConversationsResponse& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:converse.GetConversationResponse)
+          // @@protoc_insertion_point(message_byte_size_start:converse.GetConversationsResponse)
           ::size_t total_size = 0;
 
           ::uint32_t cached_has_bits = 0;
@@ -5523,10 +5664,10 @@ PROTOBUF_NOINLINE void GetConversationResponse::Clear() {
                                                      &this_._impl_._cached_size_);
         }
 
-void GetConversationResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<GetConversationResponse*>(&to_msg);
-  auto& from = static_cast<const GetConversationResponse&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:converse.GetConversationResponse)
+void GetConversationsResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<GetConversationsResponse*>(&to_msg);
+  auto& from = static_cast<const GetConversationsResponse&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:converse.GetConversationsResponse)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -5536,21 +5677,21 @@ void GetConversationResponse::MergeImpl(::google::protobuf::MessageLite& to_msg,
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void GetConversationResponse::CopyFrom(const GetConversationResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:converse.GetConversationResponse)
+void GetConversationsResponse::CopyFrom(const GetConversationsResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:converse.GetConversationsResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 
-void GetConversationResponse::InternalSwap(GetConversationResponse* PROTOBUF_RESTRICT other) {
+void GetConversationsResponse::InternalSwap(GetConversationsResponse* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   _impl_.conversations_.InternalSwap(&other->_impl_.conversations_);
 }
 
-::google::protobuf::Metadata GetConversationResponse::GetMetadata() const {
+::google::protobuf::Metadata GetConversationsResponse::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
@@ -6751,7 +6892,7 @@ inline PROTOBUF_NDEBUG_INLINE ReceiveMessageRequest::Impl_::Impl_(
 
 inline void ReceiveMessageRequest::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.conversation_id_ = {};
+  _impl_.user_id_ = {};
 }
 ReceiveMessageRequest::~ReceiveMessageRequest() {
   // @@protoc_insertion_point(destructor:converse.ReceiveMessageRequest)
@@ -6818,14 +6959,14 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> ReceiveMessageRequest::_table_ = {
     ::_pbi::TcParser::GetTable<::converse::ReceiveMessageRequest>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // int64 conversation_id = 1 [json_name = "conversationId"];
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(ReceiveMessageRequest, _impl_.conversation_id_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(ReceiveMessageRequest, _impl_.conversation_id_)}},
+    // int64 user_id = 1 [json_name = "userId"];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(ReceiveMessageRequest, _impl_.user_id_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(ReceiveMessageRequest, _impl_.user_id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // int64 conversation_id = 1 [json_name = "conversationId"];
-    {PROTOBUF_FIELD_OFFSET(ReceiveMessageRequest, _impl_.conversation_id_), 0, 0,
+    // int64 user_id = 1 [json_name = "userId"];
+    {PROTOBUF_FIELD_OFFSET(ReceiveMessageRequest, _impl_.user_id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kInt64)},
   }},
   // no aux_entries
@@ -6840,7 +6981,7 @@ PROTOBUF_NOINLINE void ReceiveMessageRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.conversation_id_ = ::int64_t{0};
+  _impl_.user_id_ = ::int64_t{0};
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -6859,11 +7000,11 @@ PROTOBUF_NOINLINE void ReceiveMessageRequest::Clear() {
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
-          // int64 conversation_id = 1 [json_name = "conversationId"];
-          if (this_._internal_conversation_id() != 0) {
+          // int64 user_id = 1 [json_name = "userId"];
+          if (this_._internal_user_id() != 0) {
             target = ::google::protobuf::internal::WireFormatLite::
                 WriteInt64ToArrayWithField<1>(
-                    stream, this_._internal_conversation_id(), target);
+                    stream, this_._internal_user_id(), target);
           }
 
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -6890,10 +7031,10 @@ PROTOBUF_NOINLINE void ReceiveMessageRequest::Clear() {
           (void)cached_has_bits;
 
            {
-            // int64 conversation_id = 1 [json_name = "conversationId"];
-            if (this_._internal_conversation_id() != 0) {
+            // int64 user_id = 1 [json_name = "userId"];
+            if (this_._internal_user_id() != 0) {
               total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
-                  this_._internal_conversation_id());
+                  this_._internal_user_id());
             }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -6908,8 +7049,8 @@ void ReceiveMessageRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, c
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_conversation_id() != 0) {
-    _this->_impl_.conversation_id_ = from._impl_.conversation_id_;
+  if (from._internal_user_id() != 0) {
+    _this->_impl_.user_id_ = from._impl_.user_id_;
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -6925,10 +7066,296 @@ void ReceiveMessageRequest::CopyFrom(const ReceiveMessageRequest& from) {
 void ReceiveMessageRequest::InternalSwap(ReceiveMessageRequest* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-        swap(_impl_.conversation_id_, other->_impl_.conversation_id_);
+        swap(_impl_.user_id_, other->_impl_.user_id_);
 }
 
 ::google::protobuf::Metadata ReceiveMessageRequest::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class MessageWithConversationId::_Internal {
+ public:
+  using HasBits =
+      decltype(std::declval<MessageWithConversationId>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(MessageWithConversationId, _impl_._has_bits_);
+};
+
+MessageWithConversationId::MessageWithConversationId(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:converse.MessageWithConversationId)
+}
+inline PROTOBUF_NDEBUG_INLINE MessageWithConversationId::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from, const ::converse::MessageWithConversationId& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0} {}
+
+MessageWithConversationId::MessageWithConversationId(
+    ::google::protobuf::Arena* arena,
+    const MessageWithConversationId& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  MessageWithConversationId* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.message_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::converse::Message>(
+                              arena, *from._impl_.message_)
+                        : nullptr;
+  _impl_.conversation_id_ = from._impl_.conversation_id_;
+
+  // @@protoc_insertion_point(copy_constructor:converse.MessageWithConversationId)
+}
+inline PROTOBUF_NDEBUG_INLINE MessageWithConversationId::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0} {}
+
+inline void MessageWithConversationId::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, message_),
+           0,
+           offsetof(Impl_, conversation_id_) -
+               offsetof(Impl_, message_) +
+               sizeof(Impl_::conversation_id_));
+}
+MessageWithConversationId::~MessageWithConversationId() {
+  // @@protoc_insertion_point(destructor:converse.MessageWithConversationId)
+  SharedDtor(*this);
+}
+inline void MessageWithConversationId::SharedDtor(MessageLite& self) {
+  MessageWithConversationId& this_ = static_cast<MessageWithConversationId&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  delete this_._impl_.message_;
+  this_._impl_.~Impl_();
+}
+
+inline void* MessageWithConversationId::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) MessageWithConversationId(arena);
+}
+constexpr auto MessageWithConversationId::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(MessageWithConversationId),
+                                            alignof(MessageWithConversationId));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull MessageWithConversationId::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_MessageWithConversationId_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &MessageWithConversationId::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<MessageWithConversationId>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &MessageWithConversationId::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<MessageWithConversationId>(), &MessageWithConversationId::ByteSizeLong,
+            &MessageWithConversationId::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(MessageWithConversationId, _impl_._cached_size_),
+        false,
+    },
+    &MessageWithConversationId::kDescriptorMethods,
+    &descriptor_table_converse_2fconverse_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* MessageWithConversationId::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 1, 0, 2> MessageWithConversationId::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(MessageWithConversationId, _impl_._has_bits_),
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::converse::MessageWithConversationId>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // .converse.Message message = 2 [json_name = "message"];
+    {::_pbi::TcParser::FastMtS1,
+     {18, 0, 0, PROTOBUF_FIELD_OFFSET(MessageWithConversationId, _impl_.message_)}},
+    // int64 conversation_id = 1 [json_name = "conversationId"];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(MessageWithConversationId, _impl_.conversation_id_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(MessageWithConversationId, _impl_.conversation_id_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // int64 conversation_id = 1 [json_name = "conversationId"];
+    {PROTOBUF_FIELD_OFFSET(MessageWithConversationId, _impl_.conversation_id_), -1, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt64)},
+    // .converse.Message message = 2 [json_name = "message"];
+    {PROTOBUF_FIELD_OFFSET(MessageWithConversationId, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::converse::Message>()},
+  }}, {{
+  }},
+};
+
+PROTOBUF_NOINLINE void MessageWithConversationId::Clear() {
+// @@protoc_insertion_point(message_clear_start:converse.MessageWithConversationId)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(_impl_.message_ != nullptr);
+    _impl_.message_->Clear();
+  }
+  _impl_.conversation_id_ = ::int64_t{0};
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* MessageWithConversationId::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const MessageWithConversationId& this_ = static_cast<const MessageWithConversationId&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* MessageWithConversationId::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const MessageWithConversationId& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:converse.MessageWithConversationId)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // int64 conversation_id = 1 [json_name = "conversationId"];
+          if (this_._internal_conversation_id() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt64ToArrayWithField<1>(
+                    stream, this_._internal_conversation_id(), target);
+          }
+
+          cached_has_bits = this_._impl_._has_bits_[0];
+          // .converse.Message message = 2 [json_name = "message"];
+          if (cached_has_bits & 0x00000001u) {
+            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+                2, *this_._impl_.message_, this_._impl_.message_->GetCachedSize(), target,
+                stream);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:converse.MessageWithConversationId)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t MessageWithConversationId::ByteSizeLong(const MessageLite& base) {
+          const MessageWithConversationId& this_ = static_cast<const MessageWithConversationId&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t MessageWithConversationId::ByteSizeLong() const {
+          const MessageWithConversationId& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:converse.MessageWithConversationId)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+           {
+            // .converse.Message message = 2 [json_name = "message"];
+            cached_has_bits = this_._impl_._has_bits_[0];
+            if (cached_has_bits & 0x00000001u) {
+              total_size += 1 +
+                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.message_);
+            }
+          }
+           {
+            // int64 conversation_id = 1 [json_name = "conversationId"];
+            if (this_._internal_conversation_id() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
+                  this_._internal_conversation_id());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void MessageWithConversationId::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<MessageWithConversationId*>(&to_msg);
+  auto& from = static_cast<const MessageWithConversationId&>(from_msg);
+  ::google::protobuf::Arena* arena = _this->GetArena();
+  // @@protoc_insertion_point(class_specific_merge_from_start:converse.MessageWithConversationId)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(from._impl_.message_ != nullptr);
+    if (_this->_impl_.message_ == nullptr) {
+      _this->_impl_.message_ =
+          ::google::protobuf::Message::CopyConstruct<::converse::Message>(arena, *from._impl_.message_);
+    } else {
+      _this->_impl_.message_->MergeFrom(*from._impl_.message_);
+    }
+  }
+  if (from._internal_conversation_id() != 0) {
+    _this->_impl_.conversation_id_ = from._impl_.conversation_id_;
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void MessageWithConversationId::CopyFrom(const MessageWithConversationId& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:converse.MessageWithConversationId)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void MessageWithConversationId::InternalSwap(MessageWithConversationId* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(MessageWithConversationId, _impl_.conversation_id_)
+      + sizeof(MessageWithConversationId::_impl_.conversation_id_)
+      - PROTOBUF_FIELD_OFFSET(MessageWithConversationId, _impl_.message_)>(
+          reinterpret_cast<char*>(&_impl_.message_),
+          reinterpret_cast<char*>(&other->_impl_.message_));
+}
+
+::google::protobuf::Metadata MessageWithConversationId::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)

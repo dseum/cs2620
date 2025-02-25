@@ -72,11 +72,15 @@ message CreateConversationRequest {
   int64 other_user_id = 2;
 }
 
-message CreateConversationResponse { int64 conversation_id = 1; }
+message CreateConversationResponse { 
+  int64 conversation_id = 1;
+  int64 recv_user_id = 2;
+  string recv_username = 3;
+}
 
-message GetConversationRequest { int64 user_id = 1; }
+message GetConversationsRequest { int64 user_id = 1; }
 
-message GetConversationResponse { repeated Conversation conversations = 1; }
+message GetConversationsResponse { repeated Conversation conversations = 1; }
 
 message DeleteConversationRequest {
   int64 user_id = 1;
@@ -103,7 +107,12 @@ message DeleteMessageResponse {
   // Empty message.
 }
 
-message ReceiveMessageRequest { int64 conversation_id = 1; }
+message ReceiveMessageRequest { int64 user_id = 1; }
+
+message MessageWithConversationId {
+  int64 conversation_id = 1;
+  Message message = 2;
+}
 
 
 service ConverseService {
@@ -114,11 +123,11 @@ service ConverseService {
   rpc GetOtherUsers(GetOtherUsersRequest) returns (GetOtherUsersResponse);
   rpc CreateConversation(CreateConversationRequest)
       returns (CreateConversationResponse);
-  rpc GetConversation(GetConversationRequest) returns (GetConversationResponse);
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse);
   rpc DeleteConversation(DeleteConversationRequest)
       returns (DeleteConversationResponse);
   rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
   rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
   rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
-  rpc ReceiveMessage(ReceiveMessageRequest) returns (stream Message) {}
+  rpc ReceiveMessage(ReceiveMessageRequest) returns (stream MessageWithConversationId) {}
 }
