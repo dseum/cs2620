@@ -1,0 +1,7 @@
+---
+BasedOnStyle: Google
+IndentWidth: 4
+SeparateDefinitionBlocks: Always
+UseTab: Never
+DerivePointerAlignment: false
+PointerAlignment: Right
