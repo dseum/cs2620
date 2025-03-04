@@ -1,4 +1,4 @@
-# Conversations
+# tempus
 
 ## Requirements
 
@@ -7,14 +7,10 @@
 - CMake (>=3.30)
 - Ninja
 - vcpkg (manifest mode)
-- pkg-config
-- autoconf
-- automake
-- autoconf-archive
-- libtool
 
 ## Commands
 
 ```sh
 cmake --workflow --preset [debug|release]
+build/exe
 ```

@@ -178,11 +178,14 @@ int main() {
             for (int channel : channels) {
                 close(channel);
             }
-            break;
+            return 0;
         }
     }
 
+    std::println("Waiting for processes");
+
     while (wait(NULL) > 0);  // Waits for all children to finish
 
+    std::println("All processes finished");
     return 0;
 }

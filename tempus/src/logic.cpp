@@ -5,12 +5,16 @@
 #include <unistd.h>
 
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 #include <future>
 #include <queue>
 #include <string>
 
-constexpr int DURATION_SECONDS = 10;
+constexpr uint64_t DURATION_SECONDS = 20;
+constexpr uint64_t MAX_CLOCK_RATE = 6;
+constexpr int INTERNAL_EVENT_PROBABILITY_CAP =
+    10;  // x in [3, 10] where probability is (x - 3) / 10
 
 std::string getSystemTimeStr() {
     auto now = std::chrono::system_clock::now();
@@ -20,10 +24,35 @@ std::string getSystemTimeStr() {
     return std::string(buf);
 }
 
+void timespec_add(struct timespec *t, long sec, long nsec) {
+    t->tv_sec += sec;
+    t->tv_nsec += nsec;
+
+    // Handle overflow: if nanoseconds exceed 1 billion
+    while (t->tv_nsec >= 1000000000L) {
+        t->tv_sec++;                // Carry over to seconds
+        t->tv_nsec -= 1000000000L;  // Subtract 1 billion nanoseconds
+    }
+}
+
+int timespec_cmp(struct timespec *t1, struct timespec *t2) {
+    if (t1->tv_sec > t2->tv_sec) return 1;   // t1 is later
+    if (t1->tv_sec < t2->tv_sec) return -1;  // t1 is earlier
+
+    // If seconds are equal, compare nanoseconds
+    if (t1->tv_nsec > t2->tv_nsec) return 1;   // t1 is later
+    if (t1->tv_nsec < t2->tv_nsec) return -1;  // t1 is earlier
+
+    return 0;  // Both times are equal
+}
+
 void receiveMessages(Logger &logger, std::atomic<bool> &done, int rank,
                      const std::vector<int> &channels,
                      std::queue<Message> &messages,
                      std::mutex &messages_mutex) {
+    std::ignore = logger;
+    std::ignore = rank;
+
     std::vector<std::array<char, sizeof(Message)>> bufs(channels.size());
     std::vector<size_t> sizes(channels.size(), 0);
 
@@ -68,15 +97,8 @@ bool sendMessage(int sockFd, const Message &msg) {
 void runNode(int rank, Logger &logger, const std::vector<int> &channels) {
     srand(static_cast<unsigned>(time(NULL)) ^ rank);
 
-    int clockRate = rand() % 6 + 1;
+    const int clockRate = rand() % MAX_CLOCK_RATE + 1;
     int logicalClock = 0;
-
-    // Start a 60 second iteration
-    auto startTime = std::chrono::steady_clock::now();
-
-    // This value controls how many “ticks” we’ve done in the current second
-    int ticksThisSecond = 0;
-    auto secondStart = std::chrono::steady_clock::now();
 
     std::queue<Message> messageQueue;
     std::mutex messageQueueMutex;
@@ -90,84 +112,74 @@ void runNode(int rank, Logger &logger, const std::vector<int> &channels) {
                    std::ref(done), rank, std::ref(channels),
                    std::ref(messageQueue), std::ref(messageQueueMutex));
 
-    while (true) {
-        auto now = std::chrono::steady_clock::now();
-        auto elapsedSecs =
-            std::chrono::duration_cast<std::chrono::seconds>(now - startTime)
-                .count();
-
-        // Break after set duration
-        if (elapsedSecs >= DURATION_SECONDS) {
-            break;
-        }
-
-        // Check if we need to reset the tick counter for a new second
-        auto msElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-                             now - secondStart)
-                             .count();
-        if (msElapsed >= 1000) {
-            // Reset counters for the new real second
-            secondStart = std::chrono::steady_clock::now();
-            ticksThisSecond = 0;
-        }
-
-        // Check if we need to tick
-        if (ticksThisSecond >= clockRate) {
-            usleep(1000);
-            continue;
-        }
-
-        // tick logical clock
-        ticksThisSecond++;
-
-        {
-            std::unique_lock<std::mutex> lock(messageQueueMutex);
-            if (!messageQueue.empty()) {
-                Message msg = messageQueue.front();
-                messageQueue.pop();
-                logicalClock = std::max(logicalClock, msg.logicalTimestamp) + 1;
-                logger.write(
-                    "[RECEIVE] SysTime={} Node={} From={} QueueLen={} "
-                    "LogicalClock={}",
-                    getSystemTimeStr(), rank, msg.senderRank,
-                    messageQueue.size(), logicalClock);
-                continue;
-            }
-        }
-
-        int randomEvent = rand() % 10 + 1;
-        if (randomEvent >= 1 && randomEvent <= 3) {
-            Message outMsg;
-            outMsg.senderRank = rank;
-            outMsg.logicalTimestamp = logicalClock;
-            logicalClock++;
-
-            // ensure 1 and 2 send message to opposite nodes from eachother
-            // and 3 sends to both
-            if (randomEvent == 1) {
-                int nodeToSend = (rank) % channels.size();
-                sendMessage(channels[nodeToSend], outMsg);
-                logger.write("[SEND to {}] SysTime={} LogicalClock={}",
-                             nodeToSend, getSystemTimeStr(), logicalClock);
-            } else if (randomEvent == 2) {
-                int nodeToSend = (rank + 1) % channels.size();
-                sendMessage(channels[nodeToSend], outMsg);
-                logger.write("[SEND to {}] SysTime={} LogicalClock={}",
-                             nodeToSend, getSystemTimeStr(), logicalClock);
-            } else if (randomEvent == 3) {
-                for (int i = 0; i < static_cast<int>(channels.size()); i++) {
-                    sendMessage(channels[i], outMsg);
-                    int other_rank = i < rank ? i : i + 1;
-                    logger.write("[SEND to {}] SysTime={} LogicalClock={}",
-                                 other_rank, getSystemTimeStr(), logicalClock);
-                }
-            }
+    auto now = std::chrono::high_resolution_clock::now();
+    auto large_now = now;
+    int large_count = 0;
+    const auto end = now + std::chrono::seconds(DURATION_SECONDS);
+    const auto increment =
+        std::chrono::nanoseconds(static_cast<long long>(1e9 / clockRate));
+    do {
+        messageQueueMutex.lock();
+        if (!messageQueue.empty()) {
+            Message msg = messageQueue.front();
+            messageQueue.pop();
+            messageQueueMutex.unlock();
+            logicalClock = std::max(logicalClock, msg.logicalTimestamp) + 1;
+            logger.write(
+                "[RECEIVE] SysTime={} Node={} From={} QueueLen={} "
+                "LogicalClock={}",
+                getSystemTimeStr(), rank, msg.senderRank, messageQueue.size(),
+                logicalClock);
         } else {
-            logicalClock++;
-            logger.write("[INTERNAL] SysTime={} Node={} LogicalClock={}",
-                         getSystemTimeStr(), rank, logicalClock);
+            messageQueueMutex.unlock();
+            // No received messages: decide event and execute
+            int randomEvent = rand() % 10 + 1;
+            if (randomEvent <= 3) {
+                Message outMsg;
+                outMsg.senderRank = rank;
+                outMsg.logicalTimestamp = logicalClock;
+
+                // Updates logical clock
+                logicalClock++;
+
+                // ensure 1 and 2 send message to opposite nodes from
+                // eachother and 3 sends to both
+                if (randomEvent == 1) {
+                    int nodeToSend = (rank) % channels.size();
+                    sendMessage(channels[nodeToSend], outMsg);
+                    logger.write("[SEND to {}] SysTime={} LogicalClock={}",
+                                 nodeToSend, getSystemTimeStr(), logicalClock);
+                } else if (randomEvent == 2) {
+                    int nodeToSend = (rank + 1) % channels.size();
+                    sendMessage(channels[nodeToSend], outMsg);
+                    logger.write("[SEND to {}] SysTime={} LogicalClock={}",
+                                 nodeToSend, getSystemTimeStr(), logicalClock);
+                } else if (randomEvent == 3) {
+                    for (int i = 0; i < static_cast<int>(channels.size());
+                         i++) {
+                        sendMessage(channels[i], outMsg);
+                        int other_rank = i + (i >= rank);
+                        logger.write("[SEND to {}] SysTime={} LogicalClock={}",
+                                     other_rank, getSystemTimeStr(),
+                                     logicalClock);
+                    }
+                }
+            } else if (randomEvent <= INTERNAL_EVENT_PROBABILITY_CAP) {
+                logicalClock++;
+                logger.write("[INTERNAL] SysTime={} Node={} LogicalClock={}",
+                             getSystemTimeStr(), rank, logicalClock);
+            }
         }
-    }
+        large_count++;
+        if (large_count == clockRate) {
+            large_count = 0;
+            large_now += std::chrono::seconds(1);
+            now = large_now;
+        } else {
+            now += increment;
+        }
+        std::this_thread::sleep_until(now);
+    } while (std::chrono::high_resolution_clock::now() < end);
 
     done = true;
     logger.write("[INFO]: Shutting down", rank);

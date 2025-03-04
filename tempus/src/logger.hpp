@@ -14,6 +14,6 @@ class Logger {
     template <typename... Args>
     void write(std::format_string<Args...> fmt, Args &&...args) {
         std::unique_lock<std::mutex> lock(file_mutex);
-        file << std::format(fmt, std::forward<Args>(args)...) << std::endl;
+        file << std::format(fmt, std::forward<Args>(args)...) << "\n";
     }
 };
