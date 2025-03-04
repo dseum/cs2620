@@ -9,4 +9,4 @@ struct Message {
     int logicalTimestamp;
 };
 
-void runNode(int rank, Logger &logger, const std::vector<int> &channels);
+void runNode(int rank, Logger &logger, const std::vector<int> &channels, int num_vms);

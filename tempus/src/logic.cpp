@@ -12,7 +12,7 @@
 #include <string>
 #include <cstring>
 
-constexpr uint64_t DURATION_SECONDS = 20;
+constexpr uint64_t DURATION_SECONDS = 60;
 constexpr uint64_t MAX_CLOCK_RATE = 6;
 constexpr int INTERNAL_EVENT_PROBABILITY_CAP =
     10;  // x in [3, 10] where probability is (x - 3) / 10
@@ -95,7 +95,7 @@ bool sendMessage(int sockFd, const Message &msg) {
     return (bytesSent == sizeof(msg));
 }
 
-void runNode(int rank, Logger &logger, const std::vector<int> &channels) {
+void runNode(int rank, Logger &logger, const std::vector<int> &channels, int num_vms) {
     srand(static_cast<unsigned>(time(NULL)) ^ rank);
 
     const int clockRate = rand() % MAX_CLOCK_RATE + 1;
@@ -146,23 +146,29 @@ void runNode(int rank, Logger &logger, const std::vector<int> &channels) {
                 // ensure 1 and 2 send message to opposite nodes from
                 // eachother and 3 sends to both
                 if (randomEvent == 1) {
-                    int nodeToSend = (rank) % channels.size();
-                    sendMessage(channels[nodeToSend], outMsg);
-                    logger.write("[SEND to {}] SysTime={} LogicalClock={}",
-                                 nodeToSend, getSystemTimeStr(), logicalClock);
-                } else if (randomEvent == 2) {
-                    int nodeToSend = (rank + 1) % channels.size();
-                    sendMessage(channels[nodeToSend], outMsg);
-                    logger.write("[SEND to {}] SysTime={} LogicalClock={}",
-                                 nodeToSend, getSystemTimeStr(), logicalClock);
-                } else if (randomEvent == 3) {
-                    for (int i = 0; i < static_cast<int>(channels.size());
-                         i++) {
-                        sendMessage(channels[i], outMsg);
-                        int other_rank = i + (i >= rank);
+                    int targetRank = (rank + 1) % num_vms;
+                    if (targetRank != rank) {  // Prevent self-send
+                        int channelIndex = (targetRank > rank) ? targetRank - 1 : targetRank;
+                        sendMessage(channels[channelIndex], outMsg);
                         logger.write("[SEND to {}] SysTime={} LogicalClock={}",
-                                     other_rank, getSystemTimeStr(),
-                                     logicalClock);
+                                     targetRank, getSystemTimeStr(), logicalClock);
+                    }
+                } else if (randomEvent == 2) {
+                    int targetRank = (rank + 2) % num_vms;
+                    if (targetRank != rank) {  // Prevent self-send
+                        int channelIndex = (targetRank > rank) ? targetRank - 1 : targetRank;
+                        sendMessage(channels[channelIndex], outMsg);
+                        logger.write("[SEND to {}] SysTime={} LogicalClock={}",
+                                     targetRank, getSystemTimeStr(), logicalClock);
+                    }
+                } else if (randomEvent == 3) {
+                    for (int i = 0; i < static_cast<int>(channels.size()); i++) {
+                        int targetRank = (i >= rank) ? i + 1 : i;  // Map channel index to rank
+                        if (targetRank != rank) {
+                            sendMessage(channels[i], outMsg);
+                            logger.write("[SEND to {}] SysTime={} LogicalClock={}",
+                                         targetRank, getSystemTimeStr(), logicalClock);
+                        }
                     }
                 }
             } else if (randomEvent <= INTERNAL_EVENT_PROBABILITY_CAP) {

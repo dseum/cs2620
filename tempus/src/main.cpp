@@ -2,12 +2,16 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <iostream>
 #include <numeric>
 #include <print>
 #include <vector>
+#include <cstring>
+
 
 #include "logger.hpp"
 #include "logic.hpp"
@@ -171,7 +175,7 @@ int main() {
                 close(sock);
             }
             try {
-                runNode(rank, logger, channels);
+                runNode(rank, logger, channels, num_vms);
             } catch (const std::exception &e) {
                 logger.write("[ERROR]: {}", e.what());
             }
