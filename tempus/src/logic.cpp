@@ -1,14 +1,12 @@
 #include "logic.hpp"
 
+#include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include <chrono>
 #include <ctime>
-#include <format>
-#include <fstream>
 #include <future>
-#include <iostream>
 #include <queue>
 #include <string>
 
@@ -22,19 +20,41 @@ std::string getSystemTimeStr() {
     return std::string(buf);
 }
 
-void receiveMessages(int rank, const std::vector<int> &channels,
-                     std::queue<Message> &messageQueue,
-                     std::mutex &messageQueueMutex) {
-    while (true) {
-        Message msg;
-        for (int i = 0; i < static_cast<int>(channels.size()); i++) {
-            if (i == rank) continue;  // Skips self
+void receiveMessages(Logger &logger, std::atomic<bool> &done, int rank,
+                     const std::vector<int> &channels,
+                     std::queue<Message> &messages,
+                     std::mutex &messages_mutex) {
+    std::vector<std::array<char, sizeof(Message)>> bufs(channels.size());
+    std::vector<size_t> sizes(channels.size(), 0);
 
-            int sockFd = channels[i];
-            ssize_t bytesReceived = recv(sockFd, &msg, sizeof(msg), 0);
-            if (bytesReceived == sizeof(msg)) {
-                std::unique_lock<std::mutex> lock(messageQueueMutex);
-                messageQueue.push(msg);
+    std::vector<struct pollfd> fds(channels.size());
+    for (int i = 0; i < static_cast<int>(channels.size()); i++) {
+        fds[i].fd = channels[i];
+        fds[i].events = POLLIN;
+    }
+
+    Message message;
+    while (!done) {
+        if (poll(fds.data(), channels.size(), 1000) > 0) {
+            for (int i = 0; i < static_cast<int>(channels.size()); i++) {
+                size_t &size = sizes[i];
+                if (fds[i].revents & POLLIN) {
+                    ssize_t bytes_read =
+                        recv(channels[i], bufs[i].data() + size,
+                             sizeof(Message) - size, 0);
+                    if (bytes_read <= 0) {
+                        throw std::runtime_error("Unexpected disconnect");
+                    }
+                    size += bytes_read;
+                    if (size == sizeof(Message)) {
+                        std::memcpy(&message, bufs[i].data(), sizeof(Message));
+                        {
+                            std::unique_lock<std::mutex> lock(messages_mutex);
+                            messages.push(message);
+                        }
+                        size = 0;
+                    }
+                }
             }
         }
     }
@@ -45,8 +65,7 @@ bool sendMessage(int sockFd, const Message &msg) {
     return (bytesSent == sizeof(msg));
 }
 
-void runNode(int rank, std::ofstream &logFile,
-             const std::vector<int> &socketFds) {
+void runNode(int rank, Logger &logger, const std::vector<int> &channels) {
     srand(static_cast<unsigned>(time(NULL)) ^ rank);
 
     int clockRate = rand() % 6 + 1;
@@ -62,10 +81,14 @@ void runNode(int rank, std::ofstream &logFile,
     std::queue<Message> messageQueue;
     std::mutex messageQueueMutex;
 
+    logger.write("[INFO]: Rank={} ClockRate={}", rank, clockRate);
+
     // Receives messages asynchronously
-    std::future<void> receiverThread = std::async(
-        std::launch::async, receiveMessages, rank, std::ref(socketFds),
-        std::ref(messageQueue), std::ref(messageQueueMutex));
+    std::atomic<bool> done = false;
+    std::future<void> receiverThread =
+        std::async(std::launch::async, receiveMessages, std::ref(logger),
+                   std::ref(done), rank, std::ref(channels),
+                   std::ref(messageQueue), std::ref(messageQueueMutex));
 
     while (true) {
         auto now = std::chrono::steady_clock::now();
@@ -97,60 +120,57 @@ void runNode(int rank, std::ofstream &logFile,
         // tick logical clock
         ticksThisSecond++;
 
-        if (!messageQueue.empty()) {
-            Message msg = messageQueue.front();
-            messageQueue.pop();
-            logicalClock = std::max(logicalClock, msg.logicalTimestamp) + 1;
-            logFile << "[RECEIVE] SysTime=" << getSystemTimeStr()
-                    << " Node=" << rank << " From=" << msg.senderRank
-                    << " QueueLen=" << messageQueue.size()
-                    << " LogicalClock=" << logicalClock << "\n";
-        } else {
-            int randomEvent = rand() % 10 + 1;
-            if (randomEvent >= 1 && randomEvent <= 3) {
-                Message outMsg;
-                outMsg.senderRank = rank;
-                outMsg.logicalTimestamp = logicalClock;
-                logicalClock++;
-
-                // ensure 1 and 2 send message to opposite nodes from eachother
-                // and 3 sends to both
-                if (randomEvent == 1) {
-                    int nodeToSend = (rank + 1) % socketFds.size();
-                    if (nodeToSend == rank) {
-                        nodeToSend = (rank + 2) % socketFds.size();
-                    }
-                    sendMessage(socketFds[nodeToSend], outMsg);
-                    logFile << "[SEND to " << nodeToSend << "] "
-                            << "SysTime=" << getSystemTimeStr()
-                            << " LogicalClock=" << logicalClock << "\n";
-                } else if (randomEvent == 2) {
-                    int nodeToSend = (rank + 2) % socketFds.size();
-                    if (nodeToSend == rank) {
-                        nodeToSend = (rank + 1) % socketFds.size();
-                    }
-                    sendMessage(socketFds[nodeToSend], outMsg);
-                    logFile << "[SEND to " << nodeToSend << "] "
-                            << "SysTime=" << getSystemTimeStr()
-                            << " LogicalClock=" << logicalClock << "\n";
-                } else if (randomEvent == 3) {
-                    for (int i = 0; i < (int)socketFds.size(); i++) {
-                        if (i == rank) continue;  // skip self
-                        sendMessage(socketFds[i], outMsg);
-                        logFile << "[SEND to " << i << "] "
-                                << "SysTime=" << getSystemTimeStr()
-                                << " LogicalClock=" << logicalClock << "\n";
-                    }
-                }
-            } else {
-                logicalClock++;
-                logFile << "[INTERNAL] SysTime=" << getSystemTimeStr()
-                        << " Node=" << rank << " LogicalClock=" << logicalClock
-                        << "\n";
+        {
+            std::unique_lock<std::mutex> lock(messageQueueMutex);
+            if (!messageQueue.empty()) {
+                Message msg = messageQueue.front();
+                messageQueue.pop();
+                logicalClock = std::max(logicalClock, msg.logicalTimestamp) + 1;
+                logger.write(
+                    "[RECEIVE] SysTime={} Node={} From={} QueueLen={} "
+                    "LogicalClock={}",
+                    getSystemTimeStr(), rank, msg.senderRank,
+                    messageQueue.size(), logicalClock);
+                continue;
             }
+        }
+
+        int randomEvent = rand() % 10 + 1;
+        if (randomEvent >= 1 && randomEvent <= 3) {
+            Message outMsg;
+            outMsg.senderRank = rank;
+            outMsg.logicalTimestamp = logicalClock;
+            logicalClock++;
+
+            // ensure 1 and 2 send message to opposite nodes from eachother
+            // and 3 sends to both
+            if (randomEvent == 1) {
+                int nodeToSend = (rank) % channels.size();
+                sendMessage(channels[nodeToSend], outMsg);
+                logger.write("[SEND to {}] SysTime={} LogicalClock={}",
+                             nodeToSend, getSystemTimeStr(), logicalClock);
+            } else if (randomEvent == 2) {
+                int nodeToSend = (rank + 1) % channels.size();
+                sendMessage(channels[nodeToSend], outMsg);
+                logger.write("[SEND to {}] SysTime={} LogicalClock={}",
+                             nodeToSend, getSystemTimeStr(), logicalClock);
+            } else if (randomEvent == 3) {
+                for (int i = 0; i < static_cast<int>(channels.size()); i++) {
+                    sendMessage(channels[i], outMsg);
+                    int other_rank = i < rank ? i : i + 1;
+                    logger.write("[SEND to {}] SysTime={} LogicalClock={}",
+                                 other_rank, getSystemTimeStr(), logicalClock);
+                }
+            }
+        } else {
+            logicalClock++;
+            logger.write("[INTERNAL] SysTime={} Node={} LogicalClock={}",
+                         getSystemTimeStr(), rank, logicalClock);
         }
     }
 
-    logFile << "Node " << rank << " exiting.\n";
-    logFile.close();
+    done = true;
+    logger.write("[INFO]: Shutting down", rank);
+    receiverThread.wait();
+    logger.write("[INFO]: Shut down", rank);
 }

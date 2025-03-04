@@ -27,5 +27,5 @@ endif()
 # Adds executable
 add_executable(exe)
 target_compile_options(exe PRIVATE ${CXX_FLAGS})
-target_sources(exe PRIVATE src/main.cpp src/logic.cpp)
+target_sources(exe PRIVATE src/main.cpp src/logger.cpp src/logic.cpp)
 target_include_directories(exe PRIVATE src)

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <fstream>
 #include <vector>
+
+#include "logger.hpp"
 
 struct Message {
     int senderRank;
     int logicalTimestamp;
 };
 
-void runNode(int rank, std::ofstream &logFile,
-             const std::vector<int> &socketFds);
+void runNode(int rank, Logger &logger, const std::vector<int> &channels);

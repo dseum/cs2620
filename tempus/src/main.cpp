@@ -1,76 +1,120 @@
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <fstream>
+#include <iostream>
 #include <numeric>
 #include <print>
 #include <vector>
 
+#include "logger.hpp"
 #include "logic.hpp"
 
-int main(int argc, const char *argv[]) {
+int main() {
     srand(1);
 
     constexpr int num_vms = 3;  // number of vms to simulate; should not change
-    constexpr int max_ticks =
-        6;  // maximum number of ticks a vm can be initialized with
-    constexpr int min_prob = 4;      // minimum bound to use for computing
-                                     // probability when selecting from [1, 10]
-    constexpr int min_port = 14400;  // minimum port number to use
+    constexpr int min_port = 17050;  // minimum port number to use
 
     std::vector<int> ports(num_vms);
     std::iota(ports.begin(), ports.end(), min_port);
-    for (int i = 0; i < num_vms; ++i) {
-        std::println("VM {}: port {}", i, ports[i]);
-    }
 
     for (int rank = 0; rank < num_vms; ++rank) {
+        std::println("Starting rank {} on port {}", rank, ports[rank]);
         pid_t pid = fork();
         if (pid < 0) {  // No process
-            throw std::runtime_error("Failed to fork");
+            std::cerr << "Failed to fork process" << std::endl;
+            return 1;
         } else if (pid == 0) {  // Child process
-            std::ofstream logFile(std::format("node_{}.log", rank));
-            logFile << std::format("[INIT]: Rank={}", rank) << std::endl;
+            Logger logger(rank);
 
             // Initializes channels
-            std::vector<int> channels(num_vms);
+            std::vector<int> channels(num_vms - 1);
             {
                 int sock;
                 if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-                    throw std::runtime_error("Failed to create socket");
+                    logger.write("[ERROR]: Failed to create socket: {}",
+                                 strerror(errno));
+                    return 1;
                 }
+
+                int opt = 1;
+                setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
                 struct sockaddr_in addr;
                 addr.sin_family = AF_INET;
                 addr.sin_port = htons(ports[rank]);
                 addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
+                logger.write("[INFO]: Binding to port {}", ports[rank]);
                 if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-                    throw std::runtime_error(
-                        std::format("Failed to bind socket to port {} err: {}",
-                                    ports[rank], strerror(errno)));
+                    close(sock);
+                    logger.write("[ERROR]: Failed to bind socket: {}",
+                                 strerror(errno));
+                    return 1;
                 }
 
+                logger.write("[INFO]: Listening on port {}", ports[rank]);
                 if (listen(sock, num_vms - 1) < 0) {
-                    throw std::runtime_error("Failed to listen on socket");
+                    close(sock);
+                    logger.write("[ERROR]: Failed to listen on socket: {}",
+                                 strerror(errno));
+                    return 1;
                 }
 
-                logFile << std::format("[INFO]: Accept") << std::endl;
-                for (int other_rank = 0; other_rank < rank; ++other_rank) {
-                    if ((channels[other_rank] =
-                             accept(sock, nullptr, nullptr))) {
-                        throw std::runtime_error("Failed to accept channel");
+                // Accepts
+                for (int i = 0; i < rank; i++) {
+                    int other_sock;
+                    logger.write("[INFO]: Waiting for connect");
+                    if ((other_sock = accept(sock, nullptr, nullptr)) < 0) {
+                        for (int channel : channels) {
+                            close(channel);
+                        }
+                        close(sock);
+                        logger.write("[ERROR]: Failed to accept on socket: {}",
+                                     strerror(errno));
+                        return 1;
                     }
+                    char buf[sizeof(int)];
+                    size_t size = 0;
+                    while (size != sizeof(buf)) {
+                        int bytes_read = recv(other_sock, &buf + size,
+                                              sizeof(buf) - size, 0);
+                        if (bytes_read <= 0) {
+                            for (int channel : channels) {
+                                close(channel);
+                            }
+                            close(other_sock);
+                            close(sock);
+                            logger.write(
+                                "[ERROR]: Failed to read rank from other "
+                                "channel: {}",
+                                strerror(errno));
+                            return 1;
+                        }
+                        size += bytes_read;
+                    }
+                    int other_rank =
+                        *reinterpret_cast<int *>(buf);  // Is < rank
+                    logger.write("[INFO]: Accepted channel from rank {}",
+                                 other_rank);
+                    channels[other_rank] = other_sock;
                 }
 
-                logFile << std::format("[INFO]: Connect") << std::endl;
+                // Connects
                 for (int other_rank = rank + 1; other_rank < num_vms;
                      ++other_rank) {
-                    if ((channels[other_rank] =
-                             socket(AF_INET, SOCK_STREAM, 0) < 0)) {
-                        throw std::runtime_error("Failed to create channel");
+                    int i = other_rank - 1;
+                    if ((channels[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+                        for (int channel : channels) {
+                            close(channel);
+                        }
+                        close(sock);
+                        logger.write("[ERROR]: Failed to create channel: {}",
+                                     strerror(errno));
+                        return 1;
                     }
 
                     struct sockaddr_in other_addr;
@@ -78,29 +122,67 @@ int main(int argc, const char *argv[]) {
                     other_addr.sin_port = htons(ports[other_rank]);
                     other_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
-                    logFile
-                        << std::format("[INFO]: Connecting to {}", other_rank)
-                        << std::endl;
+                    while (true) {
+                        if (connect(channels[i], (struct sockaddr *)&other_addr,
+                                    sizeof(other_addr)) < 0) {
+                            logger.write(
+                                "[ERROR]: Failed to connect to rank {}: {}",
+                                other_rank, strerror(errno));
+                            close(channels[i]);
+                            if ((channels[i] =
+                                     socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+                                for (int channel : channels) {
+                                    close(channel);
+                                }
+                                close(sock);
+                                logger.write(
+                                    "[ERROR]: Failed to create channel: {}",
+                                    strerror(errno));
+                                return 1;
+                            }
+                            sleep(1);
+                            continue;
+                        }
+                        break;
+                    }
 
-                    while (connect(channels[other_rank],
-                                   (struct sockaddr *)&other_addr,
-                                   sizeof(other_addr)) <
-                           0) {  // Retries until connection is established
-                        usleep(1000);  // Sleeps briefly to avoid busy waiting
-                        logFile << std::format("[INFO]: Retrying") << std::endl;
+                    logger.write("[INFO]: Connected to rank {}", other_rank);
+
+                    char buf[sizeof(int)];
+                    std::memcpy(buf, &rank, sizeof(rank));
+                    size_t size = 0;
+                    while (size != sizeof(rank)) {
+                        int bytes_sent = send(channels[i], &buf + size,
+                                              sizeof(buf) - size, 0);
+                        if (bytes_sent <= 0) {
+                            for (int channel : channels) {
+                                close(channel);
+                            }
+                            close(sock);
+                            logger.write(
+                                "[ERROR]: Failed to send rank to other "
+                                "channel: {}",
+                                strerror(errno));
+                            return 1;
+                        }
+                        size += bytes_sent;
                     }
                 }
-
-                logFile << std::format("[INFO]: Connected") << std::endl;
                 close(sock);
             }
-            runNode(rank, logFile, channels);
-            for (int other_rank = 0; other_rank < num_vms; ++other_rank) {
-                if (other_rank == rank) continue;
-                close(channels[other_rank]);
+            try {
+                runNode(rank, logger, channels);
+            } catch (const std::exception &e) {
+                logger.write("[ERROR]: {}", e.what());
             }
+            for (int channel : channels) {
+                close(channel);
+            }
+            break;
         }
     }
+
+    while (wait(NULL) > 0);  // Waits for all children to finish
 
     return 0;
 }
