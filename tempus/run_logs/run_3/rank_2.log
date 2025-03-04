@@ -1,0 +1,201 @@
+[INIT]
+[INFO]: Binding to port 17052
+[INFO]: Listening on port 17052
+[INFO]: Waiting for connect
+[INFO]: Accepted channel from rank 0
+[INFO]: Waiting for connect
+[INFO]: Accepted channel from rank 1
+[INFO]: Rank=2 ClockRate=3
+[SEND to 0] SysTime=15:30:53 LogicalClock=1
+[SEND to 1] SysTime=15:30:53 LogicalClock=1
+[RECEIVE] SysTime=15:30:53 Node=2 From=0 QueueLen=1 LogicalClock=2
+[RECEIVE] SysTime=15:30:53 Node=2 From=1 QueueLen=0 LogicalClock=3
+[INTERNAL] SysTime=15:30:54 Node=2 LogicalClock=4
+[RECEIVE] SysTime=15:30:54 Node=2 From=1 QueueLen=0 LogicalClock=7
+[RECEIVE] SysTime=15:30:54 Node=2 From=0 QueueLen=0 LogicalClock=9
+[SEND to 0] SysTime=15:30:55 LogicalClock=10
+[SEND to 0] SysTime=15:30:55 LogicalClock=11
+[SEND to 1] SysTime=15:30:55 LogicalClock=11
+[SEND to 0] SysTime=15:30:55 LogicalClock=12
+[INTERNAL] SysTime=15:30:56 Node=2 LogicalClock=13
+[RECEIVE] SysTime=15:30:56 Node=2 From=1 QueueLen=0 LogicalClock=14
+[INTERNAL] SysTime=15:30:56 Node=2 LogicalClock=15
+[RECEIVE] SysTime=15:30:57 Node=2 From=0 QueueLen=0 LogicalClock=21
+[SEND to 0] SysTime=15:30:57 LogicalClock=22
+[RECEIVE] SysTime=15:30:57 Node=2 From=0 QueueLen=0 LogicalClock=24
+[SEND to 0] SysTime=15:30:58 LogicalClock=25
+[INTERNAL] SysTime=15:30:58 Node=2 LogicalClock=26
+[RECEIVE] SysTime=15:30:58 Node=2 From=0 QueueLen=0 LogicalClock=29
+[INTERNAL] SysTime=15:30:59 Node=2 LogicalClock=30
+[SEND to 0] SysTime=15:30:59 LogicalClock=31
+[SEND to 1] SysTime=15:30:59 LogicalClock=31
+[INTERNAL] SysTime=15:30:59 Node=2 LogicalClock=32
+[RECEIVE] SysTime=15:31:00 Node=2 From=1 QueueLen=0 LogicalClock=33
+[INTERNAL] SysTime=15:31:00 Node=2 LogicalClock=34
+[RECEIVE] SysTime=15:31:00 Node=2 From=1 QueueLen=0 LogicalClock=37
+[SEND to 0] SysTime=15:31:01 LogicalClock=38
+[SEND to 1] SysTime=15:31:01 LogicalClock=38
+[INTERNAL] SysTime=15:31:01 Node=2 LogicalClock=39
+[RECEIVE] SysTime=15:31:01 Node=2 From=1 QueueLen=0 LogicalClock=42
+[RECEIVE] SysTime=15:31:02 Node=2 From=1 QueueLen=0 LogicalClock=43
+[SEND to 0] SysTime=15:31:02 LogicalClock=44
+[SEND to 1] SysTime=15:31:02 LogicalClock=44
+[SEND to 0] SysTime=15:31:02 LogicalClock=45
+[INTERNAL] SysTime=15:31:03 Node=2 LogicalClock=46
+[INTERNAL] SysTime=15:31:03 Node=2 LogicalClock=47
+[INTERNAL] SysTime=15:31:03 Node=2 LogicalClock=48
+[RECEIVE] SysTime=15:31:04 Node=2 From=0 QueueLen=0 LogicalClock=55
+[RECEIVE] SysTime=15:31:04 Node=2 From=0 QueueLen=0 LogicalClock=57
+[SEND to 0] SysTime=15:31:04 LogicalClock=58
+[INTERNAL] SysTime=15:31:05 Node=2 LogicalClock=59
+[RECEIVE] SysTime=15:31:05 Node=2 From=0 QueueLen=0 LogicalClock=62
+[INTERNAL] SysTime=15:31:05 Node=2 LogicalClock=63
+[INTERNAL] SysTime=15:31:06 Node=2 LogicalClock=64
+[RECEIVE] SysTime=15:31:06 Node=2 From=0 QueueLen=0 LogicalClock=67
+[RECEIVE] SysTime=15:31:06 Node=2 From=0 QueueLen=0 LogicalClock=68
+[INTERNAL] SysTime=15:31:07 Node=2 LogicalClock=69
+[SEND to 1] SysTime=15:31:07 LogicalClock=70
+[SEND to 0] SysTime=15:31:07 LogicalClock=71
+[SEND to 1] SysTime=15:31:07 LogicalClock=71
+[INTERNAL] SysTime=15:31:08 Node=2 LogicalClock=72
+[INTERNAL] SysTime=15:31:08 Node=2 LogicalClock=73
+[INTERNAL] SysTime=15:31:08 Node=2 LogicalClock=74
+[RECEIVE] SysTime=15:31:09 Node=2 From=0 QueueLen=0 LogicalClock=81
+[INTERNAL] SysTime=15:31:09 Node=2 LogicalClock=82
+[SEND to 0] SysTime=15:31:09 LogicalClock=83
+[RECEIVE] SysTime=15:31:10 Node=2 From=0 QueueLen=0 LogicalClock=86
+[INTERNAL] SysTime=15:31:10 Node=2 LogicalClock=87
+[RECEIVE] SysTime=15:31:10 Node=2 From=0 QueueLen=0 LogicalClock=89
+[RECEIVE] SysTime=15:31:11 Node=2 From=0 QueueLen=0 LogicalClock=90
+[SEND to 1] SysTime=15:31:11 LogicalClock=91
+[INTERNAL] SysTime=15:31:11 Node=2 LogicalClock=92
+[RECEIVE] SysTime=15:31:12 Node=2 From=1 QueueLen=0 LogicalClock=93
+[INTERNAL] SysTime=15:31:12 Node=2 LogicalClock=94
+[INTERNAL] SysTime=15:31:12 Node=2 LogicalClock=95
+[RECEIVE] SysTime=15:31:13 Node=2 From=0 QueueLen=0 LogicalClock=100
+[RECEIVE] SysTime=15:31:13 Node=2 From=0 QueueLen=0 LogicalClock=102
+[RECEIVE] SysTime=15:31:13 Node=2 From=1 QueueLen=0 LogicalClock=103
+[RECEIVE] SysTime=15:31:14 Node=2 From=1 QueueLen=0 LogicalClock=104
+[INTERNAL] SysTime=15:31:14 Node=2 LogicalClock=105
+[INTERNAL] SysTime=15:31:14 Node=2 LogicalClock=106
+[RECEIVE] SysTime=15:31:15 Node=2 From=0 QueueLen=0 LogicalClock=111
+[SEND to 0] SysTime=15:31:15 LogicalClock=112
+[RECEIVE] SysTime=15:31:15 Node=2 From=1 QueueLen=0 LogicalClock=113
+[SEND to 0] SysTime=15:31:16 LogicalClock=114
+[SEND to 0] SysTime=15:31:16 LogicalClock=115
+[SEND to 1] SysTime=15:31:16 LogicalClock=115
+[INTERNAL] SysTime=15:31:16 Node=2 LogicalClock=116
+[INTERNAL] SysTime=15:31:17 Node=2 LogicalClock=117
+[INTERNAL] SysTime=15:31:17 Node=2 LogicalClock=118
+[RECEIVE] SysTime=15:31:17 Node=2 From=0 QueueLen=0 LogicalClock=123
+[INTERNAL] SysTime=15:31:18 Node=2 LogicalClock=124
+[SEND to 0] SysTime=15:31:18 LogicalClock=125
+[SEND to 1] SysTime=15:31:18 LogicalClock=125
+[RECEIVE] SysTime=15:31:18 Node=2 From=0 QueueLen=0 LogicalClock=129
+[RECEIVE] SysTime=15:31:19 Node=2 From=0 QueueLen=0 LogicalClock=131
+[RECEIVE] SysTime=15:31:19 Node=2 From=1 QueueLen=0 LogicalClock=132
+[RECEIVE] SysTime=15:31:19 Node=2 From=0 QueueLen=0 LogicalClock=134
+[RECEIVE] SysTime=15:31:20 Node=2 From=1 QueueLen=0 LogicalClock=135
+[INTERNAL] SysTime=15:31:20 Node=2 LogicalClock=136
+[RECEIVE] SysTime=15:31:20 Node=2 From=1 QueueLen=0 LogicalClock=137
+[INTERNAL] SysTime=15:31:21 Node=2 LogicalClock=138
+[RECEIVE] SysTime=15:31:21 Node=2 From=1 QueueLen=0 LogicalClock=140
+[INTERNAL] SysTime=15:31:21 Node=2 LogicalClock=141
+[SEND to 1] SysTime=15:31:22 LogicalClock=142
+[SEND to 0] SysTime=15:31:22 LogicalClock=143
+[SEND to 1] SysTime=15:31:22 LogicalClock=143
+[INTERNAL] SysTime=15:31:22 Node=2 LogicalClock=144
+[RECEIVE] SysTime=15:31:23 Node=2 From=0 QueueLen=0 LogicalClock=150
+[RECEIVE] SysTime=15:31:23 Node=2 From=0 QueueLen=0 LogicalClock=152
+[INTERNAL] SysTime=15:31:23 Node=2 LogicalClock=153
+[RECEIVE] SysTime=15:31:24 Node=2 From=0 QueueLen=1 LogicalClock=155
+[RECEIVE] SysTime=15:31:24 Node=2 From=0 QueueLen=1 LogicalClock=156
+[RECEIVE] SysTime=15:31:24 Node=2 From=0 QueueLen=1 LogicalClock=157
+[RECEIVE] SysTime=15:31:25 Node=2 From=0 QueueLen=1 LogicalClock=158
+[RECEIVE] SysTime=15:31:26 Node=2 From=0 QueueLen=0 LogicalClock=160
+[INTERNAL] SysTime=15:31:26 Node=2 LogicalClock=161
+[INTERNAL] SysTime=15:31:26 Node=2 LogicalClock=162
+[INTERNAL] SysTime=15:31:26 Node=2 LogicalClock=163
+[RECEIVE] SysTime=15:31:26 Node=2 From=1 QueueLen=0 LogicalClock=170
+[INTERNAL] SysTime=15:31:27 Node=2 LogicalClock=171
+[RECEIVE] SysTime=15:31:27 Node=2 From=0 QueueLen=0 LogicalClock=173
+[SEND to 1] SysTime=15:31:27 LogicalClock=174
+[RECEIVE] SysTime=15:31:28 Node=2 From=1 QueueLen=0 LogicalClock=176
+[INTERNAL] SysTime=15:31:28 Node=2 LogicalClock=177
+[SEND to 0] SysTime=15:31:28 LogicalClock=178
+[SEND to 1] SysTime=15:31:29 LogicalClock=179
+[INTERNAL] SysTime=15:31:29 Node=2 LogicalClock=180
+[INTERNAL] SysTime=15:31:29 Node=2 LogicalClock=181
+[RECEIVE] SysTime=15:31:30 Node=2 From=0 QueueLen=0 LogicalClock=187
+[INTERNAL] SysTime=15:31:30 Node=2 LogicalClock=188
+[RECEIVE] SysTime=15:31:30 Node=2 From=0 QueueLen=1 LogicalClock=189
+[RECEIVE] SysTime=15:31:31 Node=2 From=0 QueueLen=0 LogicalClock=190
+[INTERNAL] SysTime=15:31:31 Node=2 LogicalClock=191
+[SEND to 0] SysTime=15:31:31 LogicalClock=192
+[SEND to 1] SysTime=15:31:31 LogicalClock=192
+[INTERNAL] SysTime=15:31:32 Node=2 LogicalClock=193
+[RECEIVE] SysTime=15:31:32 Node=2 From=1 QueueLen=0 LogicalClock=195
+[RECEIVE] SysTime=15:31:32 Node=2 From=0 QueueLen=0 LogicalClock=199
+[RECEIVE] SysTime=15:31:33 Node=2 From=1 QueueLen=0 LogicalClock=200
+[RECEIVE] SysTime=15:31:33 Node=2 From=1 QueueLen=0 LogicalClock=201
+[INTERNAL] SysTime=15:31:33 Node=2 LogicalClock=202
+[SEND to 1] SysTime=15:31:34 LogicalClock=203
+[INTERNAL] SysTime=15:31:34 Node=2 LogicalClock=204
+[RECEIVE] SysTime=15:31:34 Node=2 From=0 QueueLen=0 LogicalClock=209
+[INTERNAL] SysTime=15:31:35 Node=2 LogicalClock=210
+[INTERNAL] SysTime=15:31:35 Node=2 LogicalClock=211
+[INTERNAL] SysTime=15:31:35 Node=2 LogicalClock=212
+[RECEIVE] SysTime=15:31:36 Node=2 From=0 QueueLen=0 LogicalClock=217
+[RECEIVE] SysTime=15:31:36 Node=2 From=0 QueueLen=0 LogicalClock=218
+[RECEIVE] SysTime=15:31:36 Node=2 From=0 QueueLen=0 LogicalClock=220
+[INTERNAL] SysTime=15:31:37 Node=2 LogicalClock=221
+[INTERNAL] SysTime=15:31:37 Node=2 LogicalClock=222
+[INTERNAL] SysTime=15:31:37 Node=2 LogicalClock=223
+[RECEIVE] SysTime=15:31:38 Node=2 From=1 QueueLen=0 LogicalClock=225
+[RECEIVE] SysTime=15:31:38 Node=2 From=0 QueueLen=0 LogicalClock=228
+[INTERNAL] SysTime=15:31:38 Node=2 LogicalClock=229
+[INTERNAL] SysTime=15:31:39 Node=2 LogicalClock=230
+[RECEIVE] SysTime=15:31:39 Node=2 From=1 QueueLen=0 LogicalClock=232
+[RECEIVE] SysTime=15:31:39 Node=2 From=1 QueueLen=0 LogicalClock=233
+[RECEIVE] SysTime=15:31:40 Node=2 From=0 QueueLen=0 LogicalClock=236
+[INTERNAL] SysTime=15:31:40 Node=2 LogicalClock=237
+[INTERNAL] SysTime=15:31:40 Node=2 LogicalClock=238
+[RECEIVE] SysTime=15:31:41 Node=2 From=0 QueueLen=0 LogicalClock=241
+[RECEIVE] SysTime=15:31:41 Node=2 From=0 QueueLen=0 LogicalClock=243
+[RECEIVE] SysTime=15:31:41 Node=2 From=1 QueueLen=0 LogicalClock=244
+[RECEIVE] SysTime=15:31:42 Node=2 From=1 QueueLen=1 LogicalClock=245
+[RECEIVE] SysTime=15:31:42 Node=2 From=0 QueueLen=0 LogicalClock=246
+[RECEIVE] SysTime=15:31:42 Node=2 From=1 QueueLen=1 LogicalClock=248
+[RECEIVE] SysTime=15:31:43 Node=2 From=0 QueueLen=0 LogicalClock=250
+[RECEIVE] SysTime=15:31:43 Node=2 From=1 QueueLen=0 LogicalClock=253
+[RECEIVE] SysTime=15:31:43 Node=2 From=1 QueueLen=0 LogicalClock=254
+[RECEIVE] SysTime=15:31:44 Node=2 From=1 QueueLen=0 LogicalClock=255
+[INTERNAL] SysTime=15:31:44 Node=2 LogicalClock=256
+[INTERNAL] SysTime=15:31:44 Node=2 LogicalClock=257
+[RECEIVE] SysTime=15:31:45 Node=2 From=0 QueueLen=0 LogicalClock=262
+[INTERNAL] SysTime=15:31:45 Node=2 LogicalClock=263
+[SEND to 0] SysTime=15:31:45 LogicalClock=264
+[RECEIVE] SysTime=15:31:46 Node=2 From=0 QueueLen=0 LogicalClock=267
+[RECEIVE] SysTime=15:31:46 Node=2 From=0 QueueLen=0 LogicalClock=268
+[RECEIVE] SysTime=15:31:46 Node=2 From=0 QueueLen=0 LogicalClock=270
+[INTERNAL] SysTime=15:31:47 Node=2 LogicalClock=271
+[SEND to 0] SysTime=15:31:47 LogicalClock=272
+[SEND to 1] SysTime=15:31:47 LogicalClock=272
+[SEND to 0] SysTime=15:31:47 LogicalClock=273
+[RECEIVE] SysTime=15:31:48 Node=2 From=1 QueueLen=0 LogicalClock=274
+[INTERNAL] SysTime=15:31:48 Node=2 LogicalClock=275
+[RECEIVE] SysTime=15:31:48 Node=2 From=0 QueueLen=0 LogicalClock=280
+[RECEIVE] SysTime=15:31:49 Node=2 From=1 QueueLen=1 LogicalClock=281
+[RECEIVE] SysTime=15:31:49 Node=2 From=0 QueueLen=1 LogicalClock=282
+[RECEIVE] SysTime=15:31:49 Node=2 From=1 QueueLen=0 LogicalClock=283
+[INTERNAL] SysTime=15:31:50 Node=2 LogicalClock=284
+[INTERNAL] SysTime=15:31:50 Node=2 LogicalClock=285
+[INTERNAL] SysTime=15:31:50 Node=2 LogicalClock=286
+[RECEIVE] SysTime=15:31:51 Node=2 From=0 QueueLen=0 LogicalClock=291
+[RECEIVE] SysTime=15:31:51 Node=2 From=1 QueueLen=0 LogicalClock=292
+[INTERNAL] SysTime=15:31:51 Node=2 LogicalClock=293
+[RECEIVE] SysTime=15:31:52 Node=2 From=0 QueueLen=0 LogicalClock=297
+[SEND to 0] SysTime=15:31:52 LogicalClock=298
+[RECEIVE] SysTime=15:31:52 Node=2 From=1 QueueLen=0 LogicalClock=299
+[INFO]: Shutting down
+[INFO]: Shut down
