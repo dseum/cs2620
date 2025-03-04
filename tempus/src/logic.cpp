@@ -10,6 +10,7 @@
 #include <future>
 #include <queue>
 #include <string>
+#include <cstring>
 
 constexpr uint64_t DURATION_SECONDS = 20;
 constexpr uint64_t MAX_CLOCK_RATE = 6;
