@@ -6,11 +6,11 @@
 
 #include <chrono>
 #include <cstdint>
+#include <cstring>
 #include <ctime>
 #include <future>
 #include <queue>
 #include <string>
-#include <cstring>
 
 constexpr uint64_t DURATION_SECONDS = 60;
 constexpr uint64_t MAX_CLOCK_RATE = 6;
@@ -23,28 +23,6 @@ std::string getSystemTimeStr() {
     char buf[64];
     strftime(buf, sizeof(buf), "%H:%M:%S", localtime(&t));
     return std::string(buf);
-}
-
-void timespec_add(struct timespec *t, long sec, long nsec) {
-    t->tv_sec += sec;
-    t->tv_nsec += nsec;
-
-    // Handle overflow: if nanoseconds exceed 1 billion
-    while (t->tv_nsec >= 1000000000L) {
-        t->tv_sec++;                // Carry over to seconds
-        t->tv_nsec -= 1000000000L;  // Subtract 1 billion nanoseconds
-    }
-}
-
-int timespec_cmp(struct timespec *t1, struct timespec *t2) {
-    if (t1->tv_sec > t2->tv_sec) return 1;   // t1 is later
-    if (t1->tv_sec < t2->tv_sec) return -1;  // t1 is earlier
-
-    // If seconds are equal, compare nanoseconds
-    if (t1->tv_nsec > t2->tv_nsec) return 1;   // t1 is later
-    if (t1->tv_nsec < t2->tv_nsec) return -1;  // t1 is earlier
-
-    return 0;  // Both times are equal
 }
 
 void receiveMessages(Logger &logger, std::atomic<bool> &done, int rank,
@@ -95,7 +73,8 @@ bool sendMessage(int sockFd, const Message &msg) {
     return (bytesSent == sizeof(msg));
 }
 
-void runNode(int rank, Logger &logger, const std::vector<int> &channels, int num_vms) {
+void runNode(int rank, Logger &logger, const std::vector<int> &channels,
+             int num_vms) {
     srand(static_cast<unsigned>(time(NULL)) ^ rank);
 
     const int clockRate = rand() % MAX_CLOCK_RATE + 1;
@@ -148,26 +127,34 @@ void runNode(int rank, Logger &logger, const std::vector<int> &channels, int num
                 if (randomEvent == 1) {
                     int targetRank = (rank + 1) % num_vms;
                     if (targetRank != rank) {  // Prevent self-send
-                        int channelIndex = (targetRank > rank) ? targetRank - 1 : targetRank;
+                        int channelIndex =
+                            (targetRank > rank) ? targetRank - 1 : targetRank;
                         sendMessage(channels[channelIndex], outMsg);
                         logger.write("[SEND to {}] SysTime={} LogicalClock={}",
-                                     targetRank, getSystemTimeStr(), logicalClock);
+                                     targetRank, getSystemTimeStr(),
+                                     logicalClock);
                     }
                 } else if (randomEvent == 2) {
                     int targetRank = (rank + 2) % num_vms;
                     if (targetRank != rank) {  // Prevent self-send
-                        int channelIndex = (targetRank > rank) ? targetRank - 1 : targetRank;
+                        int channelIndex =
+                            (targetRank > rank) ? targetRank - 1 : targetRank;
                         sendMessage(channels[channelIndex], outMsg);
                         logger.write("[SEND to {}] SysTime={} LogicalClock={}",
-                                     targetRank, getSystemTimeStr(), logicalClock);
+                                     targetRank, getSystemTimeStr(),
+                                     logicalClock);
                     }
                 } else if (randomEvent == 3) {
-                    for (int i = 0; i < static_cast<int>(channels.size()); i++) {
-                        int targetRank = (i >= rank) ? i + 1 : i;  // Map channel index to rank
+                    for (int i = 0; i < static_cast<int>(channels.size());
+                         i++) {
+                        int targetRank = (i >= rank)
+                                             ? i + 1
+                                             : i;  // Map channel index to rank
                         if (targetRank != rank) {
                             sendMessage(channels[i], outMsg);
-                            logger.write("[SEND to {}] SysTime={} LogicalClock={}",
-                                         targetRank, getSystemTimeStr(), logicalClock);
+                            logger.write(
+                                "[SEND to {}] SysTime={} LogicalClock={}",
+                                targetRank, getSystemTimeStr(), logicalClock);
                         }
                     }
                 }
