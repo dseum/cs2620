@@ -24,8 +24,17 @@ if(CMAKE_BUILD_TYPE STREQUAL Release)
   set(CXX_FLAGS ${CXX_FLAGS} -DNDEBUG -O2)
 endif()
 
+find_package(Boost CONFIG REQUIRED COMPONENTS unit_test_framework)
+
 # Adds executable
 add_executable(exe)
 target_compile_options(exe PRIVATE ${CXX_FLAGS})
 target_sources(exe PRIVATE src/main.cpp src/logger.cpp src/logic.cpp)
 target_include_directories(exe PRIVATE src)
+
+# Adds test executable
+add_executable(exe_test)
+target_compile_options(exe_test PRIVATE ${CXX_FLAGS})
+target_sources(exe_test PRIVATE src/main_test.cpp src/logger.cpp src/logic.cpp)
+target_include_directories(exe_test PRIVATE src)
+target_link_libraries(exe_test PRIVATE Boost::unit_test_framework)
