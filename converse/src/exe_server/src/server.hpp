@@ -55,6 +55,9 @@ class Impl final : public MainService::Service {
     grpc::Status CreateConversation(
         grpc::ServerContext *context, const CreateConversationRequest *request,
         CreateConversationResponse *response) override;
+    grpc::Status GetConversation(grpc::ServerContext *context,
+                                 const GetConversationRequest *request,
+                                 GetConversationResponse *response) override;
     grpc::Status GetConversations(grpc::ServerContext *context,
                                   const GetConversationsRequest *request,
                                   GetConversationsResponse *response) override;

@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
             }
         });
     QObject::connect(
-        &backend, &converse::qobject::Backend::createConversationResponse,
+        &backend, &converse::qobject::Backend::addConversation,
         &conversations_model,
         [&](bool ok, converse::qobject::Conversation *conversation) {
             if (ok) {
@@ -105,6 +105,8 @@ int main(int argc, char *argv[]) {
                 conversation->set_unread_count(conversation->unread_count() +
                                                1);
                 conversations_model.move(index, 0);
+            } else {
+                backend.requestGetConversation(conversation_id);
             }
         },
         Qt::QueuedConnection);

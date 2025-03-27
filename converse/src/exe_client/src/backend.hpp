@@ -223,6 +223,7 @@ class Backend : public QObject {
     void requestDeleteUser(const QString &user_password);
     void requestGetOtherUsers(const QString &query);
     void requestCreateConversation(int conversation_recv_user_id);
+    void requestGetConversation(int conversation_id);
     void requestGetConversations();
     void requestDeleteConversation(int conversation_id, int conversation_index);
     void requestSendMessage(const QString &message_content);
@@ -237,7 +238,7 @@ class Backend : public QObject {
     void signoutUserResponse(bool ok);
     void deleteUserResponse(bool ok);
     void getOtherUsersResponse(bool ok, const QList<User *> &other_users);
-    void createConversationResponse(bool ok, Conversation *conversation);
+    void addConversation(bool ok, Conversation *conversation);
     void getConversationsResponse(bool ok,
                                   const QList<Conversation *> &conversations);
     void deleteConversationResponse(bool ok, int conversation_index);

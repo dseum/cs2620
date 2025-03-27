@@ -2,6 +2,7 @@
 
 #include <argon2.h>
 #include <converse/service/main/main.pb.h>
+#include <grpcpp/server_context.h>
 
 #include <converse/logging/core.hpp>
 #include <cstring>
@@ -247,6 +248,39 @@ grpc::Status Impl::CreateConversation(grpc::ServerContext *context,
         db_->execute("ROLLBACK");
         lg::write(lg::level::error, "CreateConversation({},{}) -> Err({})",
                   request->user_id(), request->other_user_id(), e.what());
+        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+    }
+}
+
+grpc::Status Impl::GetConversation(grpc::ServerContext *context,
+                                   const GetConversationRequest *request,
+                                   GetConversationResponse *response) {
+    try {
+        sqlite3_int64 user_id = request->user_id();
+        sqlite3_int64 conversation_id = request->conversation_id();
+        auto rows = db_->execute<sqlite3_int64, std::string>(
+            "SELECT cu.user_id, u.username "
+            "FROM conversations_users cu "
+            "JOIN users u ON cu.user_id = u.id "
+            "WHERE cu.conversation_id = ? AND cu.user_id != ?",
+            conversation_id, user_id);
+        if (rows.empty()) {
+            throw std::runtime_error("failed to find conversation");
+        }
+        auto &[recv_user_id, recv_user_username] = rows.at(0);
+        Conversation *conversation = new Conversation();
+        conversation->set_id(conversation_id);
+        conversation->set_recv_user_id(recv_user_id);
+        conversation->set_recv_user_username(recv_user_username);
+        response->set_allocated_conversation(conversation);
+
+        lg::write(lg::level::info, "GetConversation({},{}) -> Ok({},{},{})",
+                  request->user_id(), request->conversation_id(),
+                  conversation_id, recv_user_id, recv_user_username);
+        return grpc::Status::OK;
+    } catch (const std::exception &e) {
+        lg::write(lg::level::error, "GetConversation({},{}) -> Err({})",
+                  request->user_id(), request->conversation_id(), e.what());
         return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
     }
 }

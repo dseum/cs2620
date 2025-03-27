@@ -30,6 +30,7 @@ static const char* MainService_method_names[] = {
   "/converse.service.main.MainService/DeleteUser",
   "/converse.service.main.MainService/GetOtherUsers",
   "/converse.service.main.MainService/CreateConversation",
+  "/converse.service.main.MainService/GetConversation",
   "/converse.service.main.MainService/GetConversations",
   "/converse.service.main.MainService/DeleteConversation",
   "/converse.service.main.MainService/SendMessage",
@@ -53,14 +54,15 @@ MainService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channe
   , rpcmethod_DeleteUser_(MainService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_GetOtherUsers_(MainService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_CreateConversation_(MainService_method_names[5], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_GetConversations_(MainService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_DeleteConversation_(MainService_method_names[7], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_SendMessage_(MainService_method_names[8], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_ReadMessages_(MainService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_GetMessages_(MainService_method_names[10], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_DeleteMessage_(MainService_method_names[11], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_ReceiveMessage_(MainService_method_names[12], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
-  , rpcmethod_ReceiveReadMessages_(MainService_method_names[13], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
+  , rpcmethod_GetConversation_(MainService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_GetConversations_(MainService_method_names[7], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_DeleteConversation_(MainService_method_names[8], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_SendMessage_(MainService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_ReadMessages_(MainService_method_names[10], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_GetMessages_(MainService_method_names[11], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_DeleteMessage_(MainService_method_names[12], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_ReceiveMessage_(MainService_method_names[13], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
+  , rpcmethod_ReceiveReadMessages_(MainService_method_names[14], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
   {}
 
 ::grpc::Status MainService::Stub::SignupUser(::grpc::ClientContext* context, const ::converse::service::main::SignupUserRequest& request, ::converse::service::main::SignupUserResponse* response) {
@@ -197,6 +199,29 @@ void MainService::Stub::async::CreateConversation(::grpc::ClientContext* context
 ::grpc::ClientAsyncResponseReader< ::converse::service::main::CreateConversationResponse>* MainService::Stub::AsyncCreateConversationRaw(::grpc::ClientContext* context, const ::converse::service::main::CreateConversationRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncCreateConversationRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
+::grpc::Status MainService::Stub::GetConversation(::grpc::ClientContext* context, const ::converse::service::main::GetConversationRequest& request, ::converse::service::main::GetConversationResponse* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::converse::service::main::GetConversationRequest, ::converse::service::main::GetConversationResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_GetConversation_, context, request, response);
+}
+
+void MainService::Stub::async::GetConversation(::grpc::ClientContext* context, const ::converse::service::main::GetConversationRequest* request, ::converse::service::main::GetConversationResponse* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::converse::service::main::GetConversationRequest, ::converse::service::main::GetConversationResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetConversation_, context, request, response, std::move(f));
+}
+
+void MainService::Stub::async::GetConversation(::grpc::ClientContext* context, const ::converse::service::main::GetConversationRequest* request, ::converse::service::main::GetConversationResponse* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetConversation_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::converse::service::main::GetConversationResponse>* MainService::Stub::PrepareAsyncGetConversationRaw(::grpc::ClientContext* context, const ::converse::service::main::GetConversationRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::converse::service::main::GetConversationResponse, ::converse::service::main::GetConversationRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_GetConversation_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::converse::service::main::GetConversationResponse>* MainService::Stub::AsyncGetConversationRaw(::grpc::ClientContext* context, const ::converse::service::main::GetConversationRequest& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncGetConversationRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -435,6 +460,16 @@ MainService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       MainService_method_names[6],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< MainService::Service, ::converse::service::main::GetConversationRequest, ::converse::service::main::GetConversationResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](MainService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::converse::service::main::GetConversationRequest* req,
+             ::converse::service::main::GetConversationResponse* resp) {
+               return service->GetConversation(ctx, req, resp);
+             }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      MainService_method_names[7],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< MainService::Service, ::converse::service::main::GetConversationsRequest, ::converse::service::main::GetConversationsResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](MainService::Service* service,
              ::grpc::ServerContext* ctx,
@@ -443,7 +478,7 @@ MainService::Service::Service() {
                return service->GetConversations(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      MainService_method_names[7],
+      MainService_method_names[8],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< MainService::Service, ::converse::service::main::DeleteConversationRequest, ::converse::service::main::DeleteConversationResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](MainService::Service* service,
@@ -453,7 +488,7 @@ MainService::Service::Service() {
                return service->DeleteConversation(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      MainService_method_names[8],
+      MainService_method_names[9],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< MainService::Service, ::converse::service::main::SendMessageRequest, ::converse::service::main::SendMessageResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](MainService::Service* service,
@@ -463,7 +498,7 @@ MainService::Service::Service() {
                return service->SendMessage(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      MainService_method_names[9],
+      MainService_method_names[10],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< MainService::Service, ::converse::service::main::ReadMessagesRequest, ::converse::service::main::ReadMessagesResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](MainService::Service* service,
@@ -473,7 +508,7 @@ MainService::Service::Service() {
                return service->ReadMessages(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      MainService_method_names[10],
+      MainService_method_names[11],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< MainService::Service, ::converse::service::main::GetMessagesRequest, ::converse::service::main::GetMessagesResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](MainService::Service* service,
@@ -483,7 +518,7 @@ MainService::Service::Service() {
                return service->GetMessages(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      MainService_method_names[11],
+      MainService_method_names[12],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< MainService::Service, ::converse::service::main::DeleteMessageRequest, ::converse::service::main::DeleteMessageResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](MainService::Service* service,
@@ -493,7 +528,7 @@ MainService::Service::Service() {
                return service->DeleteMessage(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      MainService_method_names[12],
+      MainService_method_names[13],
       ::grpc::internal::RpcMethod::SERVER_STREAMING,
       new ::grpc::internal::ServerStreamingHandler< MainService::Service, ::converse::service::main::ReceiveMessageRequest, ::converse::service::main::ReceiveMessageResponse>(
           [](MainService::Service* service,
@@ -503,7 +538,7 @@ MainService::Service::Service() {
                return service->ReceiveMessage(ctx, req, writer);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      MainService_method_names[13],
+      MainService_method_names[14],
       ::grpc::internal::RpcMethod::SERVER_STREAMING,
       new ::grpc::internal::ServerStreamingHandler< MainService::Service, ::converse::service::main::ReceiveReadMessagesRequest, ::converse::service::main::ReceiveReadMessagesResponse>(
           [](MainService::Service* service,
@@ -553,6 +588,13 @@ MainService::Service::~Service() {
 }
 
 ::grpc::Status MainService::Service::CreateConversation(::grpc::ServerContext* context, const ::converse::service::main::CreateConversationRequest* request, ::converse::service::main::CreateConversationResponse* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status MainService::Service::GetConversation(::grpc::ServerContext* context, const ::converse::service::main::GetConversationRequest* request, ::converse::service::main::GetConversationResponse* response) {
   (void) context;
   (void) request;
   (void) response;

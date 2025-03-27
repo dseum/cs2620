@@ -9,6 +9,7 @@ service MainService {
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
   rpc GetOtherUsers(GetOtherUsersRequest) returns (GetOtherUsersResponse);
   rpc CreateConversation(CreateConversationRequest) returns (CreateConversationResponse);
+  rpc GetConversation(GetConversationRequest) returns (GetConversationResponse);
   rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse);
   rpc DeleteConversation(DeleteConversationRequest) returns (DeleteConversationResponse);
   rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
@@ -99,6 +100,15 @@ message CreateConversationResponse {
   uint64 conversation_id = 1;
   uint64 conversation_recv_user_id = 2;
   string conversation_recv_user_username = 3;
+}
+
+message GetConversationRequest {
+  uint64 user_id = 1;
+  uint64 conversation_id = 2;
+}
+
+message GetConversationResponse {
+  Conversation conversation = 1;
 }
 
 message GetConversationsRequest {

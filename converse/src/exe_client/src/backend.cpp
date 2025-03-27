@@ -517,7 +517,29 @@ void Backend::requestCreateConversation(int conversation_recv_user_id) {
         lg::write(lg::level::error, "CreateConversation({}) -> Err({})",
                   conversation_recv_user_id, status.error_message());
     }
-    emit createConversationResponse(status.ok(), conversation);
+    emit addConversation(status.ok(), conversation);
+}
+
+void Backend::requestGetConversation(int conversation_id) {
+    grpc::ClientContext context;
+    service::main::GetConversationRequest request;
+    request.set_conversation_id(conversation_id);
+    service::main::GetConversationResponse response;
+    grpc::Status status = stub_->GetConversation(&context, request, &response);
+    if (status.ok()) {
+        lg::write(lg::level::info, "GetConversation({}) -> Ok({},{})",
+                  conversation_id, response.conversation().recv_user_id(),
+                  response.conversation().recv_user_username());
+        Conversation *conversation = new Conversation(
+            conversation_id, response.conversation().recv_user_id(),
+            QString::fromStdString(
+                response.conversation().recv_user_username()),
+            1);
+        emit addConversation(true, conversation);
+    } else {
+        lg::write(lg::level::error, "GetConversation({}) -> Err({})",
+                  conversation_id, status.error_message());
+    }
 }
 
 void Backend::requestGetConversations() {
