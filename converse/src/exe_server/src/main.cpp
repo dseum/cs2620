@@ -1,17 +1,12 @@
 #include <grpcpp/grpcpp.h>
 
-#include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
 #include <converse/logging/core.hpp>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
 
-#include "database.hpp"
 #include "server.hpp"
-#include "sql.hpp"
 
 namespace po = boost::program_options;
 namespace lg = converse::logging;
@@ -20,7 +15,6 @@ void print_main_help(const po::options_description &desc) {
     std::cout << "usage: exe <command> [options]\n\n";
     std::cout << "commands:\n";
     std::cout << "  serve\n";
-    std::cout << "  migrate\n\n";
     std::cout << desc << std::endl;
 }
 
@@ -28,17 +22,13 @@ void print_serve_help(const po::options_description &desc) {
     std::cout << "usage: exe serve [options]\n\n" << desc << std::endl;
 }
 
-void print_migrate_help(const po::options_description &desc) {
-    std::cout << "usage: exe migrate [options]\n\n" << desc << std::endl;
-}
-
-// Updated to start a gRPC server using the new implementation.
 void handle_serve(const po::variables_map &vm) {
+    std::string name = vm["name"].as<std::string>();
     std::string host = vm["host"].as<std::string>();
     int port = vm["port"].as<int>();
     std::string address(std::format("{}:{}", host, port));
 
-    converse::service::main::Impl mainservice_impl;
+    converse::service::main::Impl mainservice_impl(name);
 
     grpc::ServerBuilder builder;
     builder.AddListeningPort(address, grpc::InsecureServerCredentials());
@@ -48,19 +38,6 @@ void handle_serve(const po::variables_map &vm) {
     lg::write(lg::level::info, "listening on {}", address);
 
     server->Wait();
-}
-
-void handle_migrate(const po::variables_map &vm) {
-    Db db;
-
-    std::stringstream buf(converse::sql::MAIN);
-    std::string stmt;
-    while (std::getline(buf, stmt, ';')) {
-        boost::trim_right(stmt);
-        if (!stmt.empty()) {
-            db.execute(stmt + ";");
-        }
-    }
 }
 
 int main(int argc, char *argv[]) {
@@ -73,13 +50,11 @@ int main(int argc, char *argv[]) {
         // Serve options
         po::options_description serve_desc("Serve Options");
         serve_desc.add_options()("help", "show help")(
+            "name,n", po::value<std::string>()->default_value("main"),
+            "set server name (used for database filename)")(
             "host,h", po::value<std::string>()->default_value("0.0.0.0"),
             "set server host")("port,p", po::value<int>()->default_value(50051),
                                "set server port");
-
-        // Migrate options
-        po::options_description migrate_desc("Migrate Options");
-        migrate_desc.add_options()("help", "show help");
 
         // Defaults to "serve" if no subcommand is provided
         std::string subcommand;
@@ -104,19 +79,6 @@ int main(int argc, char *argv[]) {
             }
 
             handle_serve(serve_vm);
-        } else if (subcommand == "migrate") {
-            po::variables_map migrate_vm;
-            po::store(
-                po::command_line_parser(sub_args).options(migrate_desc).run(),
-                migrate_vm);
-            po::notify(migrate_vm);
-
-            if (migrate_vm.count("help")) {
-                print_migrate_help(migrate_desc);
-                return 0;
-            }
-
-            handle_migrate(migrate_vm);
         } else {
             print_main_help(global_desc);
             return 1;

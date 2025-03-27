@@ -64,7 +64,9 @@ namespace converse {
 namespace service {
 namespace main {
 
-Impl::Impl() { db_ = std::make_unique<Db>(); }
+Impl::Impl(std::string &name) : name_(name) {
+    db_ = std::make_unique<Db>(name);
+}
 
 Impl::~Impl() = default;
 

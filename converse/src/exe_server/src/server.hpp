@@ -26,13 +26,13 @@ struct Writers {
 };
 
 class Impl final : public MainService::Service {
-    std::unique_ptr<grpc::ServerCompletionQueue> cq_;
+    std::string name_;
     std::unique_ptr<Db> db_;
     std::shared_mutex user_id_to_writers_mutex_;
     std::unordered_map<uint64_t, Writers> user_id_to_writers_;
 
    public:
-    Impl();
+    Impl(std::string &name);
     ~Impl() override;
 
     void setDb(std::unique_ptr<Db> db) { db_ = std::move(db); }

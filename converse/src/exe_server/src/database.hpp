@@ -21,7 +21,8 @@ void bind_arg(sqlite3_stmt *stmt, int &index, std::string_view value);
 void bind_arg(sqlite3_stmt *stmt, int &index, std::nullptr_t);
 
 template <typename T>
-    requires std::ranges::range<T>
+    requires(std::ranges::range<T> && !std::convertible_to<T, std::string_view>)
+
 void bind_arg(sqlite3_stmt *stmt, int &index, const T &range) {
     for (const auto &value : range) {
         bind_arg(stmt, index, value);
@@ -85,7 +86,7 @@ class Db {
     std::unique_ptr<sqlite3, decltype(&sqlite3_close)> db;
 
    public:
-    Db();
+    Db(std::string &name);
     virtual ~Db() = default;
 
     template <typename... Ts, typename... Args>
@@ -97,7 +98,7 @@ class Db {
                 "sqlite3_prepare_v2 failed with {}", sqlite3_errmsg(db.get())));
         }
 
-        int index = 1;
+        int index = 0;
         (bind_arg(stmt, index, args), ...);
 
         std::vector<std::tuple<Ts...>> rows;
