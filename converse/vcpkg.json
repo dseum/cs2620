@@ -1,0 +1,39 @@
+{
+  "dependencies": [
+    "argon2",
+    "boost-algorithm",
+    "boost-json",
+    "boost-log",
+    "boost-program-options",
+    "boost-test",
+    { "name": "grpc", "version>=": "1.71.0#0" },
+    {
+      "name": "protobuf",
+      "version>=": "5.29.3#0"
+    },
+    {
+      "name": "qtbase",
+      "version>=": "6.8.2#0",
+      "default-features": false,
+      "features": [
+        "concurrent",
+        "cups",
+        "doubleconversion",
+        "freetype",
+        "gui",
+        "jpeg",
+        "network",
+        "opengl",
+        "png",
+        "testlib",
+        "thread",
+        "widgets"
+      ]
+    },
+    {
+      "name": "qtdeclarative",
+      "version>=": "6.8.2#0"
+    },
+    "sqlite3"
+  ]
+}

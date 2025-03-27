@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package converse.service.main;
+
+service MainService {
+  rpc SignupUser(SignupUserRequest) returns (SignupUserResponse);
+  rpc SigninUser(SigninUserRequest) returns (SigninUserResponse);
+  rpc SignoutUser(SignoutUserRequest) returns (SignoutUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc GetOtherUsers(GetOtherUsersRequest) returns (GetOtherUsersResponse);
+  rpc CreateConversation(CreateConversationRequest) returns (CreateConversationResponse);
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse);
+  rpc DeleteConversation(DeleteConversationRequest) returns (DeleteConversationResponse);
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+  rpc ReadMessages(ReadMessagesRequest) returns (ReadMessagesResponse);
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
+
+  rpc ReceiveMessage(ReceiveMessageRequest) returns (stream ReceiveMessageResponse) {}
+  rpc ReceiveReadMessages(ReceiveReadMessagesRequest) returns (stream ReceiveReadMessagesResponse) {}
+}
+
+message Message {
+  uint64 id = 1;
+  uint64 send_user_id = 2;
+  string content = 3;
+}
+
+message Conversation {
+  uint64 id = 1;
+  uint64 recv_user_id = 2;
+  string recv_user_username = 3;
+  repeated uint64 unread_message_ids = 4;
+}
+
+message User {
+  uint64 id = 1;
+  string username = 2;
+}
+
+message SignupUserRequest {
+  string user_username = 1;
+  string user_password = 2;
+}
+
+message SignupUserResponse {
+  uint64 user_id = 1;
+}
+
+message SigninUserRequest {
+  string user_username = 1;
+  string user_password = 2;
+}
+
+message SigninUserResponse {
+  uint64 user_id = 1;
+}
+
+message SendMessageRequest {
+  uint64 conversation_id = 1;
+  uint64 message_send_user_id = 2;
+  string message_content = 3;
+}
+
+message SendMessageResponse {
+  uint64 message_id = 1;
+}
+
+message SignoutUserRequest {
+  uint64 user_id = 1;
+}
+
+message SignoutUserResponse {}
+
+message DeleteUserRequest {
+  uint64 user_id = 1;
+  string user_password = 2;
+}
+
+message DeleteUserResponse {}
+
+message GetOtherUsersRequest {
+  uint64 user_id = 1;
+  string query = 2;
+  uint64 limit = 3;
+  uint64 offset = 4;
+}
+
+message GetOtherUsersResponse {
+  repeated User users = 1;
+}
+
+message CreateConversationRequest {
+  uint64 user_id = 1;
+  uint64 other_user_id = 2;
+}
+
+message CreateConversationResponse {
+  uint64 conversation_id = 1;
+  uint64 conversation_recv_user_id = 2;
+  string conversation_recv_user_username = 3;
+}
+
+message GetConversationsRequest {
+  uint64 user_id = 1;
+}
+
+message GetConversationsResponse {
+  repeated Conversation conversations = 1;
+}
+
+message ReadConversationRequest {
+  uint64 conversation_id = 1;
+  uint64 user_id = 2;
+}
+
+message ReadConversationResponse {}
+
+message DeleteConversationRequest {
+  uint64 conversation_id = 1;
+}
+
+message DeleteConversationResponse {}
+
+message GetMessagesRequest {
+  uint64 conversation_id = 1;
+  uint64 last_message_id = 2;
+}
+
+message GetMessagesResponse {
+  repeated Message messages = 1;
+}
+
+message ReadMessagesRequest {
+  uint64 user_id = 1;
+  repeated uint64 message_ids = 2;
+}
+
+message ReadMessagesResponse {}
+
+message DeleteMessageRequest {
+  uint64 conversation_id = 1;
+  uint64 message_id = 2;
+}
+
+message DeleteMessageResponse {}
+
+message ReceiveMessageRequest {
+  uint64 user_id = 1;
+}
+
+message ReceiveMessageResponse {
+  uint64 conversation_id = 1;
+  Message message = 2;
+}
+
+message ReceiveReadMessagesRequest {
+  uint64 user_id = 1;
+}
+
+message ReceiveReadMessagesResponse {
+  uint64 conversation_id = 1;
+  repeated uint64 message_ids = 2;
+}
