@@ -97,9 +97,7 @@ message CreateConversationRequest {
 }
 
 message CreateConversationResponse {
-  uint64 conversation_id = 1;
-  uint64 conversation_recv_user_id = 2;
-  string conversation_recv_user_username = 3;
+  Conversation conversation = 1;
 }
 
 message GetConversationRequest {
@@ -143,7 +141,8 @@ message GetMessagesResponse {
 
 message ReadMessagesRequest {
   uint64 user_id = 1;
-  repeated uint64 message_ids = 2;
+  uint64 conversation_id = 2;
+  repeated uint64 message_ids = 3;
 }
 
 message ReadMessagesResponse {}

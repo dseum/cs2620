@@ -9,8 +9,11 @@
 
 #include "sql.hpp"
 
+namespace lg = converse::logging;
+
 void bind_arg(sqlite3_stmt *stmt, int &index, int value) {
     index++;
+    lg::write(lg::level::trace, "bind_arg<int>({},{})", index, value);
     if (sqlite3_bind_int(stmt, index, value) != SQLITE_OK) {
         throw std::runtime_error("sqlite3_bind_int failed");
     }
@@ -18,19 +21,20 @@ void bind_arg(sqlite3_stmt *stmt, int &index, int value) {
 
 void bind_arg(sqlite3_stmt *stmt, int &index, sqlite3_int64 value) {
     index++;
+    lg::write(lg::level::trace, "bind_arg<sqlite3_int64>({},{})", index, value);
     if (sqlite3_bind_int64(stmt, index, value) != SQLITE_OK) {
         throw std::runtime_error("sqlite3_bind_int64 failed");
     }
 }
 
 void bind_arg(sqlite3_stmt *stmt, int &index, unsigned long long value) {
-    index++;
     int value_ = static_cast<sqlite3_int64>(value);
     bind_arg(stmt, index, value_);
 }
 
 void bind_arg(sqlite3_stmt *stmt, int &index, double value) {
     index++;
+    lg::write(lg::level::trace, "bind_arg<double>({},{})", index, value);
     if (sqlite3_bind_double(stmt, index, value) != SQLITE_OK) {
         throw std::runtime_error("sqlite3_bind_double failed");
     }
@@ -38,6 +42,8 @@ void bind_arg(sqlite3_stmt *stmt, int &index, double value) {
 
 void bind_arg(sqlite3_stmt *stmt, int &index, std::string_view value) {
     index++;
+    lg::write(lg::level::trace, "bind_arg<std::string_view>({},{})", index,
+              value);
     if (sqlite3_bind_text(stmt, index, value.data(), value.size(),
                           SQLITE_STATIC) != SQLITE_OK) {
         throw std::runtime_error("sqlite3_bind_text failed");
@@ -46,6 +52,7 @@ void bind_arg(sqlite3_stmt *stmt, int &index, std::string_view value) {
 
 void bind_arg(sqlite3_stmt *stmt, int &index, std::nullptr_t) {
     index++;
+    lg::write(lg::level::trace, "bind_arg<nullptr_t>({},nullptr)", index);
     if (sqlite3_bind_null(stmt, index) != SQLITE_OK) {
         throw std::runtime_error("sqlite3_bind_null failed");
     }

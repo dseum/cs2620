@@ -17,16 +17,18 @@ ApplicationWindow {
 
     Connections {
         target: backend
-        function onUserChanged() {
-            if (backend.user === null) {
+        function onUserChanged(nothing) {
+            if (nothing) {
                 stackView.push(signInPage)
             } else {
                 backend.requestGetConversations()
                 stackView.push(homePage)
             }
         }
-        function onConversationChanged() {
-            backend.requestGetMessages()
+        function onConversationChanged(nothing) {
+            if (!nothing) {
+                backend.requestGetMessages()
+            }
         }
     }
 
@@ -324,9 +326,35 @@ ApplicationWindow {
                         delegate: ItemDelegate {
                             width: conversationsListView.width
                             height: 60
-                            contentItem: Text {
-                                text: model.recvUserUsername
-                                font.bold: true
+                            contentItem: Item {
+                                anchors.fill: parent
+                                anchors.margins: 6
+
+                                Text {
+                                    text: model.recvUserUsername
+                                    font.bold: true
+                                    anchors.left: parent.left
+                                    anchors.top: parent.top
+                                }
+                                
+                                Rectangle {
+                                    visible: model.unreadCount > 0
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    width: unreadText.width + 10
+                                    height: unreadText.height + 6
+                                    radius: height / 2
+                                    color: "#007AFF"
+                                    
+                                    Text {
+                                        id: unreadText
+                                        anchors.centerIn: parent
+                                        text: model.unreadCount
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                        color: "white"
+                                    }
+                                }
                             }
                             MouseArea {
                                 anchors.fill: parent
@@ -339,7 +367,7 @@ ApplicationWindow {
                                             model.id,
                                             model.recvUserId,
                                             model.recvUserUsername,
-                                            model.unreadCount
+                                            model.unreadMessageIds
                                         )
                                     } else if (mouse.button === Qt.RightButton) {
                                         conversationContextMenu.selectedIndex = index
@@ -371,21 +399,20 @@ ApplicationWindow {
                         color: "white"
                         Label {
                             anchors.centerIn: parent
-                            visible: backend && backend.conversation === null
+                            visible: backend && !backend.conversation
                             text: "No conversation selected"
                         }
                         ColumnLayout {
-                            visible: backend && backend.conversation !== null
+                            visible: backend && backend.conversation
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             width: conversationBackground.width
                             height: conversationBackground.height
                             Label {
-                                visible: backend && backend.conversation !== null
                                 text: {
-                                    if (backend === null)
+                                    if (!backend)
                                         return ""
-                                    if (backend.conversation === null)
+                                    if (!backend.conversation)
                                         return ""
                                     return `Conversation ${backend.conversation.id} with ${backend.conversation.recvUserUsername}`
                                 }
@@ -402,9 +429,19 @@ ApplicationWindow {
                                     width: messagesListView.width
                                     contentItem: ColumnLayout {
                                         Label {
-                                            text: (model.sendUserId === backend.user.id)
-                                                  ? "You"
-                                                  : backend.conversation.recvUserUsername
+                                            text: {
+                                                if (!backend)
+                                                    return ""
+                                                if (!backend.user)
+                                                    return ""
+                                                if (!backend.conversation)
+                                                    return ""
+                                                if (model.sendUserId === backend.user.id) {
+                                                    return backend.user.username
+                                                } else {
+                                                    return backend.conversation.recvUserUsername
+                                                }
+                                            }
                                             font.bold: true
                                         }
                                         Label { text: model.content }
@@ -424,7 +461,7 @@ ApplicationWindow {
                                 }
                                 Connections {
                                     target: messagesModel
-                                    function onMessageAppended() {
+                                    function onMessagesChangedForScroll() {
                                         messagesListView.positionViewAtEnd()
                                     }
                                 }
@@ -441,6 +478,9 @@ ApplicationWindow {
                                     id: sendButton
                                     text: "="
                                     onClicked: {
+                                        if (messageField.text === "") {
+                                            return
+                                        }
                                         backend.requestSendMessage(messageField.text)
                                         messageField.text = ""
                                     }
@@ -458,7 +498,7 @@ ApplicationWindow {
                 MenuItem {
                     text: "Delete Message"
                     onTriggered: {
-                        if (backend.conversation !== null && messageContextMenu.selectedIndex !== -1) {
+                        if (backend.conversation && messageContextMenu.selectedIndex !== -1) {
                             var messageData = messagesModel.get(messageContextMenu.selectedIndex)
                             backend.requestDeleteMessage(messageData.id, messageContextMenu.selectedIndex)
                         }

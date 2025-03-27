@@ -88,28 +88,54 @@ int main(int argc, char *argv[]) {
             if (curr_conversation_id &&
                 *curr_conversation_id == conversation_id) {
                 messages_model.append(message);
+            } else {
+                delete message;
             }
         },
         Qt::QueuedConnection);
     QObject::connect(
-        &backend, &converse::qobject::Backend::receiveMessageResponse,
+        &backend, &converse::qobject::Backend::unreadMessage,
         &conversations_model,
-        [&](int conversation_id, converse::qobject::Message *message) {
-            if (backend.conversation() &&
-                backend.conversation()->id() == conversation_id) {
-                return;
-            }
+        [&](int conversation_id, int message_id) {
             auto [conversation, index] =
                 conversations_model.getInstanceById(conversation_id);
             if (conversation) {
-                conversation->set_unread_count(conversation->unread_count() +
-                                               1);
+                conversation->add_unread_message_id(message_id);
                 conversations_model.move(index, 0);
             } else {
                 backend.requestGetConversation(conversation_id);
             }
         },
         Qt::QueuedConnection);
+    QObject::connect(
+        &backend, &converse::qobject::Backend::receiveReadMessagesResponse,
+        &conversations_model,
+        [&](int conversation_id, const QList<int> &read_message_ids) {
+            auto [conversation, index] =
+                conversations_model.getInstanceById(conversation_id);
+            if (conversation) {
+                conversation->remove_unread_message_ids(read_message_ids);
+                conversations_model.move(index, 0);
+            } else {
+                lg::write(lg::level::error,
+                          "readMessagesResponse: there should have been a "
+                          "conversation with id {}",
+                          conversation_id);
+            }
+        },
+        Qt::QueuedConnection);
+    QObject::connect(&backend, &converse::qobject::Backend::userChanged,
+                     &conversations_model, [&](bool nothing) {
+                         if (nothing) {
+                             conversations_model.reset();
+                         }
+                     });
+    QObject::connect(&backend, &converse::qobject::Backend::conversationChanged,
+                     &messages_model, [&](bool nothing) {
+                         if (nothing) {
+                             messages_model.reset();
+                         }
+                     });
 
     engine.rootContext()->setContextProperty("backend", &backend);
     engine.rootContext()->setContextProperty("conversationsModel",
@@ -121,7 +147,7 @@ int main(int argc, char *argv[]) {
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/Converse/src/main.qml")));
     if (engine.rootObjects().isEmpty()) return -1;
 
-    lg::init(lg::sink_type::console);
+    lg::init(lg::level::error, lg::sink_type::console);
 
     int exit_code = app.exec();
     return exit_code;

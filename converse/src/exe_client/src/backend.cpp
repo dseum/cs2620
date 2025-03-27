@@ -21,13 +21,13 @@ int User::id() const { return id_; }
 QString User::username() const { return username_; }
 
 Conversation::Conversation(int id, int recv_user_id,
-                           const QString &recv_user_username, int unread_count,
-                           QObject *parent)
+                           const QString &recv_user_username,
+                           const QSet<int> &unread_message_ids, QObject *parent)
     : QObject(parent),
       id_(id),
       recv_user_id_(recv_user_id),
       recv_user_username_(recv_user_username),
-      unread_count_(unread_count) {}
+      unread_message_ids_(unread_message_ids) {}
 
 int Conversation::id() const { return id_; }
 
@@ -35,9 +35,33 @@ int Conversation::recv_user_id() const { return recv_user_id_; }
 
 QString Conversation::recv_user_username() const { return recv_user_username_; }
 
-int Conversation::unread_count() const { return unread_count_; }
+int Conversation::unread_count() const { return unread_message_ids_.size(); }
 
-void Conversation::set_unread_count(int value) { unread_count_ = value; }
+QSet<int> Conversation::unread_message_ids() const {
+    return unread_message_ids_;
+}
+
+void Conversation::set_unread_message_ids(const QSet<int> &value) {
+    unread_message_ids_ = value;
+    emit unreadMessageIdsChanged();
+}
+
+void Conversation::add_unread_message_id(int message_id) {
+    unread_message_ids_.insert(message_id);
+    emit unreadMessageIdsChanged();
+}
+
+void Conversation::remove_unread_message_ids(const QList<int> &message_ids) {
+    for (const auto &message_id : message_ids) {
+        unread_message_ids_.remove(message_id);
+    }
+    emit unreadMessageIdsChanged();
+}
+
+void Conversation::reset_unread_message_ids() {
+    unread_message_ids_.clear();
+    emit unreadMessageIdsChanged();
+}
 
 Message::Message(int id, int send_user_id, bool is_read, const QString &content,
                  QObject *parent)
@@ -78,6 +102,13 @@ QVariant ConversationsModel::data(const QModelIndex &index, int role) const {
             return conversation->recv_user_username();
         case UnreadCountRole:
             return conversation->unread_count();
+        case UnreadMessageIdsRole: {
+            QList<int> unread_message_ids;
+            for (const auto &message_id : conversation->unread_message_ids()) {
+                unread_message_ids.append(message_id);
+            }
+            return QVariant::fromValue(unread_message_ids);
+        }
         default:
             return QVariant();
     }
@@ -89,6 +120,7 @@ QHash<int, QByteArray> ConversationsModel::roleNames() const {
     roles[RecvUserIdRole] = "recvUserId";
     roles[RecvUserUsernameRole] = "recvUserUsername";
     roles[UnreadCountRole] = "unreadCount";
+    roles[UnreadMessageIdsRole] = "unreadMessageIds";
     return roles;
 }
 
@@ -101,6 +133,12 @@ QVariantMap ConversationsModel::get(int index) {
     conversation.insert("recvUserId", c->recv_user_id());
     conversation.insert("recvUserUsername", c->recv_user_username());
     conversation.insert("unreadCount", c->unread_count());
+    QList<int> unread_message_ids;
+    for (const auto &message_id : c->unread_message_ids()) {
+        unread_message_ids.append(message_id);
+    }
+    conversation.insert("unreadMessageIds",
+                        QVariant::fromValue(unread_message_ids));
     return conversation;
 }
 
@@ -122,6 +160,7 @@ void ConversationsModel::remove(int index) {
 
     beginRemoveRows(QModelIndex(), index, index);
     Conversation *conversation = conversations_.takeAt(index);
+    conversation->disconnect();
     delete conversation;
     endRemoveRows();
 }
@@ -139,6 +178,15 @@ void ConversationsModel::removeById(int conversation_id) {
 void ConversationsModel::prepend(Conversation *conversation) {
     beginInsertRows(QModelIndex(), 0, 0);
     conversations_.prepend(conversation);
+    QObject::connect(conversation, &Conversation::unreadMessageIdsChanged, this,
+                     [this, conversation]() {
+                         auto i = conversations_.indexOf(conversation);
+                         if (i >= 0) {
+                             emit dataChanged(
+                                 index(i), index(i),
+                                 {UnreadCountRole, UnreadMessageIdsRole});
+                         }
+                     });
     endInsertRows();
 }
 
@@ -146,13 +194,36 @@ void ConversationsModel::append(Conversation *conversation) {
     beginInsertRows(QModelIndex(), conversations_.size(),
                     conversations_.size());
     conversations_.append(conversation);
+    QObject::connect(conversation, &Conversation::unreadMessageIdsChanged, this,
+                     [this, conversation]() {
+                         auto i = conversations_.indexOf(conversation);
+                         if (i >= 0) {
+                             emit dataChanged(
+                                 index(i), index(i),
+                                 {UnreadCountRole, UnreadMessageIdsRole});
+                         }
+                     });
     endInsertRows();
 }
 
 void ConversationsModel::set(const QList<Conversation *> &conversations) {
     beginResetModel();
-    qDeleteAll(conversations_);
+    for (auto conversation : conversations_) {
+        conversation->disconnect();
+        delete conversation;
+    }
     conversations_ = conversations;
+    for (auto conversation : conversations) {
+        QObject::connect(conversation, &Conversation::unreadMessageIdsChanged,
+                         this, [this, conversation]() {
+                             auto i = conversations_.indexOf(conversation);
+                             if (i >= 0) {
+                                 emit dataChanged(
+                                     index(i), index(i),
+                                     {UnreadCountRole, UnreadMessageIdsRole});
+                             }
+                         });
+    }
     endResetModel();
 }
 
@@ -161,9 +232,22 @@ void ConversationsModel::move(int from, int to) {
         to >= conversations_.size()) {
         return;
     }
+    if (from == to) {
+        return;
+    }
     beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
     conversations_.move(from, to);
     endMoveRows();
+}
+
+void ConversationsModel::reset() {
+    beginResetModel();
+    for (auto conversation : conversations_) {
+        conversation->disconnect();
+        delete conversation;
+    }
+    conversations_.clear();
+    endResetModel();
 }
 
 MessagesModel::MessagesModel(QObject *parent) : QAbstractListModel(parent) {}
@@ -249,7 +333,7 @@ void MessagesModel::append(Message *message) {
     beginInsertRows(QModelIndex(), messages_.size(), messages_.size());
     messages_.append(message);
     endInsertRows();
-    emit messageAppended();
+    emit messagesChangedForScroll();
 }
 
 void MessagesModel::set(int conversation_id, const QList<Message *> &messages) {
@@ -258,12 +342,14 @@ void MessagesModel::set(int conversation_id, const QList<Message *> &messages) {
     conversation_id_ = conversation_id;
     messages_ = messages;
     endResetModel();
+    emit messagesChangedForScroll();
 }
 
 void MessagesModel::reset() {
     beginResetModel();
     qDeleteAll(messages_);
     conversation_id_.reset();
+    messages_.clear();
     endResetModel();
 }
 
@@ -328,7 +414,7 @@ Backend::Backend(const QString &host, int port, QObject *parent)
         stub_ = service::main::MainService::NewStub(channel_);
         lg::write(lg::level::info, "connected to {}", address);
     } catch (std::exception &e) {
-        lg::write(lg::level::error, "{}", e.what());
+        lg::write(lg::level::error, e.what());
     }
 }
 
@@ -336,14 +422,18 @@ User *Backend::user() const { return user_; }
 
 void Backend::set_user(User *value) {
     if (user_ != value) {
+        User *old_user = user_;
         if (user_) {
+            lg::write(lg::level::info, "cancelling ongoing requests");
             ReceiveMessage_reader_->TryCancel();
-            delete user_;
+            ReceiveReadMessages_reader_->TryCancel();
             ReceiveMessage_reader_->Await();
+            ReceiveReadMessages_reader_->Await();
+            lg::write(lg::level::info, "ongoing requests cancelled");
+            set_conversation(nullptr);
         }
         user_ = value;
-        emit userChanged();
-        if (user_) {
+        if (value) {
             ReceiveMessage_request_.set_user_id(user_->id());
             auto ReceiveMessage_reader =
                 new service::main::reader::ReceiveMessageReader(
@@ -355,6 +445,19 @@ void Backend::set_user(User *value) {
                                       "ReceiveMessage() -> Ok({},{})",
                                       response.conversation_id(),
                                       response.message().id());
+                            if (response.message().send_user_id() !=
+                                user_->id()) {
+                                int message_id = response.message().id();
+                                if (conversation_ &&
+                                    conversation_->id() ==
+                                        response.conversation_id()) {
+                                    requestReadMessages(conversation_->id(),
+                                                        {message_id});
+                                } else {
+                                    emit unreadMessage(
+                                        response.conversation_id(), message_id);
+                                }
+                            }
                             emit receiveMessageResponse(
                                 response.conversation_id(),
                                 new Message(response.message().id(),
@@ -369,8 +472,38 @@ void Backend::set_user(User *value) {
                         }
                     });
             ReceiveMessage_reader_.reset(ReceiveMessage_reader);
+            ReceiveReadMessages_request_.set_user_id(user_->id());
+            auto ReceiveReadMessages_reader =
+                new service::main::reader::ReceiveReadMessagesReader(
+                    stub_.get(), ReceiveReadMessages_request_,
+                    [&](const grpc::Status &status,
+                        const service::main::ReceiveReadMessagesResponse
+                            &response) {
+                        if (status.ok()) {
+                            lg::write(lg::level::info,
+                                      "ReceiveReadMessages() -> Ok({})",
+                                      response.message_ids_size());
+                            QList<int> read_message_ids;
+                            for (const auto &message_id :
+                                 response.message_ids()) {
+                                read_message_ids.append(message_id);
+                            }
+                            emit receiveReadMessagesResponse(
+                                response.conversation_id(), read_message_ids);
+                        } else {
+                            lg::write(lg::level::error,
+                                      "ReceiveReadMessages() -> Err({})",
+                                      status.error_message());
+                        }
+                    });
+            ReceiveReadMessages_reader_.reset(ReceiveReadMessages_reader);
         } else {
             ReceiveMessage_reader_.reset();
+            ReceiveReadMessages_reader_.reset();
+        }
+        emit userChanged(value == nullptr);
+        if (old_user) {
+            delete old_user;
         }
     }
 }
@@ -379,11 +512,12 @@ Conversation *Backend::conversation() const { return conversation_; }
 
 void Backend::set_conversation(Conversation *value) {
     if (conversation_ != value) {
-        if (conversation_) {
-            delete conversation_;
-        }
+        Conversation *old_conversation = conversation_;
         conversation_ = value;
-        emit conversationChanged();
+        emit conversationChanged(value == nullptr);
+        if (old_conversation) {
+            delete old_conversation;
+        }
     }
 }
 
@@ -393,9 +527,13 @@ void Backend::setUser(int id, const QString &username) {
 
 void Backend::setConversation(int id, int recv_user_id,
                               const QString &recv_user_username,
-                              int unread_count) {
-    set_conversation(
-        new Conversation(id, recv_user_id, recv_user_username, unread_count));
+                              const QList<int> &unread_message_ids) {
+    QSet<int> unread_message_ids_set;
+    for (const auto &message_id : unread_message_ids) {
+        unread_message_ids_set.insert(message_id);
+    }
+    set_conversation(new Conversation(id, recv_user_id, recv_user_username,
+                                      unread_message_ids_set));
 }
 
 void Backend::requestSigninUser(const QString &user_username,
@@ -437,6 +575,9 @@ void Backend::requestSignupUser(const QString &user_username,
 }
 
 void Backend::requestSignoutUser() {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::SignoutUserRequest request;
     request.set_user_id(user_->id());
@@ -453,6 +594,9 @@ void Backend::requestSignoutUser() {
 }
 
 void Backend::requestDeleteUser(const QString &user_password) {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::DeleteUserRequest request;
     request.set_user_id(user_->id());
@@ -470,6 +614,9 @@ void Backend::requestDeleteUser(const QString &user_password) {
 }
 
 void Backend::requestGetOtherUsers(const QString &query) {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::GetOtherUsersRequest request;
     request.set_user_id(user_->id());
@@ -493,6 +640,9 @@ void Backend::requestGetOtherUsers(const QString &query) {
 }
 
 void Backend::requestCreateConversation(int conversation_recv_user_id) {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::CreateConversationRequest request;
     request.set_user_id(user_->id());
@@ -503,24 +653,31 @@ void Backend::requestCreateConversation(int conversation_recv_user_id) {
     Conversation *conversation = nullptr;
     if (status.ok()) {
         lg::write(lg::level::info, "CreateConversation({}) -> Ok({},{})",
-                  conversation_recv_user_id, response.conversation_id(),
-                  response.conversation_recv_user_username());
-        set_conversation(new Conversation(
-            response.conversation_id(), conversation_recv_user_id,
-            QString::fromStdString(response.conversation_recv_user_username()),
-            0));
+                  conversation_recv_user_id, response.conversation().id(),
+                  response.conversation().recv_user_username());
+        QSet<int> unread_message_ids;
+        for (const auto &message_id :
+             response.conversation().unread_message_ids()) {
+            unread_message_ids.insert(message_id);
+        }
         conversation = new Conversation(
-            response.conversation_id(), conversation_recv_user_id,
-            QString::fromStdString(response.conversation_recv_user_username()),
-            0);
+            response.conversation().id(), conversation_recv_user_id,
+            QString::fromStdString(
+                response.conversation().recv_user_username()),
+            unread_message_ids);
+        set_conversation(conversation);
     } else {
         lg::write(lg::level::error, "CreateConversation({}) -> Err({})",
                   conversation_recv_user_id, status.error_message());
     }
+    emit createConversationResponse(status.ok());
     emit addConversation(status.ok(), conversation);
 }
 
 void Backend::requestGetConversation(int conversation_id) {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::GetConversationRequest request;
     request.set_conversation_id(conversation_id);
@@ -530,11 +687,16 @@ void Backend::requestGetConversation(int conversation_id) {
         lg::write(lg::level::info, "GetConversation({}) -> Ok({},{})",
                   conversation_id, response.conversation().recv_user_id(),
                   response.conversation().recv_user_username());
+        QSet<int> unread_message_ids;
+        for (const auto &message_id :
+             response.conversation().unread_message_ids()) {
+            unread_message_ids.insert(message_id);
+        }
         Conversation *conversation = new Conversation(
             conversation_id, response.conversation().recv_user_id(),
             QString::fromStdString(
                 response.conversation().recv_user_username()),
-            1);
+            unread_message_ids);
         emit addConversation(true, conversation);
     } else {
         lg::write(lg::level::error, "GetConversation({}) -> Err({})",
@@ -543,6 +705,9 @@ void Backend::requestGetConversation(int conversation_id) {
 }
 
 void Backend::requestGetConversations() {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::GetConversationsRequest request;
     request.set_user_id(user_->id());
@@ -553,9 +718,14 @@ void Backend::requestGetConversations() {
         lg::write(lg::level::info, "GetConversations({}) -> Ok({})",
                   user_->id(), response.conversations_size());
         for (const auto &conversation : response.conversations()) {
+            QSet<int> unread_message_ids;
+            for (const auto &message_id : conversation.unread_message_ids()) {
+                unread_message_ids.insert(message_id);
+            }
             conversations.append(new Conversation(
                 conversation.id(), conversation.recv_user_id(),
-                QString::fromStdString(conversation.recv_user_username()), 0));
+                QString::fromStdString(conversation.recv_user_username()),
+                unread_message_ids));
         }
     } else {
         lg::write(lg::level::error, "GetConversations({}) -> Err({})",
@@ -566,6 +736,9 @@ void Backend::requestGetConversations() {
 
 void Backend::requestDeleteConversation(int conversation_id,
                                         int conversation_index) {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::DeleteConversationRequest request;
     request.set_conversation_id(conversation_id);
@@ -583,6 +756,9 @@ void Backend::requestDeleteConversation(int conversation_id,
 }
 
 void Backend::requestSendMessage(const QString &message_content) {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::SendMessageRequest request;
     request.set_conversation_id(conversation_->id());
@@ -602,7 +778,33 @@ void Backend::requestSendMessage(const QString &message_content) {
     }
 }
 
+void Backend::requestReadMessages(int conversation_id,
+                                  const QSet<int> &read_message_ids) {
+    if (!user_) {
+        return;
+    }
+    grpc::ClientContext context;
+    service::main::ReadMessagesRequest request;
+    request.set_user_id(user_->id());
+    request.set_conversation_id(conversation_id);
+    for (const auto &message_id : read_message_ids) {
+        request.add_message_ids(message_id);
+    }
+    service::main::ReadMessagesResponse response;
+    grpc::Status status = stub_->ReadMessages(&context, request, &response);
+    if (status.ok()) {
+        lg::write(lg::level::info, "ReadMessages({}) -> Ok({})",
+                  conversation_->id(), read_message_ids.size());
+    } else {
+        lg::write(lg::level::error, "ReadMessages({}) -> Err({})",
+                  conversation_->id(), status.error_message());
+    }
+}
+
 void Backend::requestGetMessages() {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::GetMessagesRequest request;
     request.set_conversation_id(conversation_->id());
@@ -618,6 +820,10 @@ void Backend::requestGetMessages() {
                 new Message(message.id(), message.send_user_id(), true,
                             QString::fromStdString(message.content())));
         }
+        if (!conversation_->unread_message_ids().empty()) {
+            requestReadMessages(conversation_->id(),
+                                conversation_->unread_message_ids());
+        }
     } else {
         lg::write(lg::level::error, "GetMessages({}) -> Err({})",
                   conversation_->id(), status.error_message());
@@ -626,6 +832,9 @@ void Backend::requestGetMessages() {
 }
 
 void Backend::requestDeleteMessage(int message_id, int message_index) {
+    if (!user_) {
+        return;
+    }
     grpc::ClientContext context;
     service::main::DeleteMessageRequest request;
     request.set_conversation_id(conversation_->id());

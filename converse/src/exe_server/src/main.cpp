@@ -41,7 +41,7 @@ void handle_serve(const po::variables_map &vm) {
 }
 
 int main(int argc, char *argv[]) {
-    lg::init(lg::sink_type::console);
+    lg::init(lg::level::trace, lg::sink_type::console);
     try {
         // Global options
         po::options_description global_desc("Global Options");
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     } catch (const std::exception &e) {
-        lg::write(lg::level::error, "{}", e.what());
+        lg::write(lg::level::error, e.what());
         return 1;
     }
 

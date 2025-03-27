@@ -10,9 +10,11 @@ const auto format = "[%TimeStamp%] [%Severity%] %Message%";
 
 namespace converse {
 namespace logging {
-void init(sink_type t, const std::string &name) {
+void init(level lvl, sink_type t, const std::string &name) {
     boost::log::core::get()->remove_all_sinks();
     boost::log::add_common_attributes();
+    boost::log::core::get()->set_filter(boost::log::trivial::severity >=
+                                        std::to_underlying(lvl));
     switch (t) {
         case sink_type::null:
             break;
@@ -28,6 +30,23 @@ void init(sink_type t, const std::string &name) {
                                         boost::log::keywords::format = format);
             break;
         }
+    }
+}
+
+void write(level lvl, std::string_view message) {
+    switch (lvl) {
+        case level::trace:
+            BOOST_LOG_TRIVIAL(trace) << message << "\n";
+            break;
+        case level::debug:
+            BOOST_LOG_TRIVIAL(debug) << message << "\n";
+            break;
+        case level::info:
+            BOOST_LOG_TRIVIAL(info) << message << "\n";
+            break;
+        case level::error:
+            BOOST_LOG_TRIVIAL(error) << message << "\n";
+            break;
     }
 }
 }  // namespace logging

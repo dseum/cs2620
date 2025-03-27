@@ -236,9 +236,11 @@ grpc::Status Impl::CreateConversation(grpc::ServerContext *context,
             conversation_id, send_user_id, conversation_id, recv_user_id);
         db_->execute("COMMIT");
 
-        response->set_conversation_id(conversation_id);
-        response->set_conversation_recv_user_id(recv_user_id);
-        response->set_conversation_recv_user_username(recv_user_username);
+        Conversation *conversation = new Conversation();
+        conversation->set_id(conversation_id);
+        conversation->set_recv_user_id(recv_user_id);
+        conversation->set_recv_user_username(recv_user_username);
+        response->set_allocated_conversation(conversation);
 
         lg::write(lg::level::info, "CreateConversation({},{}) -> Ok({},{},{})",
                   send_user_id, recv_user_id, conversation_id, recv_user_id,
@@ -258,20 +260,36 @@ grpc::Status Impl::GetConversation(grpc::ServerContext *context,
     try {
         sqlite3_int64 user_id = request->user_id();
         sqlite3_int64 conversation_id = request->conversation_id();
-        auto rows = db_->execute<sqlite3_int64, std::string>(
-            "SELECT cu.user_id, u.username "
-            "FROM conversations_users cu "
-            "JOIN users u ON cu.user_id = u.id "
-            "WHERE cu.conversation_id = ? AND cu.user_id != ?",
+        auto rows = db_->execute<sqlite3_int64, std::string, std::string>(
+            R"(
+            SELECT cu.user_id,
+                   u.username,
+                   GROUP_CONCAT(m.id) AS unread_message_ids
+            FROM conversations_users cu
+            JOIN users u ON cu.user_id = u.id
+            LEFT JOIN messages m ON cu.conversation_id = m.conversation_id
+                                AND m.user_id = cu.user_id
+                                AND m.is_read = 0
+            WHERE cu.conversation_id = ? AND cu.user_id != ?
+            GROUP BY cu.conversation_id, cu.user_id, u.username
+            )",
             conversation_id, user_id);
         if (rows.empty()) {
             throw std::runtime_error("failed to find conversation");
         }
-        auto &[recv_user_id, recv_user_username] = rows.at(0);
+        auto &[recv_user_id, recv_user_username, unread_message_ids] =
+            rows.at(0);
         Conversation *conversation = new Conversation();
         conversation->set_id(conversation_id);
         conversation->set_recv_user_id(recv_user_id);
         conversation->set_recv_user_username(recv_user_username);
+        for (const auto &unread_message_id :
+             unread_message_ids | std::views::split(',') |
+                 std::views::transform([](auto &&range) {
+                     return std::stoll(std::string(range.begin(), range.end()));
+                 })) {
+            conversation->add_unread_message_ids(unread_message_id);
+        }
         response->set_allocated_conversation(conversation);
 
         lg::write(lg::level::info, "GetConversation({},{}) -> Ok({},{},{})",
@@ -376,6 +394,10 @@ grpc::Status Impl::SendMessage(grpc::ServerContext *context,
         sqlite3_int64 conversation_id = request->conversation_id();
         sqlite3_int64 send_user_id = request->message_send_user_id();
         std::string content = request->message_content();
+
+        if (content.empty()) {
+            throw std::runtime_error("message content is empty");
+        }
 
         db_->execute("BEGIN TRANSACTION");
         sqlite3_int64 message_id;
@@ -486,8 +508,6 @@ grpc::Status Impl::ReadMessages(grpc::ServerContext *context,
                                 const ReadMessagesRequest *request,
                                 ReadMessagesResponse *response) {
     try {
-        auto test = request->message_ids();
-
         std::string query =
             "UPDATE messages SET is_read = 1 WHERE user_id != ? AND id IN (";
         for (size_t i = 0; i < request->message_ids_size(); i++) {
@@ -496,11 +516,52 @@ grpc::Status Impl::ReadMessages(grpc::ServerContext *context,
                 query += ", ";
             }
         }
-        query += ")";
-        db_->execute(query, request->user_id(), request->message_ids());
+        query += ") RETURNING user_id";
+        lg::write(lg::level::trace, query);
+        auto rows = db_->execute<sqlite3_int64>(query, request->user_id(),
+                                                request->message_ids());
+        if (rows.empty()) {
+            throw std::runtime_error("failed to read messages");
+        }
+        auto &[recv_user_id] = rows.at(0);
+        {
+            std::shared_lock lock(user_id_to_writers_mutex_);
 
+            // notifies the sender
+            if (auto it = user_id_to_writers_.find(request->user_id());
+                it != user_id_to_writers_.end()) {
+                auto *writer = it->second.ReceiveReadMessages_writer;
+                if (writer != nullptr) {
+                    ReceiveReadMessagesResponse item;
+                    item.set_conversation_id(request->conversation_id());
+                    for (const auto &message_id : request->message_ids()) {
+                        item.add_message_ids(message_id);
+                    }
+                    writer->Write(item);
+                }
+            }
+
+            // notifies the receiver
+            if (auto it = user_id_to_writers_.find(recv_user_id);
+                it != user_id_to_writers_.end()) {
+                auto *writer = it->second.ReceiveReadMessages_writer;
+                if (writer != nullptr) {
+                    ReceiveReadMessagesResponse item;
+                    item.set_conversation_id(request->conversation_id());
+                    for (const auto &message_id : request->message_ids()) {
+                        item.add_message_ids(message_id);
+                    }
+                    writer->Write(item);
+                }
+            }
+        }
+
+        lg::write(lg::level::info, "ReadMessages({},{}) -> Ok()",
+                  request->user_id(), request->message_ids_size());
         return grpc::Status::OK;
     } catch (const std::exception &e) {
+        lg::write(lg::level::error, "ReadMessages({},{}) -> Err({})",
+                  request->user_id(), request->message_ids_size(), e.what());
         return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
     }
 }
