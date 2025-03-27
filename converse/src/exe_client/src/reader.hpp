@@ -21,34 +21,11 @@ class ReceiveMessageReader
         const service::main::ReceiveMessageRequest &request,
         std::function<void(const grpc::Status &,
                            const service::main::ReceiveMessageResponse &)>
-            on_response)
-        : on_response_(on_response) {
-        stub->async()->ReceiveMessage(&context_, &request, this);
-        StartRead(&response_);
-        StartCall();
-    }
-
-    void OnReadDone(bool ok) override {
-        if (ok) {
-            on_response_(grpc::Status::OK, response_);
-            StartRead(&response_);
-        }
-    }
-
-    void OnDone(const grpc::Status &s) override {
-        std::unique_lock<std::mutex> l(mu_);
-        status_ = s;
-        done_ = true;
-        cv_.notify_one();
-    }
-
-    grpc::Status Await() {
-        std::unique_lock<std::mutex> l(mu_);
-        cv_.wait(l, [this] { return done_; });
-        return std::move(status_);
-    }
-
-    void TryCancel() { context_.TryCancel(); }
+            on_response);
+    void OnReadDone(bool ok) override;
+    void OnDone(const grpc::Status &s) override;
+    grpc::Status Await();
+    void TryCancel();
 
    private:
     std::function<void(const grpc::Status &,
@@ -72,34 +49,11 @@ class ReceiveReadMessagesReader
         const service::main::ReceiveReadMessagesRequest &request,
         std::function<void(const grpc::Status &,
                            const service::main::ReceiveReadMessagesResponse &)>
-            on_response)
-        : on_response_(on_response) {
-        stub->async()->ReceiveReadMessages(&context_, &request, this);
-        StartRead(&response_);
-        StartCall();
-    }
-
-    void OnReadDone(bool ok) override {
-        if (ok) {
-            on_response_(grpc::Status::OK, response_);
-            StartRead(&response_);
-        }
-    }
-
-    void OnDone(const grpc::Status &s) override {
-        std::unique_lock<std::mutex> l(mu_);
-        status_ = s;
-        done_ = true;
-        cv_.notify_one();
-    }
-
-    grpc::Status Await() {
-        std::unique_lock<std::mutex> l(mu_);
-        cv_.wait(l, [this] { return done_; });
-        return std::move(status_);
-    }
-
-    void TryCancel() { context_.TryCancel(); }
+            on_response);
+    void OnReadDone(bool ok) override;
+    void OnDone(const grpc::Status &s) override;
+    grpc::Status Await();
+    void TryCancel();
 
    private:
     std::function<void(const grpc::Status &,
