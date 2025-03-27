@@ -8,20 +8,23 @@
 #include <tuple>
 #include <vector>
 
-void bind_arg(sqlite3_stmt *stmt, int index, int value);
+void bind_arg(sqlite3_stmt *stmt, int &index, int value);
 
-void bind_arg(sqlite3_stmt *stmt, int index, sqlite3_int64 value);
+void bind_arg(sqlite3_stmt *stmt, int &index, sqlite3_int64 value);
 
-void bind_arg(sqlite3_stmt *stmt, int index, double value);
+void bind_arg(sqlite3_stmt *stmt, int &index, unsigned long long value);
 
-void bind_arg(sqlite3_stmt *stmt, int index, std::string_view value);
+void bind_arg(sqlite3_stmt *stmt, int &index, double value);
 
-void bind_arg(sqlite3_stmt *stmt, int index, std::nullptr_t);
+void bind_arg(sqlite3_stmt *stmt, int &index, std::string_view value);
 
-template <std::ranges::range T>
-void bind_arg(sqlite3_stmt *stmt, int index, const T &range) {
+void bind_arg(sqlite3_stmt *stmt, int &index, std::nullptr_t);
+
+template <typename T>
+    requires std::ranges::range<T>
+void bind_arg(sqlite3_stmt *stmt, int &index, const T &range) {
     for (const auto &value : range) {
-        bind_arg(stmt, index++, value);
+        bind_arg(stmt, index, value);
     }
 }
 
@@ -95,7 +98,7 @@ class Db {
         }
 
         int index = 1;
-        (bind_arg(stmt, index++, args), ...);
+        (bind_arg(stmt, index, args), ...);
 
         std::vector<std::tuple<Ts...>> rows;
 

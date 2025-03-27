@@ -533,8 +533,7 @@ void Backend::requestGetConversations() {
         for (const auto &conversation : response.conversations()) {
             conversations.append(new Conversation(
                 conversation.id(), conversation.recv_user_id(),
-                QString::fromStdString(conversation.recv_user_username()),
-                conversation.unread_count()));
+                QString::fromStdString(conversation.recv_user_username()), 0));
         }
     } else {
         lg::write(lg::level::error, "GetConversations({}) -> Err({})",

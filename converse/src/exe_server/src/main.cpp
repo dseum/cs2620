@@ -11,6 +11,7 @@
 
 #include "database.hpp"
 #include "server.hpp"
+#include "sql.hpp"
 
 namespace po = boost::program_options;
 namespace lg = converse::logging;
@@ -37,8 +38,6 @@ void handle_serve(const po::variables_map &vm) {
     int port = vm["port"].as<int>();
     std::string address(std::format("{}:{}", host, port));
 
-    lg::init(lg::sink_type::console);
-
     converse::service::main::Impl mainservice_impl;
 
     grpc::ServerBuilder builder;
@@ -54,13 +53,7 @@ void handle_serve(const po::variables_map &vm) {
 void handle_migrate(const po::variables_map &vm) {
     Db db;
 
-    std::ifstream file("main.sql");
-    if (!file.is_open()) {
-        throw std::runtime_error("main.sql not found");
-    }
-
-    std::stringstream buf;
-    buf << file.rdbuf();
+    std::stringstream buf(converse::sql::MAIN);
     std::string stmt;
     while (std::getline(buf, stmt, ';')) {
         boost::trim_right(stmt);
@@ -71,6 +64,7 @@ void handle_migrate(const po::variables_map &vm) {
 }
 
 int main(int argc, char *argv[]) {
+    lg::init(lg::sink_type::console);
     try {
         // Global options
         po::options_description global_desc("Global Options");
@@ -87,7 +81,7 @@ int main(int argc, char *argv[]) {
         po::options_description migrate_desc("Migrate Options");
         migrate_desc.add_options()("help", "show help");
 
-        // If no command-line arguments are provided, default to "serve"
+        // Defaults to "serve" if no subcommand is provided
         std::string subcommand;
         std::vector<std::string> sub_args;
         if (argc < 2) {
@@ -128,7 +122,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     } catch (const std::exception &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        lg::write(lg::level::error, "{}", e.what());
         return 1;
     }
 
