@@ -28,7 +28,7 @@ cmake --workflow [debug|release]
 build/src/exe_[client|server]/exe
 ```
 
-## Directories
+## Projects
 
 | Project         | Description                            |
 | --------------- | -------------------------------------- |
