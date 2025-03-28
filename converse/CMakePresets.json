@@ -34,17 +34,29 @@
   ],
   "buildPresets": [
     {
-      "name": "debug",
-      "configurePreset": "debug"
+      "name": "debug-client",
+      "configurePreset": "debug",
+      "targets": ["exe_client"]
     },
     {
-      "name": "release",
-      "configurePreset": "release"
+      "name": "release-client",
+      "configurePreset": "release",
+      "targets": ["exe_client"]
+    },
+    {
+      "name": "debug-server",
+      "configurePreset": "debug",
+      "targets": ["exe_server"]
+    },
+    {
+      "name": "release-server",
+      "configurePreset": "release",
+      "targets": ["exe_server"]
     }
   ],
   "workflowPresets": [
     {
-      "name": "debug",
+      "name": "debug-client",
       "steps": [
         {
           "type": "configure",
@@ -52,12 +64,12 @@
         },
         {
           "type": "build",
-          "name": "debug"
+          "name": "debug-client"
         }
       ]
     },
     {
-      "name": "release",
+      "name": "release-client",
       "steps": [
         {
           "type": "configure",
@@ -65,7 +77,33 @@
         },
         {
           "type": "build",
+          "name": "release-client"
+        }
+      ]
+    },
+    {
+      "name": "debug-server",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "debug"
+        },
+        {
+          "type": "build",
+          "name": "debug-server"
+        }
+      ]
+    },
+    {
+      "name": "release-server",
+      "steps": [
+        {
+          "type": "configure",
           "name": "release"
+        },
+        {
+          "type": "build",
+          "name": "release-server"
         }
       ]
     }

@@ -19,7 +19,7 @@
 ### Build
 
 ```sh
-cmake --workflow [debug|release]
+cmake --workflow [debug-client|release-client|debug-server|release-server]
 ```
 
 ### Execute
