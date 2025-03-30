@@ -2,7 +2,6 @@
 
 #include <sqlite3.h>
 
-#include <converse/logging/core.hpp>
 #include <format>
 #include <memory>
 #include <string_view>
@@ -25,8 +24,6 @@ template <typename T>
     requires(std::ranges::range<T> && !std::convertible_to<T, std::string_view>)
 
 void bind_arg(sqlite3_stmt *stmt, int &index, const T &range) {
-    converse::logging::write(converse::logging::level::trace, "arg: {} {}",
-                             index, range);
     for (const auto &value : range) {
         bind_arg(stmt, index, value);
     }
