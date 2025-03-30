@@ -2,6 +2,7 @@
 
 #include <sqlite3.h>
 
+#include <converse/logging/core.hpp>
 #include <format>
 #include <memory>
 #include <string_view>
