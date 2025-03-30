@@ -13,6 +13,8 @@ void bind_arg(sqlite3_stmt *stmt, int &index, int value);
 
 void bind_arg(sqlite3_stmt *stmt, int &index, sqlite3_int64 value);
 
+void bind_arg(sqlite3_stmt *stmt, int &index, unsigned long value);
+
 void bind_arg(sqlite3_stmt *stmt, int &index, unsigned long long value);
 
 void bind_arg(sqlite3_stmt *stmt, int &index, double value);

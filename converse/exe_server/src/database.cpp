@@ -27,6 +27,11 @@ void bind_arg(sqlite3_stmt *stmt, int &index, sqlite3_int64 value) {
     }
 }
 
+void bind_arg(sqlite3_stmt *stmt, int &index, unsigned long value) {
+    int value_ = static_cast<sqlite3_int64>(value);
+    bind_arg(stmt, index, value_);
+}
+
 void bind_arg(sqlite3_stmt *stmt, int &index, unsigned long long value) {
     int value_ = static_cast<sqlite3_int64>(value);
     bind_arg(stmt, index, value_);
