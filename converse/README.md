@@ -14,25 +14,11 @@
 - autoconf-archive
 - libtool
 
-## Commands
-
-### Build
-
-```sh
-cmake --workflow [debug-client|release-client|debug-server|release-server]
-```
-
-### Execute
-
-```sh
-build/src/exe_[client|server]/exe
-```
-
 ## Projects
 
-| Project         | Description                            |
-| --------------- | -------------------------------------- |
-| src/exe_client  | [README.md](src/exe_client/README.md)  |
-| src/exe_server  | [README.md](src/exe_server/README.md)  |
-| src/lib_logging | [README.md](src/lib_logging/README.md) |
-| src/lib_proto   | [README.md](src/lib_proto/README.md)   |
+| Project     | Description                        |
+| ----------- | ---------------------------------- |
+| exe_client  | [README.md](exe_client/README.md)  |
+| exe_server  | [README.md](exe_server/README.md)  |
+| lib_logging | [README.md](lib_logging/README.md) |
+| lib_proto   | [README.md](lib_proto/README.md)   |

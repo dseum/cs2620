@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(Converse LANGUAGES CXX)
+project(converse_client)
 
 # Sets CMake flags
 set(CMAKE_BUILD_TYPE
@@ -34,23 +34,30 @@ else()
 endif()
 
 # Finds packages
-find_package(
-  Boost CONFIG REQUIRED
-  COMPONENTS algorithm
-             date_time
-             json
-             log
-             log_setup
-             program_options
-             unit_test_framework)
+find_package(Boost CONFIG REQUIRED COMPONENTS date_time log log_setup)
 find_package(gRPC CONFIG REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(Qt6 CONFIG REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
-find_package(unofficial-argon2 CONFIG REQUIRED)
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 # Adds subdirectories
-add_subdirectory(src/exe_client)
-add_subdirectory(src/exe_server)
-add_subdirectory(src/lib_logging)
-add_subdirectory(src/lib_proto)
+add_subdirectory(../lib_logging ${CMAKE_BINARY_DIR}/lib_logging)
+add_subdirectory(../lib_proto ${CMAKE_BINARY_DIR}/lib_proto)
+
+qt_standard_project_setup(REQUIRES 6.8.2)
+qt_add_executable(exe_client)
+qt_add_qml_module(
+  exe_client
+  URI
+  Converse
+  VERSION
+  1.0
+  QML_FILES
+  src/main.qml
+  SOURCES
+  src/backend.hpp
+  src/backend.cpp)
+set_target_properties(exe_client PROPERTIES OUTPUT_NAME exe)
+target_sources(exe_client PRIVATE src/backend.cpp src/main.cpp src/reader.cpp)
+target_include_directories(exe_client PRIVATE src)
+target_link_libraries(exe_client PRIVATE lib_logging lib_proto Qt6::Gui
+                                         Qt6::Qml)
