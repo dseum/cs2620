@@ -38,7 +38,6 @@ find_package(Boost CONFIG REQUIRED COMPONENTS algorithm date_time log log_setup
                                               program_options)
 find_package(gRPC CONFIG REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
-find_package(Qt6 CONFIG REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
 find_package(unofficial-argon2 CONFIG REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
