@@ -665,7 +665,11 @@ void Backend::requestCreateConversation(int conversation_recv_user_id) {
             QString::fromStdString(
                 response.conversation().recv_user_username()),
             unread_message_ids);
-        set_conversation(conversation);
+        set_conversation(new Conversation(
+            response.conversation().id(), conversation_recv_user_id,
+            QString::fromStdString(
+                response.conversation().recv_user_username()),
+            unread_message_ids));
     } else {
         lg::write(lg::level::error, "CreateConversation({}) -> Err({})",
                   conversation_recv_user_id, status.error_message());
