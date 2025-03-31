@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package converse.service.link;
+
+service LinkService {
+  rpc GetServers(GetServersRequest) returns (GetServersResponse);
+  rpc IdentifyMyself(IdentifyMyselfRequest) returns (IdentifyMyselfResponse);
+  rpc ClaimServerId(ClaimServerIdRequest) returns (ClaimServerIdResponse);
+  rpc ReplicateTransaction(ReplicateTransactionRequest)
+      returns (ReplicateTransactionResponse);
+}
+
+message GetServersRequest {
+  // The ID of the server making the request.
+  uint64 server_id = 1;
+}
+
+message GetServersResponse {
+  // A list of server IDs that are currently available.
+  repeated uint64 server_ids = 1;
+}
+
+message IdentifyMyselfRequest {
+  string host = 1;
+  uint32 port = 2;
+}
+
+message IdentifyMyselfResponse {
+  // The ID of the server that is being identified.
+  uint64 server_id = 1;
+}
+
+message ClaimServerIdRequest {
+  // The ID of the server making the request.
+  uint64 server_id = 1;
+}
+
+message ClaimServerIdResponse {
+  // The ID of the server that is being claimed.
+  uint64 server_id = 1;
+}
+
+message ReplicateTransactionRequest {
+  uint64 transaction_id = 1;
+
+  // Each transaction can include one or more operations (insert, update, etc.).
+  repeated Operation operations = 2;
+}
+
+message ReplicateTransactionResponse {
+  // Whether the backup applied the transaction successfully.
+  bool success = 1;
+  // A string for error details, if any.
+  string error_message = 2;
+}
+
+// Each "Operation" represents an insert, update, or delete statement
+// in a structured form. This parallels your existing approach: 
+//  - table_name could be "users", "messages", etc.
+//  - new_values could hold columns for an insert or an update
+//  - old_key_values identifies which row(s) to update or delete
+message Operation {
+  OperationType type = 1;
+  string table_name = 2;
+
+  // For insert or update, these are the columns & values to set:
+  map<string, string> new_values = 3;
+
+  // For update or delete, these are the primary key or filter columns:
+  map<string, string> old_key_values = 4;
+}
+
+// Simple enum for describing the kind of write operation:
+enum OperationType {
+  OPERATION_TYPE_UNSPECIFIED = 0;
+  OPERATION_TYPE_INSERT = 1;
+  OPERATION_TYPE_UPDATE = 2;
+}
+
