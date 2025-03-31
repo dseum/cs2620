@@ -17,12 +17,14 @@ namespace converse {
 namespace service {
 namespace link {
 
-// Global mutex and map to track server information.
-static std::mutex gServersMutex;
-static std::map<std::string, ServerInfo> gServers;
-
-LinkServiceImpl::LinkServiceImpl(Db* db) : db_(db) { }
+LinkServiceImpl::LinkServiceImpl(const std::string& db_name)
+    : db_(std::make_unique<Db>(const_cast<std::string&>(db_name))) {
+    db_->execute("PRAGMA journal_mode=WAL;");
+}
 LinkServiceImpl::~LinkServiceImpl() = default;
+
+std::mutex gServersMutex;
+std::map<std::string, ServerInfo> gServers;
 
 grpc::Status LinkServiceImpl::GetServers(
     ::grpc::ServerContext* context,

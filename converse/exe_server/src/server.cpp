@@ -1,4 +1,5 @@
 #include "server.hpp"
+#include "link.hpp"
 
 #include <argon2.h>
 #include <converse/service/main/main.pb.h>
@@ -65,9 +66,11 @@ namespace converse {
 namespace service {
 namespace main {
 
-Impl::Impl(std::string &name) : name_(name) {
-    db_ = std::make_unique<Db>(name);
+Impl::Impl(const std::string &name, const std::string &host, int port)
+    : name_(name), myAddress_(std::format("{}:{}", host, port)) {
+    db_ = std::make_unique<Db>(this->name_);
 }
+
 
 Impl::~Impl() = default;
 
@@ -101,6 +104,43 @@ grpc::Status Impl::SignupUser(grpc::ServerContext *context,
 
         auto &[id] = rows.at(0);
         response->set_user_id(id);
+
+        link::ReplicateTransactionRequest replicateReq;
+        auto* op = replicateReq.add_operations();
+        op->set_type(link::OPERATION_TYPE_INSERT);
+        op->set_table_name("users");
+        (*op->mutable_new_values())["username"]         = username;
+        (*op->mutable_new_values())["password_encoded"] = password_encoded;
+
+        {
+            std::lock_guard<std::mutex> lock(link::gServersMutex);
+
+            for (auto const& [addr, info] : link::gServers) {
+                // Skip servers that haven’t claimed an ID yet:
+                if (!info.id_assigned) {
+                    continue;
+                }
+
+                // Skip *ourselves* (the current server):
+                if (addr == myAddress_) {
+                    continue;
+                }
+
+                // Build a stub dynamically for each remote
+                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
+                auto stub = link::LinkService::NewStub(channel);
+
+                // Replicate
+                grpc::ClientContext rctx;
+                link::ReplicateTransactionResponse rresp;
+                auto status = stub->ReplicateTransaction(&rctx, replicateReq, &rresp);
+                if (!status.ok() || !rresp.success()) {
+                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
+                    lg::write(lg::level::error, msg);
+                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
+                }
+            }
+        }
 
         lg::write(lg::level::info, "SignupUser({}) -> Ok({})", username, id);
         return grpc::Status::OK;

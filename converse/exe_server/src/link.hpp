@@ -18,10 +18,12 @@ struct ServerInfo {
     uint32_t port = 0;
 };
 
+extern std::mutex gServersMutex;
+extern std::map<std::string, ServerInfo> gServers;
 // The gRPC service implementation for replication.
 class LinkServiceImpl final : public LinkService::Service {
 public:
-    explicit LinkServiceImpl(Db* db);
+    explicit LinkServiceImpl(const std::string& db_name);
     ~LinkServiceImpl() override;
 
     // RPC: Returns all known servers
@@ -44,7 +46,7 @@ public:
                                       const ::converse::service::link::ReplicateTransactionRequest* request,
                                       ::converse::service::link::ReplicateTransactionResponse* response) override;
 private:
-    Db* db_; 
+    std::unique_ptr<Db> db_;
 };
 
 } // namespace link

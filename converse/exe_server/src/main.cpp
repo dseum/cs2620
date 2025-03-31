@@ -41,10 +41,8 @@ void handle_serve(const po::variables_map &vm) {
     std::string joinAddr = vm["join"].as<std::string>();
     bool isLeader = joinAddr.empty();
 
-    converse::service::main::Impl mainservice_impl(name);
-    converse::service::link::LinkServiceImpl linkservice_impl(
-        mainservice_impl.getDatabase()
-    );
+    converse::service::main::Impl mainservice_impl(name, host, port);
+    converse::service::link::LinkServiceImpl linkservice_impl(name);
 
     grpc::ServerBuilder builder;
     builder.AddListeningPort(address, grpc::InsecureServerCredentials());
