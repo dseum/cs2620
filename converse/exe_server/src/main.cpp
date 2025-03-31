@@ -35,28 +35,64 @@ void print_serve_help(const po::options_description &desc) {
 void handle_serve(const po::variables_map &vm) {
     std::string name = vm["name"].as<std::string>();
     std::string host = vm["host"].as<std::string>();
-    int port = vm["port"].as<int>();
-    std::string address(std::format("{}:{}", host, port));
+    int port        = vm["port"].as<int>();
+    std::string address = std::format("{}:{}", host, port);
 
-    // 1) Create the main (conversation) service
+    std::string joinAddr = vm["join"].as<std::string>();
+    bool isLeader = joinAddr.empty();
+
     converse::service::main::Impl mainservice_impl(name);
+    converse::service::link::LinkServiceImpl linkservice_impl(
+        mainservice_impl.getDatabase()
+    );
 
-    // 2) Create the link (replication) service
-    converse::service::link::LinkServiceImpl linkservice_impl;
-
-    // 3) Build and start the gRPC server
     grpc::ServerBuilder builder;
     builder.AddListeningPort(address, grpc::InsecureServerCredentials());
-
-    // Register both services on the same port
     builder.RegisterService(&mainservice_impl);
     builder.RegisterService(&linkservice_impl);
 
     auto server = builder.BuildAndStart();
-    
     lg::write(lg::level::info, "listening on {}", address);
 
-    // This thread blocks until the server shuts down
+    std::string connectTarget = isLeader ? address : joinAddr;
+    std::cout << (isLeader ? "[LEADER]" : "[REPLICA]") << " Connecting to " << connectTarget << std::endl;
+
+    auto channel = grpc::CreateChannel(connectTarget, grpc::InsecureChannelCredentials());
+    std::unique_ptr<converse::service::link::LinkService::Stub> stub =
+        converse::service::link::LinkService::NewStub(channel);
+
+    {
+        ::converse::service::link::IdentifyMyselfRequest req;
+        req.set_host(host);
+        req.set_port(port);
+
+        ::converse::service::link::IdentifyMyselfResponse resp;
+        grpc::ClientContext ctx;
+        grpc::Status status = stub->IdentifyMyself(&ctx, req, &resp);
+        if (!status.ok()) {
+            std::cerr << "IdentifyMyself failed: " << status.error_message() << std::endl;
+        } else {
+            std::cout << "IdentifyMyself OK.\n";
+        }
+    }
+
+    uint64_t myId = 0;
+    {
+        ::converse::service::link::ClaimServerIdRequest req;
+        req.set_server_id(0);
+        ::converse::service::link::ClaimServerIdResponse resp;
+
+        grpc::ClientContext ctx;
+        grpc::Status status = stub->ClaimServerId(&ctx, req, &resp);
+        if (!status.ok()) {
+            std::cerr << "ClaimServerId failed: " << status.error_message() << std::endl;
+        } else {
+            myId = resp.server_id();
+            std::cout << (isLeader ? "[LEADER]" : "[REPLICA]")
+                      << " Assigned ID=" << myId << std::endl;
+        }
+    }
+
     server->Wait();
 }
 
@@ -77,9 +113,10 @@ int main(int argc, char *argv[]) {
             ("host,h", po::value<std::string>()->default_value("0.0.0.0"),
              "set server host")
             ("port,p", po::value<int>()->default_value(50051),
-             "set server port");
-
-        // Defaults to "serve" if no subcommand is provided
+             "set server port")
+            ("join,j", po::value<std::string>()->default_value(""),
+            "join an existing cluster via host:port of a leader/replica");
+        
         std::string subcommand;
         std::vector<std::string> sub_args;
         if (argc < 2) {

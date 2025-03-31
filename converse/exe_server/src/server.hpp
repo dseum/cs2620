@@ -34,8 +34,9 @@ class Impl final : public MainService::Service {
    public:
     Impl(std::string &name);
     ~Impl() override;
-
+    
     void setDb(std::unique_ptr<Db> db) { db_ = std::move(db); }
+    Db* getDatabase() const { return db_.get(); }
 
     grpc::Status SignupUser(grpc::ServerContext *context,
                             const SignupUserRequest *request,

@@ -2,6 +2,7 @@
 #include "converse/service/link/link.pb.h"
 #include "converse/service/link/link.grpc.pb.h"
 #include "link.hpp"
+#include "database.hpp"
 
 #include <map>
 #include <mutex>
@@ -20,7 +21,7 @@ namespace link {
 static std::mutex gServersMutex;
 static std::map<std::string, ServerInfo> gServers;
 
-LinkServiceImpl::LinkServiceImpl() = default;
+LinkServiceImpl::LinkServiceImpl(Db* db) : db_(db) { }
 LinkServiceImpl::~LinkServiceImpl() = default;
 
 grpc::Status LinkServiceImpl::GetServers(
@@ -62,7 +63,6 @@ grpc::Status LinkServiceImpl::IdentifyMyself(
         std::cout << "[IdentifyMyself] Server already known: " << key << "\n";
     }
 
-    // Return 0 until the server claims an ID.
     response->set_server_id(0);
     return grpc::Status::OK;
 }
@@ -72,11 +72,9 @@ grpc::Status LinkServiceImpl::ClaimServerId(
     const ClaimServerIdRequest* request,
     ClaimServerIdResponse* response) {
     (void)context;
-    // The proto only provides a server_id; we expect unassigned servers to send 0.
     uint64_t temp_id = request->server_id();
 
     std::lock_guard<std::mutex> lock(gServersMutex);
-    // Find a server with a matching (temporary) ID; in our simple model, that will be 0.
     auto it = std::find_if(gServers.begin(), gServers.end(),
                            [temp_id](const auto& pair) {
                               return pair.second.server_id == temp_id;
@@ -94,14 +92,18 @@ grpc::Status LinkServiceImpl::ClaimServerId(
         return grpc::Status::OK;
     }
 
-    // Determine a new unique server id.
+    uint64_t newId = 0;
+    bool anyAssigned = false;
     uint64_t maxId = 0;
     for (const auto& [_, s] : gServers) {
-        if (s.id_assigned && s.server_id > maxId) {
-            maxId = s.server_id;
+        if (s.id_assigned) {
+            anyAssigned = true;
+            if (s.server_id > maxId)
+                maxId = s.server_id;
         }
     }
-    uint64_t newId = maxId + 1;
+    newId = anyAssigned ? maxId + 1 : 0;
+    
     info.id_assigned = true;
     info.server_id = newId;
 
@@ -148,8 +150,7 @@ grpc::Status LinkServiceImpl::ReplicateTransaction(
                 sql << ")";
 
                 std::cout << "[SQL:INSERT] " << sql.str() << "\n";
-                // Uncomment when integrating with a database:
-                // db_->execute(sql.str(), values);
+                db_->execute(sql.str(), values);
             } else if (op.type() == OPERATION_TYPE_UPDATE) {
                 std::vector<std::string> setClauses;
                 std::vector<std::string> setValues;
@@ -187,8 +188,7 @@ grpc::Status LinkServiceImpl::ReplicateTransaction(
                 bound.insert(bound.end(), whereValues.begin(), whereValues.end());
 
                 std::cout << "[SQL:UPDATE] " << sql.str() << "\n";
-                // Uncomment when integrating with a database:
-                // db_->execute(sql.str(), bound);
+                db_->execute(sql.str(), bound);
             } else {
                 throw std::runtime_error("Unsupported operation type");
             }

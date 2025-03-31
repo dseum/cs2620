@@ -4,6 +4,7 @@
 #include <mutex>
 #include <converse/service/link/link.grpc.pb.h>
 #include "converse/service/link/link.pb.h"
+#include "database.hpp"
 
 namespace converse {
 namespace service {
@@ -20,7 +21,7 @@ struct ServerInfo {
 // The gRPC service implementation for replication.
 class LinkServiceImpl final : public LinkService::Service {
 public:
-    LinkServiceImpl();
+    explicit LinkServiceImpl(Db* db);
     ~LinkServiceImpl() override;
 
     // RPC: Returns all known servers
@@ -42,6 +43,8 @@ public:
     grpc::Status ReplicateTransaction(::grpc::ServerContext* context,
                                       const ::converse::service::link::ReplicateTransactionRequest* request,
                                       ::converse::service::link::ReplicateTransactionResponse* response) override;
+private:
+    Db* db_; 
 };
 
 } // namespace link
