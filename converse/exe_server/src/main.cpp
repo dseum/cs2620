@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "server.hpp"
+#include "link.hpp"
 
 namespace po = boost::program_options;
 namespace lg = converse::logging;
@@ -29,12 +30,15 @@ void handle_serve(const po::variables_map &vm) {
     std::string address(std::format("{}:{}", host, port));
 
     converse::service::main::Impl mainservice_impl(name);
+    converse::service::link::LinkServiceImpl linkservice_impl;
 
     grpc::ServerBuilder builder;
     builder.AddListeningPort(address, grpc::InsecureServerCredentials());
-    builder.RegisterService(&mainservice_impl);
-    auto server = builder.BuildAndStart();
 
+    builder.RegisterService(&mainservice_impl);
+    builder.RegisterService(&linkservice_impl);
+
+    auto server = builder.BuildAndStart();
     lg::write(lg::level::info, "listening on {}", address);
 
     server->Wait();

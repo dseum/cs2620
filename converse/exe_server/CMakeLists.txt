@@ -62,7 +62,7 @@ add_custom_target(sql_hpp DEPENDS ${SQL_HPP})
 
 add_executable(exe_server)
 set_target_properties(exe_server PROPERTIES OUTPUT_NAME exe)
-target_sources(exe_server PRIVATE src/main.cpp src/database.cpp src/server.cpp)
+target_sources(exe_server PRIVATE src/main.cpp src/database.cpp src/server.cpp src/link.cpp)
 target_include_directories(exe_server PRIVATE src)
 target_link_libraries(
   exe_server
