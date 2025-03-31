@@ -1,5 +1,4 @@
 #include <grpcpp/grpcpp.h>
-
 #include <boost/program_options.hpp>
 #include <converse/logging/core.hpp>
 #include <iostream>
@@ -15,12 +14,22 @@ namespace lg = converse::logging;
 void print_main_help(const po::options_description &desc) {
     std::cout << "usage: exe <command> [options]\n\n";
     std::cout << "commands:\n";
-    std::cout << "  serve\n";
+    std::cout << "  serve\n\n";
     std::cout << desc << std::endl;
+    std::cout << "\nEXAMPLES:\n";
+    std::cout << "  # Start a single server on port 50051:\n";
+    std::cout << "    ./exe serve --port=50051\n\n";
+    std::cout << "  # If you want 3 servers, open 3 terminals:\n";
+    std::cout << "    Terminal 1: ./exe serve --port=50051\n";
+    std::cout << "    Terminal 2: ./exe serve --port=50052\n";
+    std::cout << "    Terminal 3: ./exe serve --port=50053\n\n";
 }
 
 void print_serve_help(const po::options_description &desc) {
     std::cout << "usage: exe serve [options]\n\n" << desc << std::endl;
+    std::cout << "\nEXAMPLES:\n";
+    std::cout << "  ./exe serve --name=leader --host=0.0.0.0 --port=50051\n";
+    std::cout << "  ./exe serve --name=replica1 --host=0.0.0.0 --port=50052\n";
 }
 
 void handle_serve(const po::variables_map &vm) {
@@ -29,18 +38,25 @@ void handle_serve(const po::variables_map &vm) {
     int port = vm["port"].as<int>();
     std::string address(std::format("{}:{}", host, port));
 
+    // 1) Create the main (conversation) service
     converse::service::main::Impl mainservice_impl(name);
+
+    // 2) Create the link (replication) service
     converse::service::link::LinkServiceImpl linkservice_impl;
 
+    // 3) Build and start the gRPC server
     grpc::ServerBuilder builder;
     builder.AddListeningPort(address, grpc::InsecureServerCredentials());
 
+    // Register both services on the same port
     builder.RegisterService(&mainservice_impl);
     builder.RegisterService(&linkservice_impl);
 
     auto server = builder.BuildAndStart();
+    
     lg::write(lg::level::info, "listening on {}", address);
 
+    // This thread blocks until the server shuts down
     server->Wait();
 }
 
@@ -49,16 +65,19 @@ int main(int argc, char *argv[]) {
     try {
         // Global options
         po::options_description global_desc("Global Options");
-        global_desc.add_options()("help", "show help");
+        global_desc.add_options()
+            ("help", "show help");
 
         // Serve options
         po::options_description serve_desc("Serve Options");
-        serve_desc.add_options()("help", "show help")(
-            "name,n", po::value<std::string>()->default_value("main"),
-            "set server name (used for database filename)")(
-            "host,h", po::value<std::string>()->default_value("0.0.0.0"),
-            "set server host")("port,p", po::value<int>()->default_value(50051),
-                               "set server port");
+        serve_desc.add_options()
+            ("help", "show help")
+            ("name,n", po::value<std::string>()->default_value("main"),
+             "set server name (used for database filename)")
+            ("host,h", po::value<std::string>()->default_value("0.0.0.0"),
+             "set server host")
+            ("port,p", po::value<int>()->default_value(50051),
+             "set server port");
 
         // Defaults to "serve" if no subcommand is provided
         std::string subcommand;
@@ -72,9 +91,7 @@ int main(int argc, char *argv[]) {
 
         if (subcommand == "serve") {
             po::variables_map serve_vm;
-            po::store(
-                po::command_line_parser(sub_args).options(serve_desc).run(),
-                serve_vm);
+            po::store(po::command_line_parser(sub_args).options(serve_desc).run(), serve_vm);
             po::notify(serve_vm);
 
             if (serve_vm.count("help")) {
