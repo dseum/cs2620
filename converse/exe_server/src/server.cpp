@@ -205,6 +205,38 @@ grpc::Status Impl::DeleteUser(grpc::ServerContext *context,
         db_->execute("UPDATE users SET is_deleted = 1 WHERE id = ?", user_id);
         db_->execute("COMMIT");
 
+        link::ReplicateTransactionRequest replicateReq;
+        auto* op = replicateReq.add_operations();
+        op->set_type(link::OPERATION_TYPE_UPDATE);
+        op->set_table_name("users");
+        (*op->mutable_new_values())["is_deleted"] = "1";
+        (*op->mutable_old_key_values())["id"] = std::to_string(user_id);
+
+        {
+            std::lock_guard<std::mutex> lock(link::gServersMutex);
+            for (auto const& [addr, info] : link::gServers) {
+                if (!info.id_assigned) {
+                    continue;
+                }
+
+                if (addr == myAddress_) {
+                    continue;
+                }
+
+                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
+                auto stub = link::LinkService::NewStub(channel);
+
+                grpc::ClientContext rctx;
+                link::ReplicateTransactionResponse rresp;
+                auto status = stub->ReplicateTransaction(&rctx, replicateReq, &rresp);
+                if (!status.ok() || !rresp.success()) {
+                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
+                    lg::write(lg::level::error, msg);
+                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
+                }
+            }
+        }
+
         lg::write(lg::level::info, "DeleteUser({}) -> Ok()", user_id);
         return grpc::Status::OK;
     } catch (const std::exception &e) {
@@ -275,6 +307,50 @@ grpc::Status Impl::CreateConversation(grpc::ServerContext *context,
             "VALUES (?, ?), (?, ?)",
             conversation_id, send_user_id, conversation_id, recv_user_id);
         db_->execute("COMMIT");
+
+        link::ReplicateTransactionRequest replicateReq;
+
+        {
+            auto* op = replicateReq.add_operations();
+            op->set_type(link::OPERATION_TYPE_INSERT);
+            op->set_table_name("conversations");
+            (*op->mutable_new_values())["id"] = std::to_string(conversation_id);
+        }
+
+        {
+            auto* op = replicateReq.add_operations();
+            op->set_type(link::OPERATION_TYPE_INSERT);
+            op->set_table_name("conversations_users");
+            (*op->mutable_new_values())["conversation_id"] = std::to_string(conversation_id);
+            (*op->mutable_new_values())["user_id"] = std::to_string(send_user_id);
+        }
+
+        {
+            auto* op = replicateReq.add_operations();
+            op->set_type(link::OPERATION_TYPE_INSERT);
+            op->set_table_name("conversations_users");
+            (*op->mutable_new_values())["conversation_id"] = std::to_string(conversation_id);
+            (*op->mutable_new_values())["user_id"] = std::to_string(recv_user_id);
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(link::gServersMutex);
+            for (const auto& [addr, info] : link::gServers) {
+                if (!info.id_assigned || addr == myAddress_) continue;
+
+                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
+                auto stub = link::LinkService::NewStub(channel);
+
+                grpc::ClientContext ctx;
+                link::ReplicateTransactionResponse rresp;
+                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
+                if (!status.ok() || !rresp.success()) {
+                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
+                    lg::write(lg::level::error, msg);
+                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
+                }
+            }
+        }
 
         Conversation *conversation = new Conversation();
         conversation->set_id(conversation_id);
@@ -416,6 +492,33 @@ grpc::Status Impl::DeleteConversation(grpc::ServerContext *context,
         sqlite3_int64 conversation_id = request->conversation_id();
         db_->execute("UPDATE conversations SET is_deleted = 1 WHERE id = ?",
                      conversation_id);
+
+        link::ReplicateTransactionRequest replicateReq;
+        auto* op = replicateReq.add_operations();
+        op->set_type(link::OPERATION_TYPE_UPDATE);
+        op->set_table_name("conversations");
+        (*op->mutable_new_values())["is_deleted"] = "1";
+        (*op->mutable_old_key_values())["id"] = std::to_string(conversation_id);
+
+        {
+            std::lock_guard<std::mutex> lock(link::gServersMutex);
+            for (const auto& [addr, info] : link::gServers) {
+                if (!info.id_assigned || addr == myAddress_) continue;
+
+                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
+                auto stub = link::LinkService::NewStub(channel);
+
+                grpc::ClientContext ctx;
+                link::ReplicateTransactionResponse rresp;
+                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
+                if (!status.ok() || !rresp.success()) {
+                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
+                    lg::write(lg::level::error, msg);
+                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
+                }
+            }
+        }
+
         lg::write(lg::level::info, "DeleteConversation({}) -> Ok()",
                   conversation_id);
         return grpc::Status::OK;
@@ -463,6 +566,36 @@ grpc::Status Impl::SendMessage(grpc::ServerContext *context,
             }
             recv_user_id = std::get<0>(rows.at(0));
         }
+        
+        db_->execute("COMMIT");
+
+        link::ReplicateTransactionRequest replicateReq;
+        auto* op = replicateReq.add_operations();
+        op->set_type(link::OPERATION_TYPE_INSERT);
+        op->set_table_name("messages");
+        (*op->mutable_new_values())["id"]              = std::to_string(message_id);
+        (*op->mutable_new_values())["conversation_id"] = std::to_string(conversation_id);
+        (*op->mutable_new_values())["user_id"]         = std::to_string(send_user_id);
+        (*op->mutable_new_values())["content"]         = content;
+
+        {
+            std::lock_guard<std::mutex> lock(link::gServersMutex);
+            for (const auto& [addr, info] : link::gServers) {
+                if (!info.id_assigned || addr == myAddress_) continue;
+
+                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
+                auto stub = link::LinkService::NewStub(channel);
+
+                grpc::ClientContext ctx;
+                link::ReplicateTransactionResponse rresp;
+                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
+                if (!status.ok() || !rresp.success()) {
+                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
+                    lg::write(lg::level::error, msg);
+                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
+                }
+            }
+        }
 
         // attempts real-time streaming if we have a writer
         {
@@ -503,7 +636,6 @@ grpc::Status Impl::SendMessage(grpc::ServerContext *context,
             }
         }
 
-        db_->execute("COMMIT");
         lg::write(lg::level::info, "SendMessage({},{},{}) -> Ok({})",
                   conversation_id, send_user_id, content, message_id);
         return grpc::Status::OK;
@@ -564,6 +696,35 @@ grpc::Status Impl::ReadMessages(grpc::ServerContext *context,
             throw std::runtime_error("failed to read messages");
         }
         auto &[recv_user_id] = rows.at(0);
+
+        link::ReplicateTransactionRequest replicateReq;
+        for (const auto& message_id : request->message_ids()) {
+            auto* op = replicateReq.add_operations();
+            op->set_type(link::OPERATION_TYPE_UPDATE);
+            op->set_table_name("messages");
+            (*op->mutable_new_values())["is_read"] = "1";
+            (*op->mutable_old_key_values())["id"] = std::to_string(message_id);
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(link::gServersMutex);
+            for (const auto& [addr, info] : link::gServers) {
+                if (!info.id_assigned || addr == myAddress_) continue;
+
+                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
+                auto stub = link::LinkService::NewStub(channel);
+
+                grpc::ClientContext ctx;
+                link::ReplicateTransactionResponse rresp;
+                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
+                if (!status.ok() || !rresp.success()) {
+                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
+                    lg::write(lg::level::error, msg);
+                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
+                }
+            }
+        }
+
         {
             std::shared_lock lock(user_id_to_writers_mutex_);
 
@@ -616,6 +777,33 @@ grpc::Status Impl::DeleteMessage(grpc::ServerContext *context,
             "UPDATE messages SET is_deleted = 1 "
             "WHERE conversation_id = ? AND id = ?",
             conversation_id, message_id);
+    
+        link::ReplicateTransactionRequest replicateReq;
+        auto* op = replicateReq.add_operations();
+        op->set_type(link::OPERATION_TYPE_UPDATE);
+        op->set_table_name("messages");
+        (*op->mutable_new_values())["is_deleted"] = "1";
+        (*op->mutable_old_key_values())["id"] = std::to_string(message_id);
+
+        {
+            std::lock_guard<std::mutex> lock(link::gServersMutex);
+            for (const auto& [addr, info] : link::gServers) {
+                if (!info.id_assigned || addr == myAddress_) continue;
+
+                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
+                auto stub = link::LinkService::NewStub(channel);
+
+                grpc::ClientContext ctx;
+                link::ReplicateTransactionResponse rresp;
+                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
+                if (!status.ok() || !rresp.success()) {
+                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
+                    lg::write(lg::level::error, msg);
+                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
+                }
+            }
+        }
+
         lg::write(lg::level::info, "DeleteMessage({},{}) -> Ok()",
                   conversation_id, message_id);
         return grpc::Status::OK;
