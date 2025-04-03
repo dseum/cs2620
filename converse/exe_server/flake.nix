@@ -34,7 +34,6 @@
                 automake
                 cmake
                 git
-                llvmPackages_20.bintools
                 llvmPackages_20.clang-tools
                 llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx
                 ninja
@@ -50,7 +49,6 @@
               export VCPKG_FORCE_SYSTEM_BINARIES=1
               export CC=${pkgs.llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx}/bin/clang
               export CXX=${pkgs.llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx}/bin/clang++
-              export CXXFLAGS="-fuse-ld=lld"
             '';
           };
         }
