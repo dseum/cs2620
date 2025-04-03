@@ -50,6 +50,7 @@
               export VCPKG_FORCE_SYSTEM_BINARIES=1
               export CC=${pkgs.llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx}/bin/clang
               export CXX=${pkgs.llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx}/bin/clang++
+              export CXXFLAGS="-fuse-ld=lld"
             '';
           };
         }
