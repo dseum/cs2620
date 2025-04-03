@@ -29,7 +29,7 @@
             buildInputs =
               with pkgs;
               [ ]
-              ++ stdenv.isDarwin [
+              ++ pkgs.stdenv.isDarwin [
                 apple-sdk_15
               ];
             nativebuildInputs = with pkgs; [
