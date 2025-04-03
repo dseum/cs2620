@@ -36,7 +36,6 @@
               autoconf
               autoconf-archive
               automake
-              tr
               cat
               cmake
               git
