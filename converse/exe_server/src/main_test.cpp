@@ -8,8 +8,6 @@
 #include <iostream>
 #include <memory>
 
-#include "database.hpp"
-#include "service/link/impl.hpp"
 #include "service/main/impl.hpp"
 
 using namespace converse;
