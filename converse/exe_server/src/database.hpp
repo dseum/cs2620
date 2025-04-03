@@ -61,15 +61,16 @@ inline std::string_view get_column_value<std::string_view>(sqlite3_stmt *stmt,
                                                            int i) {
     std::string_view text(
         reinterpret_cast<const char *>(sqlite3_column_text(stmt, i)),
-        sqlite3_column_bytes(stmt, i));
+        static_cast<std::string::size_type>(sqlite3_column_bytes(stmt, i)));
     return text;
 }
 
 template <>
 inline std::string get_column_value<std::string>(sqlite3_stmt *stmt, int i) {
     std::string text;
-    text.assign(reinterpret_cast<const char *>(sqlite3_column_text(stmt, i)),
-                sqlite3_column_bytes(stmt, i));
+    text.assign(
+        reinterpret_cast<const char *>(sqlite3_column_text(stmt, i)),
+        static_cast<std::string::size_type>(sqlite3_column_bytes(stmt, i)));
     return text;
 }
 
@@ -86,19 +87,22 @@ std::tuple<Ts...> fetch_tuple(sqlite3_stmt *stmt, int i) {
 }
 
 class Db {
-    std::unique_ptr<sqlite3, decltype(&sqlite3_close)> db;
+    std::unique_ptr<sqlite3, decltype(&sqlite3_close)> db_;
+    std::string filename_;
 
    public:
-    Db(std::string &name);
+    Db(const std::string &name);
     virtual ~Db() = default;
 
     template <typename... Ts, typename... Args>
     std::vector<std::tuple<Ts...>> execute(std::string_view sql, Args... args) {
         sqlite3_stmt *stmt;
-        if (sqlite3_prepare_v2(db.get(), sql.data(), sql.size(), &stmt,
+        if (sqlite3_prepare_v2(db_.get(), sql.data(),
+                               static_cast<int>(sql.size()), &stmt,
                                nullptr) != SQLITE_OK) {
-            throw std::runtime_error(std::format(
-                "sqlite3_prepare_v2 failed with {}", sqlite3_errmsg(db.get())));
+            throw std::runtime_error(
+                std::format("sqlite3_prepare_v2 failed with {}",
+                            sqlite3_errmsg(db_.get())));
         }
 
         int index = 0;
@@ -116,11 +120,14 @@ class Db {
                 break;
             }
             case SQLITE_ERROR: {
-                throw std::runtime_error(std::format("sqlite3_step failed: {}",
-                                                     sqlite3_errmsg(db.get())));
+                throw std::runtime_error(std::format(
+                    "sqlite3_step failed: {}", sqlite3_errmsg(db_.get())));
             }
         }
 
         return rows;
     }
+
+    std::string get_bytes();
+    void set_bytes(std::string &bytes);
 };

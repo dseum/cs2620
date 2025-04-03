@@ -1,889 +1,213 @@
 #include "server.hpp"
-#include "link.hpp"
 
-#include <argon2.h>
-#include <converse/service/main/main.pb.h>
-#include <grpcpp/server_context.h>
+#include <converse/service/link/link.pb.h>
+#include <grpcpp/grpcpp.h>
 
+#include <boost/program_options.hpp>
 #include <converse/logging/core.hpp>
-#include <cstring>
-#include <format>
-#include <random>
-#include <stdexcept>
+#include <string>
+
+#include "reader.hpp"
+#include "service/health/impl.hpp"
+#include "service/link/impl.hpp"
+#include "service/main/impl.hpp"
 
 namespace lg = converse::logging;
 
-bool verify_password(const std::string &password,
-                     const std::string &password_encoded) {
-    uint8_t *pwd = (uint8_t *)strdup(password.c_str());
-    uint32_t pwdlen = static_cast<uint32_t>(strlen((char *)pwd));
-
-    int rc = argon2i_verify(password_encoded.c_str(), pwd, pwdlen);
-    free(pwd);
-    return rc == ARGON2_OK;
-}
-
-std::string generate_password_encoded(const std::string &password,
-                                      std::array<uint8_t, SALTLEN> salt) {
-    if (salt == std::array<uint8_t, SALTLEN>{0}) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<uint8_t> dis(0, 255);
-        for (size_t i = 0; i < SALTLEN; i++) {
-            salt[i] = dis(gen);
-        }
-    }
-    uint8_t *pwd = (uint8_t *)strdup(password.c_str());
-    uint32_t pwdlen = static_cast<uint32_t>(strlen((char *)pwd));
-
-    uint32_t t_cost = 2;
-    uint32_t m_cost = (1 << 16);
-    uint32_t parallelism = 1;
-
-    size_t encodedlen = argon2_encodedlen(t_cost, m_cost, parallelism, SALTLEN,
-                                          HASHLEN, Argon2_i);
-
-    std::string encoded(encodedlen, '\0');
-    int rc = argon2i_hash_encoded(t_cost, m_cost, parallelism, pwd, pwdlen,
-                                  salt.data(), SALTLEN, HASHLEN, encoded.data(),
-                                  encodedlen);
-
-    // remove trailing null terminator if present
-    if (!encoded.empty() && encoded.back() == '\0') {
-        encoded.pop_back();
-    }
-
-    free(pwd);
-    if (ARGON2_OK != rc) {
-        throw std::runtime_error(
-            std::format("argon2 failed: {}", argon2_error_message(rc)));
-    }
-
-    return encoded;
-}
-
 namespace converse {
-namespace service {
-namespace main {
+namespace server {
 
-Impl::Impl(const std::string &name, const std::string &host, int port)
-    : name_(name), myAddress_(std::format("{}:{}", host, port)) {
-    db_ = std::make_unique<Db>(this->name_);
+Address::Address(const std::string &host, int port) : host(host), port(port) {}
+
+Address::operator std::string() const {
+    return std::format("{}:{}", host, port);
 }
 
+bool Address::operator<(const Address &rhs) const {
+    return std::tie(host, port) < std::tie(rhs.host, rhs.port);
+}
 
-Impl::~Impl() = default;
+bool Address::operator==(const Address &rhs) const {
+    return std::tie(host, port) == std::tie(rhs.host, rhs.port);
+}
 
-grpc::Status Impl::SignupUser(grpc::ServerContext *context,
-                              const SignupUserRequest *request,
-                              SignupUserResponse *response) {
-    try {
-        size_t first = request->user_username().find_first_not_of(' ');
-        size_t last = request->user_username().find_last_not_of(' ');
-        std::string username = request->user_username().substr(first, last + 1);
-        if (username.empty()) {
-            throw std::runtime_error("username is empty");
-        }
-        if (username.size() > 255) {
-            throw std::runtime_error("username is too long");
-        }
-        if (request->user_password().empty()) {
-            throw std::runtime_error("password is empty");
-        }
-        std::string password_encoded =
-            generate_password_encoded(request->user_password());
+Server::Server(const std::string &name, const Address &my_address,
+               const std::optional<Address> &join_address) {
+    bool is_leader = !join_address.has_value();
 
-        auto rows = db_->execute<sqlite3_int64>(
-            "INSERT INTO users (username, password_encoded) VALUES (?, ?) "
-            "RETURNING id",
-            request->user_username(), password_encoded);
+    service::health::Impl healthservice_impl;
+    service::link::Impl linkservice_impl(name, my_address);
+    service::main::Impl mainservice_impl(
+        name, my_address, linkservice_impl.cluster_writers,
+        linkservice_impl.cluster_writers_mutex);
 
-        if (rows.empty()) {
-            throw std::runtime_error("failed to create user");
-        }
+    grpc::ServerBuilder builder;
+    builder.AddListeningPort(my_address, grpc::InsecureServerCredentials());
+    builder.RegisterService(&healthservice_impl);
+    builder.RegisterService(&linkservice_impl);
+    builder.RegisterService(&mainservice_impl);
 
-        auto &[id] = rows.at(0);
-        response->set_user_id(id);
-
-        link::ReplicateTransactionRequest replicateReq;
-        auto* op = replicateReq.add_operations();
-        op->set_type(link::OPERATION_TYPE_INSERT);
-        op->set_table_name("users");
-        (*op->mutable_new_values())["username"]         = username;
-        (*op->mutable_new_values())["password_encoded"] = password_encoded;
-
+    auto server = builder.BuildAndStart();
+    lg::write(lg::level::info, "listening on {}", std::string(my_address));
+    Address leader = my_address;
+    if (is_leader) {
+        lg::write(lg::level::info, "leader {}", name);
+    } else {
+        leader = join_address.value();
+        std::string leader_as_string(leader);
+        lg::write(lg::level::info, "replica {} connecting to {}", name,
+                  leader_as_string);
+        std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(
+            leader_as_string, grpc::InsecureChannelCredentials());
+        std::unique_ptr<service::link::LinkService::Stub> stub =
+            service::link::LinkService::NewStub(channel);
+        // identifies itself to leader and gets known servers
         {
-            std::lock_guard<std::mutex> lock(link::gServersMutex);
-
-            for (auto const& [addr, info] : link::gServers) {
-                // Skip servers that haven’t claimed an ID yet:
-                if (!info.id_assigned) {
-                    continue;
-                }
-
-                // Skip *ourselves* (the current server):
-                if (addr == myAddress_) {
-                    continue;
-                }
-
-                // Build a stub dynamically for each remote
-                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
-                auto stub = link::LinkService::NewStub(channel);
-
-                // Replicate
-                grpc::ClientContext rctx;
-                link::ReplicateTransactionResponse rresp;
-                auto status = stub->ReplicateTransaction(&rctx, replicateReq, &rresp);
-                if (!status.ok() || !rresp.success()) {
-                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
-                    lg::write(lg::level::error, msg);
-                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
+            service::link::IdentifyMyselfRequest req;
+            req.set_host(my_address.host);
+            req.set_port(my_address.port);
+            service::link::IdentifyMyselfResponse res;
+            grpc::ClientContext ctx;
+            grpc::Status status = stub->IdentifyMyself(&ctx, req, &res);
+            if (!status.ok()) {
+                throw std::runtime_error(std::format(
+                    "IdentifyMyself failed: {}", status.error_message()));
+            }
+            lg::write(lg::level::info, "IdentifyMyself ok");
+            {
+                std::unique_lock lock(linkservice_impl.cluster_addresses_mutex);
+                for (const auto &addr : res.cluster_addresses()) {
+                    linkservice_impl.cluster_addresses.emplace_back(
+                        addr.host(), addr.port());
+                    lg::write(lg::level::info, "added server {}:{}",
+                              addr.host(), addr.port());
                 }
             }
+            auto what = res.database();
+            linkservice_impl.db->set_bytes(what);
         }
+        do {
+            service::link::GetTransactionsRequest req;
+            auto GetTransactions_reader =
+                service::link::reader::GetTransactionsReader(
+                    stub.get(), req,
+                    [&](const grpc::Status &status,
+                        const service::link::GetTransactionsResponse
+                            &response) {
+                        if (status.ok()) {
+                            for (const auto &op : response.operations()) {
+                                // Updated to use table_name() as defined in the
+                                // proto.
+                                const std::string &table = op.table_name();
 
-        lg::write(lg::level::info, "SignupUser({}) -> Ok({})", username, id);
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        lg::write(lg::level::error, "SignupUser({}) -> Err({})",
-                  request->user_username(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+                                if (op.type() ==
+                                    service::link::OPERATION_TYPE_INSERT) {
+                                    std::vector<std::string> columns;
+                                    std::vector<std::string> placeholders;
+                                    std::vector<std::string> values;
+
+                                    for (const auto &entry : op.new_values()) {
+                                        columns.push_back(entry.first);
+                                        placeholders.push_back("?");
+                                        values.push_back(entry.second);
+                                    }
+
+                                    std::stringstream sql;
+                                    sql << "INSERT INTO " << table << " (";
+                                    for (size_t i = 0; i < columns.size();
+                                         ++i) {
+                                        sql << columns[i];
+                                        if (i + 1 < columns.size()) sql << ", ";
+                                    }
+                                    sql << ") VALUES (";
+                                    for (size_t i = 0; i < placeholders.size();
+                                         ++i) {
+                                        sql << placeholders[i];
+                                        if (i + 1 < placeholders.size())
+                                            sql << ", ";
+                                    }
+                                    sql << ")";
+
+                                    std::cout << "[SQL:INSERT] " << sql.str()
+                                              << "\n";
+                                    linkservice_impl.db->execute(sql.str(),
+                                                                 values);
+                                } else if (op.type() ==
+                                           service::link::
+                                               OPERATION_TYPE_UPDATE) {
+                                    std::vector<std::string> setClauses;
+                                    std::vector<std::string> setValues;
+                                    for (const auto &entry : op.new_values()) {
+                                        setClauses.push_back(entry.first +
+                                                             " = ?");
+                                        setValues.push_back(entry.second);
+                                    }
+
+                                    std::vector<std::string> whereClauses;
+                                    std::vector<std::string> whereValues;
+                                    for (const auto &entry :
+                                         op.old_key_values()) {
+                                        whereClauses.push_back(entry.first +
+                                                               " = ?");
+                                        whereValues.push_back(entry.second);
+                                    }
+
+                                    std::stringstream sql;
+                                    sql << "UPDATE " << table << " SET ";
+                                    for (size_t i = 0; i < setClauses.size();
+                                         ++i) {
+                                        sql << setClauses[i];
+                                        if (i + 1 < setClauses.size())
+                                            sql << ", ";
+                                    }
+
+                                    if (!whereClauses.empty()) {
+                                        sql << " WHERE ";
+                                        for (size_t i = 0;
+                                             i < whereClauses.size(); ++i) {
+                                            sql << whereClauses[i];
+                                            if (i + 1 < whereClauses.size())
+                                                sql << " AND ";
+                                        }
+                                    }
+
+                                    std::vector<std::string> bound;
+                                    bound.insert(bound.end(), setValues.begin(),
+                                                 setValues.end());
+                                    bound.insert(bound.end(),
+                                                 whereValues.begin(),
+                                                 whereValues.end());
+
+                                    std::cout << "[SQL:UPDATE] " << sql.str()
+                                              << "\n";
+                                    linkservice_impl.db->execute(sql.str(),
+                                                                 bound);
+                                } else {
+                                    throw std::runtime_error(
+                                        "Unsupported operation type");
+                                }
+                            }
+                        }
+                    });
+            GetTransactions_reader.Await();
+            std::unique_lock lock(linkservice_impl.cluster_addresses_mutex);
+            Address addr = linkservice_impl.cluster_addresses.front();
+            linkservice_impl.cluster_addresses.pop_front();
+            if (addr == my_address) {
+                is_leader = true;
+                lg::write(lg::level::info, "i am now the leader");
+            } else {
+                lg::write(lg::level::info, "promoted replica {} to leader",
+                          std::string(addr));
+                channel = grpc::CreateChannel(
+                    std::string(addr), grpc::InsecureChannelCredentials());
+                stub = service::link::LinkService::NewStub(channel);
+            }
+        } while (!is_leader);
     }
+
+    // is leader
+    server->Wait();
 }
-
-grpc::Status Impl::SigninUser(grpc::ServerContext *context,
-                              const SigninUserRequest *request,
-                              SigninUserResponse *response) {
-    try {
-        auto rows = db_->execute<sqlite3_int64, std::string>(
-            "SELECT id, password_encoded FROM users "
-            "WHERE username = ? AND is_deleted = 0",
-            request->user_username());
-        if (rows.empty()) {
-            throw std::runtime_error("failed to find user");
-        }
-        auto &[id, password_encoded] = rows.at(0);
-        if (!verify_password(request->user_password(), password_encoded)) {
-            throw std::runtime_error("incorrect password");
-        }
-        response->set_user_id(id);
-
-        lg::write(lg::level::info, "SigninUser({}) -> Ok({})",
-                  request->user_username(), id);
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        lg::write(lg::level::error, "SigninUser({}) -> Err({})",
-                  request->user_username(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::SignoutUser(grpc::ServerContext *context,
-                               const SignoutUserRequest *request,
-                               SignoutUserResponse *response) {
-    lg::write(lg::level::info, "SignoutUser({}) -> Ok()", request->user_id());
-    return grpc::Status::OK;
-}
-
-grpc::Status Impl::DeleteUser(grpc::ServerContext *context,
-                              const DeleteUserRequest *request,
-                              DeleteUserResponse *response) {
-    try {
-        db_->execute("BEGIN TRANSACTION");
-        sqlite3_int64 user_id = request->user_id();
-        auto rows = db_->execute<std::string>(
-            "SELECT password_encoded FROM users WHERE id = ? AND is_deleted = "
-            "0",
-            user_id);
-        if (rows.empty()) {
-            throw std::runtime_error("failed to find user");
-        }
-        auto [password_encoded] = rows.at(0);
-        if (!verify_password(request->user_password(), password_encoded)) {
-            throw std::runtime_error("incorrect password");
-        }
-        db_->execute("UPDATE users SET is_deleted = 1 WHERE id = ?", user_id);
-        db_->execute("COMMIT");
-
-        link::ReplicateTransactionRequest replicateReq;
-        auto* op = replicateReq.add_operations();
-        op->set_type(link::OPERATION_TYPE_UPDATE);
-        op->set_table_name("users");
-        (*op->mutable_new_values())["is_deleted"] = "1";
-        (*op->mutable_old_key_values())["id"] = std::to_string(user_id);
-
-        {
-            std::lock_guard<std::mutex> lock(link::gServersMutex);
-            for (auto const& [addr, info] : link::gServers) {
-                if (!info.id_assigned) {
-                    continue;
-                }
-
-                if (addr == myAddress_) {
-                    continue;
-                }
-
-                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
-                auto stub = link::LinkService::NewStub(channel);
-
-                grpc::ClientContext rctx;
-                link::ReplicateTransactionResponse rresp;
-                auto status = stub->ReplicateTransaction(&rctx, replicateReq, &rresp);
-                if (!status.ok() || !rresp.success()) {
-                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
-                    lg::write(lg::level::error, msg);
-                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
-                }
-            }
-        }
-
-        lg::write(lg::level::info, "DeleteUser({}) -> Ok()", user_id);
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        db_->execute("ROLLBACK");
-        lg::write(lg::level::error, "DeleteUser({}) -> Err({})",
-                  request->user_id(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::GetOtherUsers(grpc::ServerContext *context,
-                                 const GetOtherUsersRequest *request,
-                                 GetOtherUsersResponse *response) {
-    try {
-        sqlite3_int64 user_id = request->user_id();
-        std::string like_pattern = "%" + request->query() + "%";
-        auto rows = db_->execute<sqlite3_int64, std::string>(
-            "SELECT id, username FROM users "
-            "WHERE id != ? AND is_deleted = 0 AND username LIKE ? "
-            "LIMIT ? OFFSET ?",
-            user_id, like_pattern, static_cast<sqlite3_int64>(request->limit()),
-            static_cast<sqlite3_int64>(request->offset()));
-
-        for (const auto &[id, username] : rows) {
-            auto *user = response->add_users();
-            user->set_id(id);
-            user->set_username(username);
-        }
-        lg::write(lg::level::info, "GetOtherUsers({}) -> Ok({})", user_id,
-                  rows.size());
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        lg::write(lg::level::error, "GetOtherUsers({}) -> Err({})",
-                  request->user_id(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::CreateConversation(grpc::ServerContext *context,
-                                      const CreateConversationRequest *request,
-                                      CreateConversationResponse *response) {
-    try {
-        sqlite3_int64 send_user_id = request->user_id();
-        sqlite3_int64 recv_user_id = request->other_user_id();
-
-        db_->execute("BEGIN TRANSACTION");
-        std::string recv_user_username;
-        {
-            auto rows = db_->execute<std::string>(
-                "SELECT username FROM users WHERE id = ? AND is_deleted = 0",
-                recv_user_id);
-            if (rows.empty()) {
-                throw std::runtime_error("failed to find user");
-            }
-            recv_user_username = std::move(std::get<0>(rows.at(0)));
-        }
-        sqlite3_int64 conversation_id;
-        {
-            auto rows = db_->execute<sqlite3_int64>(
-                "INSERT INTO conversations DEFAULT VALUES RETURNING id");
-            if (rows.empty()) {
-                throw std::runtime_error("conversation not inserted");
-            }
-            conversation_id = std::get<0>(rows.at(0));
-        }
-        db_->execute(
-            "INSERT INTO conversations_users (conversation_id, user_id) "
-            "VALUES (?, ?), (?, ?)",
-            conversation_id, send_user_id, conversation_id, recv_user_id);
-        db_->execute("COMMIT");
-
-        link::ReplicateTransactionRequest replicateReq;
-
-        {
-            auto* op = replicateReq.add_operations();
-            op->set_type(link::OPERATION_TYPE_INSERT);
-            op->set_table_name("conversations");
-            (*op->mutable_new_values())["id"] = std::to_string(conversation_id);
-        }
-
-        {
-            auto* op = replicateReq.add_operations();
-            op->set_type(link::OPERATION_TYPE_INSERT);
-            op->set_table_name("conversations_users");
-            (*op->mutable_new_values())["conversation_id"] = std::to_string(conversation_id);
-            (*op->mutable_new_values())["user_id"] = std::to_string(send_user_id);
-        }
-
-        {
-            auto* op = replicateReq.add_operations();
-            op->set_type(link::OPERATION_TYPE_INSERT);
-            op->set_table_name("conversations_users");
-            (*op->mutable_new_values())["conversation_id"] = std::to_string(conversation_id);
-            (*op->mutable_new_values())["user_id"] = std::to_string(recv_user_id);
-        }
-
-        {
-            std::lock_guard<std::mutex> lock(link::gServersMutex);
-            for (const auto& [addr, info] : link::gServers) {
-                if (!info.id_assigned || addr == myAddress_) continue;
-
-                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
-                auto stub = link::LinkService::NewStub(channel);
-
-                grpc::ClientContext ctx;
-                link::ReplicateTransactionResponse rresp;
-                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
-                if (!status.ok() || !rresp.success()) {
-                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
-                    lg::write(lg::level::error, msg);
-                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
-                }
-            }
-        }
-
-        Conversation *conversation = new Conversation();
-        conversation->set_id(conversation_id);
-        conversation->set_recv_user_id(recv_user_id);
-        conversation->set_recv_user_username(recv_user_username);
-        response->set_allocated_conversation(conversation);
-
-        lg::write(lg::level::info, "CreateConversation({},{}) -> Ok({},{},{})",
-                  send_user_id, recv_user_id, conversation_id, recv_user_id,
-                  recv_user_username);
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        db_->execute("ROLLBACK");
-        lg::write(lg::level::error, "CreateConversation({},{}) -> Err({})",
-                  request->user_id(), request->other_user_id(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::GetConversation(grpc::ServerContext *context,
-                                   const GetConversationRequest *request,
-                                   GetConversationResponse *response) {
-    try {
-        sqlite3_int64 user_id = request->user_id();
-        sqlite3_int64 conversation_id = request->conversation_id();
-        auto rows = db_->execute<sqlite3_int64, std::string, std::string>(
-            R"(
-            SELECT cu.user_id,
-                   u.username,
-                   GROUP_CONCAT(m.id) AS unread_message_ids
-            FROM conversations_users cu
-            JOIN users u ON cu.user_id = u.id
-            LEFT JOIN messages m ON cu.conversation_id = m.conversation_id
-                                AND m.user_id = cu.user_id
-                                AND m.is_read = 0
-            WHERE cu.conversation_id = ? AND cu.user_id != ?
-            GROUP BY cu.conversation_id, cu.user_id, u.username
-            )",
-            conversation_id, user_id);
-        if (rows.empty()) {
-            throw std::runtime_error("failed to find conversation");
-        }
-        auto &[recv_user_id, recv_user_username, unread_message_ids] =
-            rows.at(0);
-        Conversation *conversation = new Conversation();
-        conversation->set_id(conversation_id);
-        conversation->set_recv_user_id(recv_user_id);
-        conversation->set_recv_user_username(recv_user_username);
-        for (const auto &unread_message_id :
-             unread_message_ids | std::views::split(',') |
-                 std::views::transform([](auto &&range) {
-                     return std::stoll(std::string(range.begin(), range.end()));
-                 })) {
-            conversation->add_unread_message_ids(unread_message_id);
-        }
-        response->set_allocated_conversation(conversation);
-
-        lg::write(lg::level::info, "GetConversation({},{}) -> Ok({},{},{})",
-                  request->user_id(), request->conversation_id(),
-                  conversation_id, recv_user_id, recv_user_username);
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        lg::write(lg::level::error, "GetConversation({},{}) -> Err({})",
-                  request->user_id(), request->conversation_id(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::GetConversations(grpc::ServerContext *context,
-                                    const GetConversationsRequest *request,
-                                    GetConversationsResponse *response) {
-    try {
-        sqlite3_int64 user_id = request->user_id();
-        auto rows = db_->execute<sqlite3_int64, sqlite3_int64, std::string,
-                                 std::string>(
-            R"(
-            WITH conversation_data AS (
-              SELECT cu.conversation_id,
-                     cu.user_id AS other_user_id,
-                     u.username AS other_user_username
-              FROM conversations_users cu
-              JOIN users u ON cu.user_id = u.id
-              WHERE cu.conversation_id IN (
-                  SELECT conversation_id
-                  FROM conversations_users
-                  WHERE user_id = ?
-              )
-              AND cu.user_id != ?
-              AND u.is_deleted = 0
-            )
-            SELECT cd.conversation_id,
-                   cd.other_user_id,
-                   cd.other_user_username,
-                   GROUP_CONCAT(m.id) AS unread_message_ids
-            FROM conversation_data cd
-            LEFT JOIN messages m
-              ON cd.conversation_id = m.conversation_id
-             AND m.is_read = 0
-             AND m.user_id = cd.other_user_id
-            JOIN conversations c ON cd.conversation_id = c.id
-            WHERE c.is_deleted = 0
-            GROUP BY cd.conversation_id,
-                     cd.other_user_id,
-                     cd.other_user_username
-            )",
-            user_id, user_id);
-
-        for (auto &[id, recv_user_id, recv_user_username, unread_message_ids] :
-             rows) {
-            auto *conv = response->add_conversations();
-            conv->set_id(id);
-            conv->set_recv_user_id(recv_user_id);
-            conv->set_recv_user_username(recv_user_username);
-
-            auto result =
-                unread_message_ids | std::views::split(',') |
-                std::views::transform([](auto &&range) {
-                    return std::stoll(std::string(range.begin(), range.end()));
-                });
-            for (const auto &unread_message_id : result) {
-                conv->add_unread_message_ids(unread_message_id);
-            }
-        }
-
-        lg::write(lg::level::info, "GetConversations({}) -> Ok({})", user_id,
-                  rows.size());
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        lg::write(lg::level::error, "GetConversations({}) -> Err({})",
-                  request->user_id(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::DeleteConversation(grpc::ServerContext *context,
-                                      const DeleteConversationRequest *request,
-                                      DeleteConversationResponse *response) {
-    try {
-        sqlite3_int64 conversation_id = request->conversation_id();
-        db_->execute("UPDATE conversations SET is_deleted = 1 WHERE id = ?",
-                     conversation_id);
-
-        link::ReplicateTransactionRequest replicateReq;
-        auto* op = replicateReq.add_operations();
-        op->set_type(link::OPERATION_TYPE_UPDATE);
-        op->set_table_name("conversations");
-        (*op->mutable_new_values())["is_deleted"] = "1";
-        (*op->mutable_old_key_values())["id"] = std::to_string(conversation_id);
-
-        {
-            std::lock_guard<std::mutex> lock(link::gServersMutex);
-            for (const auto& [addr, info] : link::gServers) {
-                if (!info.id_assigned || addr == myAddress_) continue;
-
-                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
-                auto stub = link::LinkService::NewStub(channel);
-
-                grpc::ClientContext ctx;
-                link::ReplicateTransactionResponse rresp;
-                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
-                if (!status.ok() || !rresp.success()) {
-                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
-                    lg::write(lg::level::error, msg);
-                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
-                }
-            }
-        }
-
-        lg::write(lg::level::info, "DeleteConversation({}) -> Ok()",
-                  conversation_id);
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-    lg:
-        write(lg::level::error, "DeleteConversation({}) -> Err({})",
-              request->conversation_id(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::SendMessage(grpc::ServerContext *context,
-                               const SendMessageRequest *request,
-                               SendMessageResponse *response) {
-    try {
-        sqlite3_int64 conversation_id = request->conversation_id();
-        sqlite3_int64 send_user_id = request->message_send_user_id();
-        std::string content = request->message_content();
-
-        if (content.empty()) {
-            throw std::runtime_error("message content is empty");
-        }
-
-        db_->execute("BEGIN TRANSACTION");
-        sqlite3_int64 message_id;
-        {
-            auto rows = db_->execute<sqlite3_int64>(
-                "INSERT INTO messages (conversation_id, user_id, content) "
-                "VALUES (?, ?, ?) RETURNING id",
-                conversation_id, send_user_id, content);
-            if (rows.empty()) {
-                throw std::runtime_error("message not inserted");
-            }
-            message_id = std::get<0>(rows.at(0));
-        }
-
-        sqlite3_int64 recv_user_id;
-        {
-            auto rows = db_->execute<sqlite3_int64>(
-                "SELECT user_id FROM conversations_users "
-                "WHERE conversation_id = ? AND user_id != ?",
-                conversation_id, send_user_id);
-            if (rows.empty()) {
-                throw std::runtime_error("failed to find user");
-            }
-            recv_user_id = std::get<0>(rows.at(0));
-        }
-        
-        db_->execute("COMMIT");
-
-        link::ReplicateTransactionRequest replicateReq;
-        auto* op = replicateReq.add_operations();
-        op->set_type(link::OPERATION_TYPE_INSERT);
-        op->set_table_name("messages");
-        (*op->mutable_new_values())["id"]              = std::to_string(message_id);
-        (*op->mutable_new_values())["conversation_id"] = std::to_string(conversation_id);
-        (*op->mutable_new_values())["user_id"]         = std::to_string(send_user_id);
-        (*op->mutable_new_values())["content"]         = content;
-
-        {
-            std::lock_guard<std::mutex> lock(link::gServersMutex);
-            for (const auto& [addr, info] : link::gServers) {
-                if (!info.id_assigned || addr == myAddress_) continue;
-
-                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
-                auto stub = link::LinkService::NewStub(channel);
-
-                grpc::ClientContext ctx;
-                link::ReplicateTransactionResponse rresp;
-                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
-                if (!status.ok() || !rresp.success()) {
-                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
-                    lg::write(lg::level::error, msg);
-                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
-                }
-            }
-        }
-
-        // attempts real-time streaming if we have a writer
-        {
-            std::shared_lock lock(user_id_to_writers_mutex_);
-
-            // notifies the receiver
-            if (auto it = user_id_to_writers_.find(recv_user_id);
-                it != user_id_to_writers_.end()) {
-                auto *writer = it->second.ReceiveMessage_writer;
-                if (writer != nullptr) {
-                    ReceiveMessageResponse item;
-                    item.set_conversation_id(conversation_id);
-                    Message message;
-                    message.set_id(message_id);
-                    message.set_send_user_id(send_user_id);
-                    message.set_content(content);
-                    item.set_allocated_message(&message);
-                    writer->Write(item);
-                    std::ignore = item.release_message();
-                }
-            }
-
-            // notifies the sender
-            if (auto it = user_id_to_writers_.find(send_user_id);
-                it != user_id_to_writers_.end()) {
-                auto *writer = it->second.ReceiveMessage_writer;
-                if (writer != nullptr) {
-                    ReceiveMessageResponse item;
-                    item.set_conversation_id(conversation_id);
-                    Message message;
-                    message.set_id(message_id);
-                    message.set_send_user_id(send_user_id);
-                    message.set_content(content);
-                    item.set_allocated_message(&message);
-                    writer->Write(item);
-                    std::ignore = item.release_message();
-                }
-            }
-        }
-
-        lg::write(lg::level::info, "SendMessage({},{},{}) -> Ok({})",
-                  conversation_id, send_user_id, content, message_id);
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        db_->execute("ROLLBACK");
-        lg::write(lg::level::error, "SendMessage({},{},{}) -> Err({})",
-                  request->conversation_id(), request->message_send_user_id(),
-                  request->message_content(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::GetMessages(grpc::ServerContext *context,
-                               const GetMessagesRequest *request,
-                               GetMessagesResponse *response) {
-    try {
-        sqlite3_int64 conversation_id = request->conversation_id();
-        auto rows =
-            db_->execute<sqlite3_int64, sqlite3_int64, bool, std::string>(
-                "SELECT id, user_id, is_read, content "
-                "FROM messages "
-                "WHERE conversation_id = ? AND is_deleted = 0 "
-                "ORDER BY created_at ASC",
-                conversation_id);
-        for (auto &[id, user_id, is_read, content] : rows) {
-            auto *message = response->add_messages();
-            message->set_id(id);
-            message->set_send_user_id(user_id);
-            message->set_content(content);
-        }
-        lg::write(lg::level::info, "GetMessages({}) -> Ok({})", conversation_id,
-                  rows.size());
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        lg::write(lg::level::error, "GetMessages({}) -> Err({})",
-                  request->conversation_id(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::ReadMessages(grpc::ServerContext *context,
-                                const ReadMessagesRequest *request,
-                                ReadMessagesResponse *response) {
-    try {
-        std::string query =
-            "UPDATE messages SET is_read = 1 WHERE user_id != ? AND id IN (";
-        for (size_t i = 0; i < request->message_ids_size(); i++) {
-            query += "?";
-            if (i + 1 < request->message_ids_size()) {
-                query += ", ";
-            }
-        }
-        query += ") RETURNING user_id";
-        lg::write(lg::level::trace, query);
-        auto rows = db_->execute<sqlite3_int64>(query, request->user_id(),
-                                                request->message_ids());
-        if (rows.empty()) {
-            throw std::runtime_error("failed to read messages");
-        }
-        auto &[recv_user_id] = rows.at(0);
-
-        link::ReplicateTransactionRequest replicateReq;
-        for (const auto& message_id : request->message_ids()) {
-            auto* op = replicateReq.add_operations();
-            op->set_type(link::OPERATION_TYPE_UPDATE);
-            op->set_table_name("messages");
-            (*op->mutable_new_values())["is_read"] = "1";
-            (*op->mutable_old_key_values())["id"] = std::to_string(message_id);
-        }
-
-        {
-            std::lock_guard<std::mutex> lock(link::gServersMutex);
-            for (const auto& [addr, info] : link::gServers) {
-                if (!info.id_assigned || addr == myAddress_) continue;
-
-                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
-                auto stub = link::LinkService::NewStub(channel);
-
-                grpc::ClientContext ctx;
-                link::ReplicateTransactionResponse rresp;
-                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
-                if (!status.ok() || !rresp.success()) {
-                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
-                    lg::write(lg::level::error, msg);
-                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
-                }
-            }
-        }
-
-        {
-            std::shared_lock lock(user_id_to_writers_mutex_);
-
-            // notifies the sender
-            if (auto it = user_id_to_writers_.find(request->user_id());
-                it != user_id_to_writers_.end()) {
-                auto *writer = it->second.ReceiveReadMessages_writer;
-                if (writer != nullptr) {
-                    ReceiveReadMessagesResponse item;
-                    item.set_conversation_id(request->conversation_id());
-                    for (const auto &message_id : request->message_ids()) {
-                        item.add_message_ids(message_id);
-                    }
-                    writer->Write(item);
-                }
-            }
-
-            // notifies the receiver
-            if (auto it = user_id_to_writers_.find(recv_user_id);
-                it != user_id_to_writers_.end()) {
-                auto *writer = it->second.ReceiveReadMessages_writer;
-                if (writer != nullptr) {
-                    ReceiveReadMessagesResponse item;
-                    item.set_conversation_id(request->conversation_id());
-                    for (const auto &message_id : request->message_ids()) {
-                        item.add_message_ids(message_id);
-                    }
-                    writer->Write(item);
-                }
-            }
-        }
-
-        lg::write(lg::level::info, "ReadMessages({},{}) -> Ok()",
-                  request->user_id(), request->message_ids_size());
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        lg::write(lg::level::error, "ReadMessages({},{}) -> Err({})",
-                  request->user_id(), request->message_ids_size(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::DeleteMessage(grpc::ServerContext *context,
-                                 const DeleteMessageRequest *request,
-                                 DeleteMessageResponse *response) {
-    try {
-        sqlite3_int64 conversation_id = request->conversation_id();
-        sqlite3_int64 message_id = request->message_id();
-        db_->execute(
-            "UPDATE messages SET is_deleted = 1 "
-            "WHERE conversation_id = ? AND id = ?",
-            conversation_id, message_id);
-    
-        link::ReplicateTransactionRequest replicateReq;
-        auto* op = replicateReq.add_operations();
-        op->set_type(link::OPERATION_TYPE_UPDATE);
-        op->set_table_name("messages");
-        (*op->mutable_new_values())["is_deleted"] = "1";
-        (*op->mutable_old_key_values())["id"] = std::to_string(message_id);
-
-        {
-            std::lock_guard<std::mutex> lock(link::gServersMutex);
-            for (const auto& [addr, info] : link::gServers) {
-                if (!info.id_assigned || addr == myAddress_) continue;
-
-                auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
-                auto stub = link::LinkService::NewStub(channel);
-
-                grpc::ClientContext ctx;
-                link::ReplicateTransactionResponse rresp;
-                auto status = stub->ReplicateTransaction(&ctx, replicateReq, &rresp);
-                if (!status.ok() || !rresp.success()) {
-                    std::string msg = "Replication to " + addr + " failed: " + status.error_message();
-                    lg::write(lg::level::error, msg);
-                    return grpc::Status(grpc::StatusCode::INTERNAL, msg);
-                }
-            }
-        }
-
-        lg::write(lg::level::info, "DeleteMessage({},{}) -> Ok()",
-                  conversation_id, message_id);
-        return grpc::Status::OK;
-    } catch (const std::exception &e) {
-        lg::write(lg::level::error, "DeleteMessage({},{}) -> Err({})",
-                  request->conversation_id(), request->message_id(), e.what());
-        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-    }
-}
-
-grpc::Status Impl::ReceiveMessage(
-    grpc::ServerContext *context, const ReceiveMessageRequest *request,
-    grpc::ServerWriter<ReceiveMessageResponse> *writer) {
-    lg::write(lg::level::info, "ReceiveMessageRequest({})", request->user_id());
-    std::unique_lock lock(user_id_to_writers_mutex_);
-    if (auto [it, inserted] = user_id_to_writers_.try_emplace(
-            request->user_id(), Writers{.ReceiveMessage_writer = writer,
-                                        .ReceiveReadMessages_writer = nullptr});
-        !inserted) {
-        it->second.ReceiveMessage_writer = writer;
-    }
-    lg::write(lg::level::info, "ReceiveMessageRequest({}) -> +",
-              request->user_id());
-    lock.unlock();
-
-    // Keep the stream open until client cancels or server stops
-    while (!context->IsCancelled()) {
-        // This spin is naive (real code might do condition_variable wait, etc.)
-    }
-
-    lock.lock();
-    if (auto it = user_id_to_writers_.find(request->user_id());
-        it != user_id_to_writers_.end()) {
-        if (it->second.ReceiveReadMessages_writer == nullptr) {
-            user_id_to_writers_.erase(it);
-        } else {
-            it->second.ReceiveMessage_writer = nullptr;
-        }
-    }
-    lg::write(lg::level::info, "ReceiveMessageRequest({}) -> -",
-              request->user_id());
-    lock.unlock();
-    return grpc::Status::CANCELLED;
-}
-
-grpc::Status Impl::ReceiveReadMessages(
-    grpc::ServerContext *context, const ReceiveReadMessagesRequest *request,
-    grpc::ServerWriter<ReceiveReadMessagesResponse> *writer) {
-    lg::write(lg::level::info, "ReceiveReadMessages({})", request->user_id());
-    std::unique_lock lock(user_id_to_writers_mutex_);
-    if (auto [it, inserted] = user_id_to_writers_.try_emplace(
-            request->user_id(), Writers{.ReceiveMessage_writer = nullptr,
-                                        .ReceiveReadMessages_writer = writer});
-        !inserted) {
-        it->second.ReceiveReadMessages_writer = writer;
-    }
-    lg::write(lg::level::info, "ReceiveReadMessages({}) -> +",
-              request->user_id());
-    lock.unlock();
-
-    // Keep the stream open until client cancels or server stops
-    while (!context->IsCancelled()) {
-        // This spin is naive (real code might do condition_variable wait, etc.)
-    }
-
-    lock.lock();
-    if (auto it = user_id_to_writers_.find(request->user_id());
-        it != user_id_to_writers_.end()) {
-        if (it->second.ReceiveMessage_writer == nullptr) {
-            user_id_to_writers_.erase(it);
-        } else {
-            it->second.ReceiveReadMessages_writer = nullptr;
-        }
-    }
-    lg::write(lg::level::info, "ReceiveReadMessages({}) -> -",
-              request->user_id());
-    lock.unlock();
-    return grpc::Status::CANCELLED;
-}
-
-}  // namespace main
-}  // namespace service
+}  // namespace server
 }  // namespace converse

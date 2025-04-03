@@ -1,5 +1,6 @@
 #include "backend.hpp"
 
+#include <converse/service/health/health.grpc.pb.h>
 #include <grpcpp/client_context.h>
 #include <grpcpp/grpcpp.h>
 
@@ -406,16 +407,190 @@ void OtherUsersModel::set(const QList<User *> &other_users) {
     endResetModel();
 }
 
+void Backend::handle_reconnect(const grpc::Status &status) {
+    if (status.ok()) {
+        return;
+    }
+    qDebug() << status.error_code();
+    if (status.error_code() != grpc::StatusCode::UNAVAILABLE) {
+        return;
+    }
+    if (cluster_addresses_.empty()) {
+        return;
+    }
+    qDebug() << "reconnecting...";
+    std::unique_lock lock(channel_mutex_);
+    qDebug() << "reconnecting... locked";
+    {
+        auto healthservice_stub =
+            service::health::HealthService::NewStub(channel_);
+        grpc::ClientContext context;
+        service::health::HealthCheckRequest request;
+        service::health::HealthCheckResponse response;
+        grpc::Status status =
+            healthservice_stub->HealthCheck(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "valid connection already");
+        }
+    }
+    bool connected = false;
+    while (!cluster_addresses_.empty()) {
+        auto address = cluster_addresses_.front();
+        cluster_addresses_.pop_front();
+        std::string address_as_string(address);
+        qDebug() << address_as_string;
+        try {
+            auto channel = grpc::CreateChannel(
+                address_as_string, grpc::InsecureChannelCredentials());
+            auto healthservice_stub =
+                service::health::HealthService::NewStub(channel);
+            grpc::ClientContext context;
+            service::health::HealthCheckRequest request;
+            service::health::HealthCheckResponse response;
+            grpc::Status status =
+                healthservice_stub->HealthCheck(&context, request, &response);
+            if (!status.ok()) {
+                continue;
+            }
+            channel_ = channel;
+            mainservice_stub_ = service::main::MainService::NewStub(channel_);
+            linkservice_stub_ = service::link::LinkService::NewStub(channel_);
+            connected = true;
+            lg::write(lg::level::info, "connected to {}", address_as_string);
+            break;
+        } catch (std::exception &e) {
+            lg::write(lg::level::error, e.what());
+        }
+    }
+    if (!connected) {
+        lg::write(lg::level::error,
+                  "failed to connect to any server in cluster");
+        return;
+    }
+    cluster_addresses_.clear();
+    GetServers_reader_.reset(new service::link::reader::GetServersReader(
+        linkservice_stub_.get(), GetServers_request_,
+        [&](const grpc::Status &status,
+            const service::link::GetServersResponse &response) {
+            std::unique_lock lock(channel_mutex_);
+            if (status.ok()) {
+                lg::write(lg::level::info, "GetServers() -> Ok({})",
+                          response.cluster_addresses_size());
+                for (const auto &server : response.cluster_addresses()) {
+                    cluster_addresses_.emplace_back(server.host(),
+                                                    server.port());
+                }
+            } else {
+                lg::write(lg::level::error, "GetServers() -> Err({})",
+                          status.error_message());
+            }
+        },
+        [&](const grpc::Status &status) { handle_reconnect(status); }));
+    if (user_) {
+        ReceiveMessage_request_.set_user_id(user_->id());
+        auto ReceiveMessage_reader =
+            new service::main::reader::ReceiveMessageReader(
+                mainservice_stub_.get(), ReceiveMessage_request_,
+                [&](const grpc::Status &status,
+                    const service::main::ReceiveMessageResponse &response) {
+                    if (status.ok()) {
+                        lg::write(lg::level::info,
+                                  "ReceiveMessage() -> Ok({},{})",
+                                  response.conversation_id(),
+                                  response.message().id());
+                        if (response.message().send_user_id() != user_->id()) {
+                            int message_id = response.message().id();
+                            if (conversation_ &&
+                                conversation_->id() ==
+                                    response.conversation_id()) {
+                                requestReadMessages(conversation_->id(),
+                                                    {message_id});
+                            } else {
+                                emit unreadMessage(response.conversation_id(),
+                                                   message_id);
+                            }
+                        }
+                        emit receiveMessageResponse(
+                            response.conversation_id(),
+                            new Message(response.message().id(),
+                                        response.message().send_user_id(),
+                                        false,
+                                        QString::fromStdString(
+                                            response.message().content())));
+                    } else {
+                        lg::write(lg::level::error,
+                                  "ReceiveMessage() -> Err({})",
+                                  status.error_message());
+                    }
+                });
+        ReceiveMessage_reader_.reset(ReceiveMessage_reader);
+        ReceiveReadMessages_request_.set_user_id(user_->id());
+        auto ReceiveReadMessages_reader =
+            new service::main::reader::ReceiveReadMessagesReader(
+                mainservice_stub_.get(), ReceiveReadMessages_request_,
+                [&](const grpc::Status &status,
+                    const service::main::ReceiveReadMessagesResponse
+                        &response) {
+                    if (status.ok()) {
+                        lg::write(lg::level::info,
+                                  "ReceiveReadMessages() -> Ok({})",
+                                  response.message_ids_size());
+                        QList<int> read_message_ids;
+                        for (const auto &message_id : response.message_ids()) {
+                            read_message_ids.append(message_id);
+                        }
+                        emit receiveReadMessagesResponse(
+                            response.conversation_id(), read_message_ids);
+                    } else {
+                        lg::write(lg::level::error,
+                                  "ReceiveReadMessages() -> Err({})",
+                                  status.error_message());
+                    }
+                });
+        ReceiveReadMessages_reader_.reset(ReceiveReadMessages_reader);
+    }
+}
+
 Backend::Backend(const QString &host, int port, QObject *parent)
     : QObject(parent), user_(nullptr), conversation_(nullptr) {
     std::string address(std::format("{}:{}", host.toStdString(), port));
-    channel_ = grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
-    try {
-        stub_ = service::main::MainService::NewStub(channel_);
+    {
+        std::unique_lock lock(channel_mutex_);
+        try {
+            channel_ = grpc::CreateChannel(address,
+                                           grpc::InsecureChannelCredentials());
+            mainservice_stub_ = service::main::MainService::NewStub(channel_);
+            linkservice_stub_ = service::link::LinkService::NewStub(channel_);
+        } catch (std::exception &e) {
+            lg::write(lg::level::error, e.what());
+        }
+        grpc_connectivity_state state;
+        do {
+            state = channel_->GetState(true);
+            if (state == GRPC_CHANNEL_READY) break;
+            channel_->WaitForConnected(std::chrono::system_clock::now() +
+                                       std::chrono::milliseconds(500));
+        } while (state != GRPC_CHANNEL_READY);
         lg::write(lg::level::info, "connected to {}", address);
-    } catch (std::exception &e) {
-        lg::write(lg::level::error, e.what());
     }
+    GetServers_reader_.reset(new service::link::reader::GetServersReader(
+        linkservice_stub_.get(), GetServers_request_,
+        [this](const grpc::Status &status,
+               const service::link::GetServersResponse &response) {
+            std::unique_lock lock(channel_mutex_);
+            if (status.ok()) {
+                lg::write(lg::level::info, "GetServers() -> Ok({})",
+                          response.cluster_addresses_size());
+                for (const auto &server : response.cluster_addresses()) {
+                    cluster_addresses_.emplace_back(server.host(),
+                                                    server.port());
+                }
+            } else {
+                lg::write(lg::level::error, "GetServers() -> Err({})",
+                          status.error_message());
+            }
+        },
+        [this](const grpc::Status &status) { handle_reconnect(status); }));
 }
 
 User *Backend::user() const { return user_; }
@@ -437,7 +612,7 @@ void Backend::set_user(User *value) {
             ReceiveMessage_request_.set_user_id(user_->id());
             auto ReceiveMessage_reader =
                 new service::main::reader::ReceiveMessageReader(
-                    stub_.get(), ReceiveMessage_request_,
+                    mainservice_stub_.get(), ReceiveMessage_request_,
                     [&](const grpc::Status &status,
                         const service::main::ReceiveMessageResponse &response) {
                         if (status.ok()) {
@@ -475,7 +650,7 @@ void Backend::set_user(User *value) {
             ReceiveReadMessages_request_.set_user_id(user_->id());
             auto ReceiveReadMessages_reader =
                 new service::main::reader::ReceiveReadMessagesReader(
-                    stub_.get(), ReceiveReadMessages_request_,
+                    mainservice_stub_.get(), ReceiveReadMessages_request_,
                     [&](const grpc::Status &status,
                         const service::main::ReceiveReadMessagesResponse
                             &response) {
@@ -543,14 +718,19 @@ void Backend::requestSigninUser(const QString &user_username,
     request.set_user_username(user_username.toStdString());
     request.set_user_password(user_password.toStdString());
     service::main::SigninUserResponse response;
-    grpc::Status status = stub_->SigninUser(&context, request, &response);
-    if (status.ok()) {
-        lg::write(lg::level::info, "SigninUser({}) -> Ok({})",
-                  user_username.toStdString(), response.user_id());
-        set_user(new User(response.user_id(), user_username));
-    } else {
-        lg::write(lg::level::error, "SigninUser({}) -> Err({})",
-                  user_username.toStdString(), status.error_message());
+    grpc::Status status;
+    {
+        std::shared_lock lock(channel_mutex_);
+        status = mainservice_stub_->SigninUser(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "SigninUser({}) -> Ok({})",
+                      user_username.toStdString(), response.user_id());
+            set_user(new User(response.user_id(), user_username));
+        } else {
+            lg::write(lg::level::error, "SigninUser({}) -> Err({})",
+                      user_username.toStdString(), status.error_message());
+            handle_reconnect(status);
+        }
     }
     emit signinUserResponse(status.ok());
 }
@@ -562,14 +742,19 @@ void Backend::requestSignupUser(const QString &user_username,
     request.set_user_username(user_username.toStdString());
     request.set_user_password(user_password.toStdString());
     service::main::SignupUserResponse response;
-    grpc::Status status = stub_->SignupUser(&context, request, &response);
-    if (status.ok()) {
-        lg::write(lg::level::info, "SignupUser({}) -> Ok({})",
-                  user_username.toStdString(), response.user_id());
-        set_user(new User(response.user_id(), user_username));
-    } else {
-        lg::write(lg::level::error, "SignupUser({}) -> Err({})",
-                  user_username.toStdString(), status.error_message());
+    grpc::Status status;
+    {
+        std::shared_lock lock(channel_mutex_);
+        status = mainservice_stub_->SignupUser(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "SignupUser({}) -> Ok({})",
+                      user_username.toStdString(), response.user_id());
+            set_user(new User(response.user_id(), user_username));
+        } else {
+            lg::write(lg::level::error, "SignupUser({}) -> Err({})",
+                      user_username.toStdString(), status.error_message());
+            handle_reconnect(status);
+        }
     }
     emit signupUserResponse(status.ok());
 }
@@ -582,18 +767,24 @@ void Backend::requestSignoutUser() {
     service::main::SignoutUserRequest request;
     request.set_user_id(user_->id());
     service::main::SignoutUserResponse response;
-    grpc::Status status = stub_->SignoutUser(&context, request, &response);
-    if (status.ok()) {
-        lg::write(lg::level::info, "SignoutUser({}) -> Ok()", user_->id());
-        set_user(nullptr);
-    } else {
-        lg::write(lg::level::error, "SignoutUser({}) -> Err({})", user_->id(),
-                  status.error_message());
+    grpc::Status status;
+    {
+        std::shared_lock lock(channel_mutex_);
+        status = mainservice_stub_->SignoutUser(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "SignoutUser({}) -> Ok()", user_->id());
+            set_user(nullptr);
+        } else {
+            lg::write(lg::level::error, "SignoutUser({}) -> Err({})",
+                      user_->id(), status.error_message());
+            handle_reconnect(status);
+        }
     }
     emit signoutUserResponse(status.ok());
 }
 
 void Backend::requestDeleteUser(const QString &user_password) {
+    std::shared_lock lock(channel_mutex_);
     if (!user_) {
         return;
     }
@@ -602,13 +793,15 @@ void Backend::requestDeleteUser(const QString &user_password) {
     request.set_user_id(user_->id());
     request.set_user_password(user_password.toStdString());
     service::main::DeleteUserResponse response;
-    grpc::Status status = stub_->DeleteUser(&context, request, &response);
+    grpc::Status status =
+        mainservice_stub_->DeleteUser(&context, request, &response);
     if (status.ok()) {
         lg::write(lg::level::info, "DeleteUser({}) -> Ok()", user_->id());
         set_user(nullptr);
     } else {
         lg::write(lg::level::error, "DeleteUser({}) -> Err({})", user_->id(),
                   status.error_message());
+        handle_reconnect(status);
     }
     emit deleteUserResponse(status.ok());
 }
@@ -623,18 +816,23 @@ void Backend::requestGetOtherUsers(const QString &query) {
     request.set_query(query.toStdString());
     request.set_limit(10);
     service::main::GetOtherUsersResponse response;
-    grpc::Status status = stub_->GetOtherUsers(&context, request, &response);
+    grpc::Status status;
     QList<User *> other_users;
-    if (status.ok()) {
-        lg::write(lg::level::info, "GetOtherUsers({}) -> Ok({})",
-                  query.toStdString(), response.users_size());
-        for (const auto &user : response.users()) {
-            other_users.append(
-                new User(user.id(), QString::fromStdString(user.username())));
+    {
+        std::shared_lock lock(channel_mutex_);
+        status = mainservice_stub_->GetOtherUsers(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "GetOtherUsers({}) -> Ok({})",
+                      query.toStdString(), response.users_size());
+            for (const auto &user : response.users()) {
+                other_users.append(new User(
+                    user.id(), QString::fromStdString(user.username())));
+            }
+        } else {
+            lg::write(lg::level::error, "GetOtherUsers({}) -> Err({})",
+                      query.toStdString(), status.error_message());
+            handle_reconnect(status);
         }
-    } else {
-        lg::write(lg::level::error, "GetOtherUsers({}) -> Err({})",
-                  query.toStdString(), status.error_message());
     }
     emit getOtherUsersResponse(status.ok(), other_users);
 }
@@ -648,31 +846,36 @@ void Backend::requestCreateConversation(int conversation_recv_user_id) {
     request.set_user_id(user_->id());
     request.set_other_user_id(conversation_recv_user_id);
     service::main::CreateConversationResponse response;
-    grpc::Status status =
-        stub_->CreateConversation(&context, request, &response);
+    grpc::Status status;
     Conversation *conversation = nullptr;
-    if (status.ok()) {
-        lg::write(lg::level::info, "CreateConversation({}) -> Ok({},{})",
-                  conversation_recv_user_id, response.conversation().id(),
-                  response.conversation().recv_user_username());
-        QSet<int> unread_message_ids;
-        for (const auto &message_id :
-             response.conversation().unread_message_ids()) {
-            unread_message_ids.insert(message_id);
+    {
+        std::shared_lock lock(channel_mutex_);
+        status =
+            mainservice_stub_->CreateConversation(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "CreateConversation({}) -> Ok({},{})",
+                      conversation_recv_user_id, response.conversation().id(),
+                      response.conversation().recv_user_username());
+            QSet<int> unread_message_ids;
+            for (const auto &message_id :
+                 response.conversation().unread_message_ids()) {
+                unread_message_ids.insert(message_id);
+            }
+            conversation = new Conversation(
+                response.conversation().id(), conversation_recv_user_id,
+                QString::fromStdString(
+                    response.conversation().recv_user_username()),
+                unread_message_ids);
+            set_conversation(new Conversation(
+                response.conversation().id(), conversation_recv_user_id,
+                QString::fromStdString(
+                    response.conversation().recv_user_username()),
+                unread_message_ids));
+        } else {
+            lg::write(lg::level::error, "CreateConversation({}) -> Err({})",
+                      conversation_recv_user_id, status.error_message());
+            handle_reconnect(status);
         }
-        conversation = new Conversation(
-            response.conversation().id(), conversation_recv_user_id,
-            QString::fromStdString(
-                response.conversation().recv_user_username()),
-            unread_message_ids);
-        set_conversation(new Conversation(
-            response.conversation().id(), conversation_recv_user_id,
-            QString::fromStdString(
-                response.conversation().recv_user_username()),
-            unread_message_ids));
-    } else {
-        lg::write(lg::level::error, "CreateConversation({}) -> Err({})",
-                  conversation_recv_user_id, status.error_message());
     }
     emit createConversationResponse(status.ok());
     emit addConversation(status.ok(), conversation);
@@ -686,25 +889,31 @@ void Backend::requestGetConversation(int conversation_id) {
     service::main::GetConversationRequest request;
     request.set_conversation_id(conversation_id);
     service::main::GetConversationResponse response;
-    grpc::Status status = stub_->GetConversation(&context, request, &response);
-    if (status.ok()) {
-        lg::write(lg::level::info, "GetConversation({}) -> Ok({},{})",
-                  conversation_id, response.conversation().recv_user_id(),
-                  response.conversation().recv_user_username());
-        QSet<int> unread_message_ids;
-        for (const auto &message_id :
-             response.conversation().unread_message_ids()) {
-            unread_message_ids.insert(message_id);
+    grpc::Status status;
+    {
+        std::shared_lock lock(channel_mutex_);
+        status =
+            mainservice_stub_->GetConversation(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "GetConversation({}) -> Ok({},{})",
+                      conversation_id, response.conversation().recv_user_id(),
+                      response.conversation().recv_user_username());
+            QSet<int> unread_message_ids;
+            for (const auto &message_id :
+                 response.conversation().unread_message_ids()) {
+                unread_message_ids.insert(message_id);
+            }
+            Conversation *conversation = new Conversation(
+                conversation_id, response.conversation().recv_user_id(),
+                QString::fromStdString(
+                    response.conversation().recv_user_username()),
+                unread_message_ids);
+            emit addConversation(true, conversation);
+        } else {
+            lg::write(lg::level::error, "GetConversation({}) -> Err({})",
+                      conversation_id, status.error_message());
+            handle_reconnect(status);
         }
-        Conversation *conversation = new Conversation(
-            conversation_id, response.conversation().recv_user_id(),
-            QString::fromStdString(
-                response.conversation().recv_user_username()),
-            unread_message_ids);
-        emit addConversation(true, conversation);
-    } else {
-        lg::write(lg::level::error, "GetConversation({}) -> Err({})",
-                  conversation_id, status.error_message());
     }
 }
 
@@ -716,24 +925,31 @@ void Backend::requestGetConversations() {
     service::main::GetConversationsRequest request;
     request.set_user_id(user_->id());
     service::main::GetConversationsResponse response;
-    grpc::Status status = stub_->GetConversations(&context, request, &response);
+    grpc::Status status;
     QList<Conversation *> conversations;
-    if (status.ok()) {
-        lg::write(lg::level::info, "GetConversations({}) -> Ok({})",
-                  user_->id(), response.conversations_size());
-        for (const auto &conversation : response.conversations()) {
-            QSet<int> unread_message_ids;
-            for (const auto &message_id : conversation.unread_message_ids()) {
-                unread_message_ids.insert(message_id);
+    {
+        std::shared_lock lock(channel_mutex_);
+        status =
+            mainservice_stub_->GetConversations(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "GetConversations({}) -> Ok({})",
+                      user_->id(), response.conversations_size());
+            for (const auto &conversation : response.conversations()) {
+                QSet<int> unread_message_ids;
+                for (const auto &message_id :
+                     conversation.unread_message_ids()) {
+                    unread_message_ids.insert(message_id);
+                }
+                conversations.append(new Conversation(
+                    conversation.id(), conversation.recv_user_id(),
+                    QString::fromStdString(conversation.recv_user_username()),
+                    unread_message_ids));
             }
-            conversations.append(new Conversation(
-                conversation.id(), conversation.recv_user_id(),
-                QString::fromStdString(conversation.recv_user_username()),
-                unread_message_ids));
+        } else {
+            lg::write(lg::level::error, "GetConversations({}) -> Err({})",
+                      user_->id(), status.error_message());
+            handle_reconnect(status);
         }
-    } else {
-        lg::write(lg::level::error, "GetConversations({}) -> Err({})",
-                  user_->id(), status.error_message());
     }
     emit getConversationsResponse(status.ok(), conversations);
 }
@@ -747,14 +963,19 @@ void Backend::requestDeleteConversation(int conversation_id,
     service::main::DeleteConversationRequest request;
     request.set_conversation_id(conversation_id);
     service::main::DeleteConversationResponse response;
-    grpc::Status status =
-        stub_->DeleteConversation(&context, request, &response);
-    if (status.ok()) {
-        lg::write(lg::level::info, "DeleteConversation({}) -> Ok()",
-                  conversation_id);
-    } else {
-        lg::write(lg::level::error, "DeleteConversation({}) -> Err({})",
-                  conversation_id, status.error_message());
+    grpc::Status status;
+    {
+        std::shared_lock lock(channel_mutex_);
+        status =
+            mainservice_stub_->DeleteConversation(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "DeleteConversation({}) -> Ok()",
+                      conversation_id);
+        } else {
+            lg::write(lg::level::error, "DeleteConversation({}) -> Err({})",
+                      conversation_id, status.error_message());
+            handle_reconnect(status);
+        }
     }
     emit deleteConversationResponse(status.ok(), conversation_index);
 }
@@ -769,16 +990,20 @@ void Backend::requestSendMessage(const QString &message_content) {
     request.set_message_send_user_id(user_->id());
     request.set_message_content(message_content.toStdString());
     service::main::SendMessageResponse response;
-    grpc::Status status = stub_->SendMessage(&context, request, &response);
-    Message *message = nullptr;
-    if (status.ok()) {
-        lg::write(lg::level::info, "SendMessage({},{}) -> Ok({})",
-                  conversation_->id(), message_content.toStdString(),
-                  response.message_id());
-    } else {
-        lg::write(lg::level::error, "SendMessage({},{}) -> Err({})",
-                  conversation_->id(), message_content.toStdString(),
-                  status.error_message());
+    grpc::Status status;
+    {
+        std::shared_lock lock(channel_mutex_);
+        status = mainservice_stub_->SendMessage(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "SendMessage({},{}) -> Ok({})",
+                      conversation_->id(), message_content.toStdString(),
+                      response.message_id());
+        } else {
+            lg::write(lg::level::error, "SendMessage({},{}) -> Err({})",
+                      conversation_->id(), message_content.toStdString(),
+                      status.error_message());
+            handle_reconnect(status);
+        }
     }
 }
 
@@ -795,13 +1020,18 @@ void Backend::requestReadMessages(int conversation_id,
         request.add_message_ids(message_id);
     }
     service::main::ReadMessagesResponse response;
-    grpc::Status status = stub_->ReadMessages(&context, request, &response);
-    if (status.ok()) {
-        lg::write(lg::level::info, "ReadMessages({}) -> Ok({})",
-                  conversation_->id(), read_message_ids.size());
-    } else {
-        lg::write(lg::level::error, "ReadMessages({}) -> Err({})",
-                  conversation_->id(), status.error_message());
+    grpc::Status status;
+    {
+        std::shared_lock lock(channel_mutex_);
+        status = mainservice_stub_->ReadMessages(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "ReadMessages({}) -> Ok({})",
+                      conversation_->id(), read_message_ids.size());
+        } else {
+            lg::write(lg::level::error, "ReadMessages({}) -> Err({})",
+                      conversation_->id(), status.error_message());
+            handle_reconnect(status);
+        }
     }
 }
 
@@ -814,23 +1044,28 @@ void Backend::requestGetMessages() {
     request.set_conversation_id(conversation_->id());
     request.set_last_message_id(0);  // TODO
     service::main::GetMessagesResponse response;
-    grpc::Status status = stub_->GetMessages(&context, request, &response);
+    grpc::Status status;
     QList<Message *> messages;
-    if (status.ok()) {
-        lg::write(lg::level::info, "GetMessages({}) -> Ok({})",
-                  conversation_->id(), response.messages_size());
-        for (const auto &message : response.messages()) {
-            messages.append(
-                new Message(message.id(), message.send_user_id(), true,
-                            QString::fromStdString(message.content())));
+    {
+        std::shared_lock lock(channel_mutex_);
+        status = mainservice_stub_->GetMessages(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "GetMessages({}) -> Ok({})",
+                      conversation_->id(), response.messages_size());
+            for (const auto &message : response.messages()) {
+                messages.append(
+                    new Message(message.id(), message.send_user_id(), true,
+                                QString::fromStdString(message.content())));
+            }
+            if (!conversation_->unread_message_ids().empty()) {
+                requestReadMessages(conversation_->id(),
+                                    conversation_->unread_message_ids());
+            }
+        } else {
+            lg::write(lg::level::error, "GetMessages({}) -> Err({})",
+                      conversation_->id(), status.error_message());
+            handle_reconnect(status);
         }
-        if (!conversation_->unread_message_ids().empty()) {
-            requestReadMessages(conversation_->id(),
-                                conversation_->unread_message_ids());
-        }
-    } else {
-        lg::write(lg::level::error, "GetMessages({}) -> Err({})",
-                  conversation_->id(), status.error_message());
     }
     emit getMessagesResponse(status.ok(), conversation_->id(), messages);
 }
@@ -844,14 +1079,35 @@ void Backend::requestDeleteMessage(int message_id, int message_index) {
     request.set_conversation_id(conversation_->id());
     request.set_message_id(message_id);
     service::main::DeleteMessageResponse response;
-    grpc::Status status = stub_->DeleteMessage(&context, request, &response);
-    if (status.ok()) {
-        lg::write(lg::level::info, "deleteMessage({}) -> Ok()", message_id);
-    } else {
-        lg::write(lg::level::error, "deleteMessage({}) -> Err({})", message_id,
-                  status.error_message());
+    grpc::Status status;
+    {
+        std::shared_lock lock(channel_mutex_);
+        status = mainservice_stub_->DeleteMessage(&context, request, &response);
+        if (status.ok()) {
+            lg::write(lg::level::info, "deleteMessage({}) -> Ok()", message_id);
+        } else {
+            lg::write(lg::level::error, "deleteMessage({}) -> Err({})",
+                      message_id, status.error_message());
+            handle_reconnect(status);
+        }
     }
     emit deleteMessageResponse(status.ok(), message_index);
 }
+
+ServerAddress::ServerAddress(const std::string &host, int port)
+    : host(host), port(port) {}
+
+ServerAddress::operator std::string() const {
+    return std::format("{}:{}", host, port);
+}
+
+bool ServerAddress::operator<(const ServerAddress &rhs) const {
+    return std::tie(host, port) < std::tie(rhs.host, rhs.port);
+}
+
+bool ServerAddress::operator==(const ServerAddress &rhs) const {
+    return std::tie(host, port) == std::tie(rhs.host, rhs.port);
+}
+
 }  // namespace qobject
 }  // namespace converse

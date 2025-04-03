@@ -1,91 +1,26 @@
 #pragma once
 
-#include <converse/service/main/main.grpc.pb.h>
-
-#include <memory>
-#include <shared_mutex>
-
-#include "converse/service/main/main.pb.h"
-#include "database.hpp"
-
-constexpr size_t HASHLEN = 32;
-constexpr size_t SALTLEN = 16;
-
-bool verify_password(const std::string &password,
-                     const std::string &password_encoded);
-
-std::string generate_password_encoded(const std::string &password,
-                                      std::array<uint8_t, SALTLEN> salt = {0});
+#include <optional>
+#include <string>
 
 namespace converse {
-namespace service {
-namespace main {
-struct Writers {
-    grpc::ServerWriter<ReceiveMessageResponse> *ReceiveMessage_writer;
-    grpc::ServerWriter<ReceiveReadMessagesResponse> *ReceiveReadMessages_writer;
-};
-
-class Impl final : public MainService::Service {
-    std::string name_;
-    std::string myAddress_;
-    std::unique_ptr<Db> db_;
-    std::shared_mutex user_id_to_writers_mutex_;
-    std::unordered_map<uint64_t, Writers> user_id_to_writers_;
-
+namespace server {
+class Address {
    public:
-    Impl(const std::string &name, const std::string &host, int port);
-    ~Impl() override;
-    
-    void setDb(std::unique_ptr<Db> db) { db_ = std::move(db); }
-    Db* getDatabase() const { return db_.get(); }
+    Address(const std::string &host, int port);
+    std::string host;
+    int port;
 
-    grpc::Status SignupUser(grpc::ServerContext *context,
-                            const SignupUserRequest *request,
-                            SignupUserResponse *response) override;
-    grpc::Status SigninUser(grpc::ServerContext *context,
-                            const SigninUserRequest *request,
-                            SigninUserResponse *response) override;
-    grpc::Status SignoutUser(grpc::ServerContext *context,
-                             const SignoutUserRequest *request,
-                             SignoutUserResponse *response) override;
-    grpc::Status DeleteUser(grpc::ServerContext *context,
-                            const DeleteUserRequest *request,
-                            DeleteUserResponse *response) override;
-    grpc::Status GetOtherUsers(grpc::ServerContext *context,
-                               const GetOtherUsersRequest *request,
-                               GetOtherUsersResponse *response) override;
-    grpc::Status CreateConversation(
-        grpc::ServerContext *context, const CreateConversationRequest *request,
-        CreateConversationResponse *response) override;
-    grpc::Status GetConversation(grpc::ServerContext *context,
-                                 const GetConversationRequest *request,
-                                 GetConversationResponse *response) override;
-    grpc::Status GetConversations(grpc::ServerContext *context,
-                                  const GetConversationsRequest *request,
-                                  GetConversationsResponse *response) override;
-    grpc::Status DeleteConversation(
-        grpc::ServerContext *context, const DeleteConversationRequest *request,
-        DeleteConversationResponse *response) override;
-    grpc::Status SendMessage(grpc::ServerContext *context,
-                             const SendMessageRequest *request,
-                             SendMessageResponse *response) override;
-    grpc::Status GetMessages(grpc::ServerContext *context,
-                             const GetMessagesRequest *request,
-                             GetMessagesResponse *response) override;
-    grpc::Status ReadMessages(grpc::ServerContext *context,
-                              const ReadMessagesRequest *request,
-                              ReadMessagesResponse *response) override;
-    grpc::Status DeleteMessage(grpc::ServerContext *context,
-                               const DeleteMessageRequest *request,
-                               DeleteMessageResponse *response) override;
-    grpc::Status ReceiveMessage(
-        grpc::ServerContext *context, const ReceiveMessageRequest *request,
-        grpc::ServerWriter<ReceiveMessageResponse> *writer) override;
-
-    grpc::Status ReceiveReadMessages(
-        grpc::ServerContext *context, const ReceiveReadMessagesRequest *request,
-        grpc::ServerWriter<ReceiveReadMessagesResponse> *writer) override;
+    operator std::string() const;
+    bool operator<(const Address &rhs) const;
+    bool operator==(const Address &rhs) const;
 };
-}  // namespace main
-}  // namespace service
+
+class Server {
+   public:
+    Server(const std::string &name, const Address &my_address,
+           const std::optional<Address> &join_address);
+};
+
+}  // namespace server
 }  // namespace converse

@@ -1,12 +1,11 @@
 #include <grpcpp/grpcpp.h>
+
 #include <boost/program_options.hpp>
 #include <converse/logging/core.hpp>
-#include <iostream>
 #include <string>
 #include <vector>
 
 #include "server.hpp"
-#include "link.hpp"
 
 namespace po = boost::program_options;
 namespace lg = converse::logging;
@@ -35,63 +34,22 @@ void print_serve_help(const po::options_description &desc) {
 void handle_serve(const po::variables_map &vm) {
     std::string name = vm["name"].as<std::string>();
     std::string host = vm["host"].as<std::string>();
-    int port        = vm["port"].as<int>();
-    std::string address = std::format("{}:{}", host, port);
-
-    std::string joinAddr = vm["join"].as<std::string>();
-    bool isLeader = joinAddr.empty();
-
-    converse::service::main::Impl mainservice_impl(name, host, port);
-    converse::service::link::LinkServiceImpl linkservice_impl(name);
-
-    grpc::ServerBuilder builder;
-    builder.AddListeningPort(address, grpc::InsecureServerCredentials());
-    builder.RegisterService(&mainservice_impl);
-    builder.RegisterService(&linkservice_impl);
-
-    auto server = builder.BuildAndStart();
-    lg::write(lg::level::info, "listening on {}", address);
-
-    std::string connectTarget = isLeader ? address : joinAddr;
-    std::cout << (isLeader ? "[LEADER]" : "[REPLICA]") << " Connecting to " << connectTarget << std::endl;
-
-    auto channel = grpc::CreateChannel(connectTarget, grpc::InsecureChannelCredentials());
-    std::unique_ptr<converse::service::link::LinkService::Stub> stub =
-        converse::service::link::LinkService::NewStub(channel);
-
-    {
-        ::converse::service::link::IdentifyMyselfRequest req;
-        req.set_host(host);
-        req.set_port(port);
-
-        ::converse::service::link::IdentifyMyselfResponse resp;
-        grpc::ClientContext ctx;
-        grpc::Status status = stub->IdentifyMyself(&ctx, req, &resp);
-        if (!status.ok()) {
-            std::cerr << "IdentifyMyself failed: " << status.error_message() << std::endl;
-        } else {
-            std::cout << "IdentifyMyself OK.\n";
-        }
+    int port = vm["port"].as<int>();
+    std::string join_address_as_string = vm["join"].as<std::string>();
+    converse::server::Address my_address(host, port);
+    std::optional<converse::server::Address> join_address = std::nullopt;
+    if (!join_address_as_string.empty()) {
+        join_address = converse::server::Address(
+            join_address_as_string.substr(0, join_address_as_string.find(':')),
+            std::stoi(join_address_as_string.substr(
+                join_address_as_string.find(':') + 1,
+                join_address_as_string.length())));
     }
-
-    uint64_t myId = 0;
-    {
-        ::converse::service::link::ClaimServerIdRequest req;
-        req.set_server_id(0);
-        ::converse::service::link::ClaimServerIdResponse resp;
-
-        grpc::ClientContext ctx;
-        grpc::Status status = stub->ClaimServerId(&ctx, req, &resp);
-        if (!status.ok()) {
-            std::cerr << "ClaimServerId failed: " << status.error_message() << std::endl;
-        } else {
-            myId = resp.server_id();
-            std::cout << (isLeader ? "[LEADER]" : "[REPLICA]")
-                      << " Assigned ID=" << myId << std::endl;
-        }
+    try {
+        converse::server::Server server(name, my_address, join_address);
+    } catch (const std::exception &e) {
+        lg::write(lg::level::error, "server error: {}", e.what());
     }
-
-    server->Wait();
 }
 
 int main(int argc, char *argv[]) {
@@ -99,22 +57,19 @@ int main(int argc, char *argv[]) {
     try {
         // Global options
         po::options_description global_desc("Global Options");
-        global_desc.add_options()
-            ("help", "show help");
+        global_desc.add_options()("help", "show help");
 
         // Serve options
         po::options_description serve_desc("Serve Options");
-        serve_desc.add_options()
-            ("help", "show help")
-            ("name,n", po::value<std::string>()->default_value("main"),
-             "set server name (used for database filename)")
-            ("host,h", po::value<std::string>()->default_value("0.0.0.0"),
-             "set server host")
-            ("port,p", po::value<int>()->default_value(50051),
-             "set server port")
-            ("join,j", po::value<std::string>()->default_value(""),
-            "join an existing cluster via host:port of a leader/replica");
-        
+        serve_desc.add_options()("help", "show help")(
+            "name,n", po::value<std::string>()->default_value("main"),
+            "set server name (used for database filename)")(
+            "host,h", po::value<std::string>()->default_value("0.0.0.0"),
+            "set server host")("port,p", po::value<int>()->default_value(50051),
+                               "set server port")(
+            "join,j", po::value<std::string>()->default_value(""),
+            "join an existing cluster via host:port of the leader");
+
         std::string subcommand;
         std::vector<std::string> sub_args;
         if (argc < 2) {
@@ -126,7 +81,9 @@ int main(int argc, char *argv[]) {
 
         if (subcommand == "serve") {
             po::variables_map serve_vm;
-            po::store(po::command_line_parser(sub_args).options(serve_desc).run(), serve_vm);
+            po::store(
+                po::command_line_parser(sub_args).options(serve_desc).run(),
+                serve_vm);
             po::notify(serve_vm);
 
             if (serve_vm.count("help")) {

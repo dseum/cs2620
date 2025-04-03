@@ -26,8 +26,7 @@ namespace link {
 static const char* LinkService_method_names[] = {
   "/converse.service.link.LinkService/GetServers",
   "/converse.service.link.LinkService/IdentifyMyself",
-  "/converse.service.link.LinkService/ClaimServerId",
-  "/converse.service.link.LinkService/ReplicateTransaction",
+  "/converse.service.link.LinkService/GetTransactions",
 };
 
 std::unique_ptr< LinkService::Stub> LinkService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -37,33 +36,25 @@ std::unique_ptr< LinkService::Stub> LinkService::NewStub(const std::shared_ptr< 
 }
 
 LinkService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
-  : channel_(channel), rpcmethod_GetServers_(LinkService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  : channel_(channel), rpcmethod_GetServers_(LinkService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
   , rpcmethod_IdentifyMyself_(LinkService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_ClaimServerId_(LinkService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_ReplicateTransaction_(LinkService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_GetTransactions_(LinkService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
   {}
 
-::grpc::Status LinkService::Stub::GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::converse::service::link::GetServersResponse* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_GetServers_, context, request, response);
+::grpc::ClientReader< ::converse::service::link::GetServersResponse>* LinkService::Stub::GetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request) {
+  return ::grpc::internal::ClientReaderFactory< ::converse::service::link::GetServersResponse>::Create(channel_.get(), rpcmethod_GetServers_, context, request);
 }
 
-void LinkService::Stub::async::GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest* request, ::converse::service::link::GetServersResponse* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetServers_, context, request, response, std::move(f));
+void LinkService::Stub::async::GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest* request, ::grpc::ClientReadReactor< ::converse::service::link::GetServersResponse>* reactor) {
+  ::grpc::internal::ClientCallbackReaderFactory< ::converse::service::link::GetServersResponse>::Create(stub_->channel_.get(), stub_->rpcmethod_GetServers_, context, request, reactor);
 }
 
-void LinkService::Stub::async::GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest* request, ::converse::service::link::GetServersResponse* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetServers_, context, request, response, reactor);
+::grpc::ClientAsyncReader< ::converse::service::link::GetServersResponse>* LinkService::Stub::AsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::converse::service::link::GetServersResponse>::Create(channel_.get(), cq, rpcmethod_GetServers_, context, request, true, tag);
 }
 
-::grpc::ClientAsyncResponseReader< ::converse::service::link::GetServersResponse>* LinkService::Stub::PrepareAsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::converse::service::link::GetServersResponse, ::converse::service::link::GetServersRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_GetServers_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::converse::service::link::GetServersResponse>* LinkService::Stub::AsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncGetServersRaw(context, request, cq);
-  result->StartCall();
-  return result;
+::grpc::ClientAsyncReader< ::converse::service::link::GetServersResponse>* LinkService::Stub::PrepareAsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::converse::service::link::GetServersResponse>::Create(channel_.get(), cq, rpcmethod_GetServers_, context, request, false, nullptr);
 }
 
 ::grpc::Status LinkService::Stub::IdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::converse::service::link::IdentifyMyselfResponse* response) {
@@ -89,62 +80,32 @@ void LinkService::Stub::async::IdentifyMyself(::grpc::ClientContext* context, co
   return result;
 }
 
-::grpc::Status LinkService::Stub::ClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::converse::service::link::ClaimServerIdResponse* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::converse::service::link::ClaimServerIdRequest, ::converse::service::link::ClaimServerIdResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ClaimServerId_, context, request, response);
+::grpc::ClientReader< ::converse::service::link::GetTransactionsResponse>* LinkService::Stub::GetTransactionsRaw(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request) {
+  return ::grpc::internal::ClientReaderFactory< ::converse::service::link::GetTransactionsResponse>::Create(channel_.get(), rpcmethod_GetTransactions_, context, request);
 }
 
-void LinkService::Stub::async::ClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest* request, ::converse::service::link::ClaimServerIdResponse* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::converse::service::link::ClaimServerIdRequest, ::converse::service::link::ClaimServerIdResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ClaimServerId_, context, request, response, std::move(f));
+void LinkService::Stub::async::GetTransactions(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest* request, ::grpc::ClientReadReactor< ::converse::service::link::GetTransactionsResponse>* reactor) {
+  ::grpc::internal::ClientCallbackReaderFactory< ::converse::service::link::GetTransactionsResponse>::Create(stub_->channel_.get(), stub_->rpcmethod_GetTransactions_, context, request, reactor);
 }
 
-void LinkService::Stub::async::ClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest* request, ::converse::service::link::ClaimServerIdResponse* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ClaimServerId_, context, request, response, reactor);
+::grpc::ClientAsyncReader< ::converse::service::link::GetTransactionsResponse>* LinkService::Stub::AsyncGetTransactionsRaw(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::converse::service::link::GetTransactionsResponse>::Create(channel_.get(), cq, rpcmethod_GetTransactions_, context, request, true, tag);
 }
 
-::grpc::ClientAsyncResponseReader< ::converse::service::link::ClaimServerIdResponse>* LinkService::Stub::PrepareAsyncClaimServerIdRaw(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::converse::service::link::ClaimServerIdResponse, ::converse::service::link::ClaimServerIdRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ClaimServerId_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::converse::service::link::ClaimServerIdResponse>* LinkService::Stub::AsyncClaimServerIdRaw(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncClaimServerIdRaw(context, request, cq);
-  result->StartCall();
-  return result;
-}
-
-::grpc::Status LinkService::Stub::ReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::converse::service::link::ReplicateTransactionResponse* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::converse::service::link::ReplicateTransactionRequest, ::converse::service::link::ReplicateTransactionResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_ReplicateTransaction_, context, request, response);
-}
-
-void LinkService::Stub::async::ReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest* request, ::converse::service::link::ReplicateTransactionResponse* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::converse::service::link::ReplicateTransactionRequest, ::converse::service::link::ReplicateTransactionResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ReplicateTransaction_, context, request, response, std::move(f));
-}
-
-void LinkService::Stub::async::ReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest* request, ::converse::service::link::ReplicateTransactionResponse* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_ReplicateTransaction_, context, request, response, reactor);
-}
-
-::grpc::ClientAsyncResponseReader< ::converse::service::link::ReplicateTransactionResponse>* LinkService::Stub::PrepareAsyncReplicateTransactionRaw(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::converse::service::link::ReplicateTransactionResponse, ::converse::service::link::ReplicateTransactionRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_ReplicateTransaction_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::converse::service::link::ReplicateTransactionResponse>* LinkService::Stub::AsyncReplicateTransactionRaw(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncReplicateTransactionRaw(context, request, cq);
-  result->StartCall();
-  return result;
+::grpc::ClientAsyncReader< ::converse::service::link::GetTransactionsResponse>* LinkService::Stub::PrepareAsyncGetTransactionsRaw(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::converse::service::link::GetTransactionsResponse>::Create(channel_.get(), cq, rpcmethod_GetTransactions_, context, request, false, nullptr);
 }
 
 LinkService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       LinkService_method_names[0],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< LinkService::Service, ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      ::grpc::internal::RpcMethod::SERVER_STREAMING,
+      new ::grpc::internal::ServerStreamingHandler< LinkService::Service, ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse>(
           [](LinkService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::converse::service::link::GetServersRequest* req,
-             ::converse::service::link::GetServersResponse* resp) {
-               return service->GetServers(ctx, req, resp);
+             ::grpc::ServerWriter<::converse::service::link::GetServersResponse>* writer) {
+               return service->GetServers(ctx, req, writer);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       LinkService_method_names[1],
@@ -158,33 +119,23 @@ LinkService::Service::Service() {
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       LinkService_method_names[2],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< LinkService::Service, ::converse::service::link::ClaimServerIdRequest, ::converse::service::link::ClaimServerIdResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      ::grpc::internal::RpcMethod::SERVER_STREAMING,
+      new ::grpc::internal::ServerStreamingHandler< LinkService::Service, ::converse::service::link::GetTransactionsRequest, ::converse::service::link::GetTransactionsResponse>(
           [](LinkService::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::converse::service::link::ClaimServerIdRequest* req,
-             ::converse::service::link::ClaimServerIdResponse* resp) {
-               return service->ClaimServerId(ctx, req, resp);
-             }, this)));
-  AddMethod(new ::grpc::internal::RpcServiceMethod(
-      LinkService_method_names[3],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< LinkService::Service, ::converse::service::link::ReplicateTransactionRequest, ::converse::service::link::ReplicateTransactionResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](LinkService::Service* service,
-             ::grpc::ServerContext* ctx,
-             const ::converse::service::link::ReplicateTransactionRequest* req,
-             ::converse::service::link::ReplicateTransactionResponse* resp) {
-               return service->ReplicateTransaction(ctx, req, resp);
+             const ::converse::service::link::GetTransactionsRequest* req,
+             ::grpc::ServerWriter<::converse::service::link::GetTransactionsResponse>* writer) {
+               return service->GetTransactions(ctx, req, writer);
              }, this)));
 }
 
 LinkService::Service::~Service() {
 }
 
-::grpc::Status LinkService::Service::GetServers(::grpc::ServerContext* context, const ::converse::service::link::GetServersRequest* request, ::converse::service::link::GetServersResponse* response) {
+::grpc::Status LinkService::Service::GetServers(::grpc::ServerContext* context, const ::converse::service::link::GetServersRequest* request, ::grpc::ServerWriter< ::converse::service::link::GetServersResponse>* writer) {
   (void) context;
   (void) request;
-  (void) response;
+  (void) writer;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
@@ -195,17 +146,10 @@ LinkService::Service::~Service() {
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status LinkService::Service::ClaimServerId(::grpc::ServerContext* context, const ::converse::service::link::ClaimServerIdRequest* request, ::converse::service::link::ClaimServerIdResponse* response) {
+::grpc::Status LinkService::Service::GetTransactions(::grpc::ServerContext* context, const ::converse::service::link::GetTransactionsRequest* request, ::grpc::ServerWriter< ::converse::service::link::GetTransactionsResponse>* writer) {
   (void) context;
   (void) request;
-  (void) response;
-  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-}
-
-::grpc::Status LinkService::Service::ReplicateTransaction(::grpc::ServerContext* context, const ::converse::service::link::ReplicateTransactionRequest* request, ::converse::service::link::ReplicateTransactionResponse* response) {
-  (void) context;
-  (void) request;
-  (void) response;
+  (void) writer;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 

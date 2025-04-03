@@ -38,12 +38,14 @@ class LinkService final {
   class StubInterface {
    public:
     virtual ~StubInterface() {}
-    virtual ::grpc::Status GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::converse::service::link::GetServersResponse* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::GetServersResponse>> AsyncGetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::GetServersResponse>>(AsyncGetServersRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientReaderInterface< ::converse::service::link::GetServersResponse>> GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReaderInterface< ::converse::service::link::GetServersResponse>>(GetServersRaw(context, request));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::GetServersResponse>> PrepareAsyncGetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::GetServersResponse>>(PrepareAsyncGetServersRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetServersResponse>> AsyncGetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetServersResponse>>(AsyncGetServersRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetServersResponse>> PrepareAsyncGetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetServersResponse>>(PrepareAsyncGetServersRaw(context, request, cq));
     }
     virtual ::grpc::Status IdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::converse::service::link::IdentifyMyselfResponse* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::IdentifyMyselfResponse>> AsyncIdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::grpc::CompletionQueue* cq) {
@@ -52,54 +54,47 @@ class LinkService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::IdentifyMyselfResponse>> PrepareAsyncIdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::IdentifyMyselfResponse>>(PrepareAsyncIdentifyMyselfRaw(context, request, cq));
     }
-    virtual ::grpc::Status ClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::converse::service::link::ClaimServerIdResponse* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ClaimServerIdResponse>> AsyncClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ClaimServerIdResponse>>(AsyncClaimServerIdRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientReaderInterface< ::converse::service::link::GetTransactionsResponse>> GetTransactions(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReaderInterface< ::converse::service::link::GetTransactionsResponse>>(GetTransactionsRaw(context, request));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ClaimServerIdResponse>> PrepareAsyncClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ClaimServerIdResponse>>(PrepareAsyncClaimServerIdRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetTransactionsResponse>> AsyncGetTransactions(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetTransactionsResponse>>(AsyncGetTransactionsRaw(context, request, cq, tag));
     }
-    virtual ::grpc::Status ReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::converse::service::link::ReplicateTransactionResponse* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ReplicateTransactionResponse>> AsyncReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ReplicateTransactionResponse>>(AsyncReplicateTransactionRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ReplicateTransactionResponse>> PrepareAsyncReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ReplicateTransactionResponse>>(PrepareAsyncReplicateTransactionRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetTransactionsResponse>> PrepareAsyncGetTransactions(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetTransactionsResponse>>(PrepareAsyncGetTransactionsRaw(context, request, cq));
     }
     class async_interface {
      public:
       virtual ~async_interface() {}
-      virtual void GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest* request, ::converse::service::link::GetServersResponse* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest* request, ::converse::service::link::GetServersResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest* request, ::grpc::ClientReadReactor< ::converse::service::link::GetServersResponse>* reactor) = 0;
       virtual void IdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest* request, ::converse::service::link::IdentifyMyselfResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void IdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest* request, ::converse::service::link::IdentifyMyselfResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      virtual void ClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest* request, ::converse::service::link::ClaimServerIdResponse* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void ClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest* request, ::converse::service::link::ClaimServerIdResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      virtual void ReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest* request, ::converse::service::link::ReplicateTransactionResponse* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void ReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest* request, ::converse::service::link::ReplicateTransactionResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void GetTransactions(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest* request, ::grpc::ClientReadReactor< ::converse::service::link::GetTransactionsResponse>* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
     class async_interface* experimental_async() { return async(); }
    private:
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::GetServersResponse>* AsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::GetServersResponse>* PrepareAsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientReaderInterface< ::converse::service::link::GetServersResponse>* GetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetServersResponse>* AsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetServersResponse>* PrepareAsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::IdentifyMyselfResponse>* AsyncIdentifyMyselfRaw(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::IdentifyMyselfResponse>* PrepareAsyncIdentifyMyselfRaw(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ClaimServerIdResponse>* AsyncClaimServerIdRaw(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ClaimServerIdResponse>* PrepareAsyncClaimServerIdRaw(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ReplicateTransactionResponse>* AsyncReplicateTransactionRaw(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::converse::service::link::ReplicateTransactionResponse>* PrepareAsyncReplicateTransactionRaw(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientReaderInterface< ::converse::service::link::GetTransactionsResponse>* GetTransactionsRaw(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetTransactionsResponse>* AsyncGetTransactionsRaw(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::converse::service::link::GetTransactionsResponse>* PrepareAsyncGetTransactionsRaw(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
     Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
-    ::grpc::Status GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::converse::service::link::GetServersResponse* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::GetServersResponse>> AsyncGetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::GetServersResponse>>(AsyncGetServersRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientReader< ::converse::service::link::GetServersResponse>> GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReader< ::converse::service::link::GetServersResponse>>(GetServersRaw(context, request));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::GetServersResponse>> PrepareAsyncGetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::GetServersResponse>>(PrepareAsyncGetServersRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::service::link::GetServersResponse>> AsyncGetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::service::link::GetServersResponse>>(AsyncGetServersRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::service::link::GetServersResponse>> PrepareAsyncGetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::service::link::GetServersResponse>>(PrepareAsyncGetServersRaw(context, request, cq));
     }
     ::grpc::Status IdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::converse::service::link::IdentifyMyselfResponse* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::IdentifyMyselfResponse>> AsyncIdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::grpc::CompletionQueue* cq) {
@@ -108,31 +103,22 @@ class LinkService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::IdentifyMyselfResponse>> PrepareAsyncIdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::IdentifyMyselfResponse>>(PrepareAsyncIdentifyMyselfRaw(context, request, cq));
     }
-    ::grpc::Status ClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::converse::service::link::ClaimServerIdResponse* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::ClaimServerIdResponse>> AsyncClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::ClaimServerIdResponse>>(AsyncClaimServerIdRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientReader< ::converse::service::link::GetTransactionsResponse>> GetTransactions(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReader< ::converse::service::link::GetTransactionsResponse>>(GetTransactionsRaw(context, request));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::ClaimServerIdResponse>> PrepareAsyncClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::ClaimServerIdResponse>>(PrepareAsyncClaimServerIdRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::service::link::GetTransactionsResponse>> AsyncGetTransactions(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::service::link::GetTransactionsResponse>>(AsyncGetTransactionsRaw(context, request, cq, tag));
     }
-    ::grpc::Status ReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::converse::service::link::ReplicateTransactionResponse* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::ReplicateTransactionResponse>> AsyncReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::ReplicateTransactionResponse>>(AsyncReplicateTransactionRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::ReplicateTransactionResponse>> PrepareAsyncReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::converse::service::link::ReplicateTransactionResponse>>(PrepareAsyncReplicateTransactionRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::service::link::GetTransactionsResponse>> PrepareAsyncGetTransactions(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::converse::service::link::GetTransactionsResponse>>(PrepareAsyncGetTransactionsRaw(context, request, cq));
     }
     class async final :
       public StubInterface::async_interface {
      public:
-      void GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest* request, ::converse::service::link::GetServersResponse* response, std::function<void(::grpc::Status)>) override;
-      void GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest* request, ::converse::service::link::GetServersResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void GetServers(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest* request, ::grpc::ClientReadReactor< ::converse::service::link::GetServersResponse>* reactor) override;
       void IdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest* request, ::converse::service::link::IdentifyMyselfResponse* response, std::function<void(::grpc::Status)>) override;
       void IdentifyMyself(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest* request, ::converse::service::link::IdentifyMyselfResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void ClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest* request, ::converse::service::link::ClaimServerIdResponse* response, std::function<void(::grpc::Status)>) override;
-      void ClaimServerId(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest* request, ::converse::service::link::ClaimServerIdResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void ReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest* request, ::converse::service::link::ReplicateTransactionResponse* response, std::function<void(::grpc::Status)>) override;
-      void ReplicateTransaction(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest* request, ::converse::service::link::ReplicateTransactionResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void GetTransactions(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest* request, ::grpc::ClientReadReactor< ::converse::service::link::GetTransactionsResponse>* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -144,18 +130,17 @@ class LinkService final {
    private:
     std::shared_ptr< ::grpc::ChannelInterface> channel_;
     class async async_stub_{this};
-    ::grpc::ClientAsyncResponseReader< ::converse::service::link::GetServersResponse>* AsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::converse::service::link::GetServersResponse>* PrepareAsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientReader< ::converse::service::link::GetServersResponse>* GetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request) override;
+    ::grpc::ClientAsyncReader< ::converse::service::link::GetServersResponse>* AsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncReader< ::converse::service::link::GetServersResponse>* PrepareAsyncGetServersRaw(::grpc::ClientContext* context, const ::converse::service::link::GetServersRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::converse::service::link::IdentifyMyselfResponse>* AsyncIdentifyMyselfRaw(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::converse::service::link::IdentifyMyselfResponse>* PrepareAsyncIdentifyMyselfRaw(::grpc::ClientContext* context, const ::converse::service::link::IdentifyMyselfRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::converse::service::link::ClaimServerIdResponse>* AsyncClaimServerIdRaw(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::converse::service::link::ClaimServerIdResponse>* PrepareAsyncClaimServerIdRaw(::grpc::ClientContext* context, const ::converse::service::link::ClaimServerIdRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::converse::service::link::ReplicateTransactionResponse>* AsyncReplicateTransactionRaw(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::converse::service::link::ReplicateTransactionResponse>* PrepareAsyncReplicateTransactionRaw(::grpc::ClientContext* context, const ::converse::service::link::ReplicateTransactionRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientReader< ::converse::service::link::GetTransactionsResponse>* GetTransactionsRaw(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request) override;
+    ::grpc::ClientAsyncReader< ::converse::service::link::GetTransactionsResponse>* AsyncGetTransactionsRaw(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncReader< ::converse::service::link::GetTransactionsResponse>* PrepareAsyncGetTransactionsRaw(::grpc::ClientContext* context, const ::converse::service::link::GetTransactionsRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_GetServers_;
     const ::grpc::internal::RpcMethod rpcmethod_IdentifyMyself_;
-    const ::grpc::internal::RpcMethod rpcmethod_ClaimServerId_;
-    const ::grpc::internal::RpcMethod rpcmethod_ReplicateTransaction_;
+    const ::grpc::internal::RpcMethod rpcmethod_GetTransactions_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -163,10 +148,9 @@ class LinkService final {
    public:
     Service();
     virtual ~Service();
-    virtual ::grpc::Status GetServers(::grpc::ServerContext* context, const ::converse::service::link::GetServersRequest* request, ::converse::service::link::GetServersResponse* response);
+    virtual ::grpc::Status GetServers(::grpc::ServerContext* context, const ::converse::service::link::GetServersRequest* request, ::grpc::ServerWriter< ::converse::service::link::GetServersResponse>* writer);
     virtual ::grpc::Status IdentifyMyself(::grpc::ServerContext* context, const ::converse::service::link::IdentifyMyselfRequest* request, ::converse::service::link::IdentifyMyselfResponse* response);
-    virtual ::grpc::Status ClaimServerId(::grpc::ServerContext* context, const ::converse::service::link::ClaimServerIdRequest* request, ::converse::service::link::ClaimServerIdResponse* response);
-    virtual ::grpc::Status ReplicateTransaction(::grpc::ServerContext* context, const ::converse::service::link::ReplicateTransactionRequest* request, ::converse::service::link::ReplicateTransactionResponse* response);
+    virtual ::grpc::Status GetTransactions(::grpc::ServerContext* context, const ::converse::service::link::GetTransactionsRequest* request, ::grpc::ServerWriter< ::converse::service::link::GetTransactionsResponse>* writer);
   };
   template <class BaseClass>
   class WithAsyncMethod_GetServers : public BaseClass {
@@ -180,12 +164,12 @@ class LinkService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::converse::service::link::GetServersResponse* /*response*/) override {
+    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetServersResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestGetServers(::grpc::ServerContext* context, ::converse::service::link::GetServersRequest* request, ::grpc::ServerAsyncResponseWriter< ::converse::service::link::GetServersResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestGetServers(::grpc::ServerContext* context, ::converse::service::link::GetServersRequest* request, ::grpc::ServerAsyncWriter< ::converse::service::link::GetServersResponse>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(0, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -209,46 +193,26 @@ class LinkService final {
     }
   };
   template <class BaseClass>
-  class WithAsyncMethod_ClaimServerId : public BaseClass {
+  class WithAsyncMethod_GetTransactions : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithAsyncMethod_ClaimServerId() {
+    WithAsyncMethod_GetTransactions() {
       ::grpc::Service::MarkMethodAsync(2);
     }
-    ~WithAsyncMethod_ClaimServerId() override {
+    ~WithAsyncMethod_GetTransactions() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status ClaimServerId(::grpc::ServerContext* /*context*/, const ::converse::service::link::ClaimServerIdRequest* /*request*/, ::converse::service::link::ClaimServerIdResponse* /*response*/) override {
+    ::grpc::Status GetTransactions(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetTransactionsRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetTransactionsResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestClaimServerId(::grpc::ServerContext* context, ::converse::service::link::ClaimServerIdRequest* request, ::grpc::ServerAsyncResponseWriter< ::converse::service::link::ClaimServerIdResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(2, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestGetTransactions(::grpc::ServerContext* context, ::converse::service::link::GetTransactionsRequest* request, ::grpc::ServerAsyncWriter< ::converse::service::link::GetTransactionsResponse>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(2, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
-  template <class BaseClass>
-  class WithAsyncMethod_ReplicateTransaction : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithAsyncMethod_ReplicateTransaction() {
-      ::grpc::Service::MarkMethodAsync(3);
-    }
-    ~WithAsyncMethod_ReplicateTransaction() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ReplicateTransaction(::grpc::ServerContext* /*context*/, const ::converse::service::link::ReplicateTransactionRequest* /*request*/, ::converse::service::link::ReplicateTransactionResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestReplicateTransaction(::grpc::ServerContext* context, ::converse::service::link::ReplicateTransactionRequest* request, ::grpc::ServerAsyncResponseWriter< ::converse::service::link::ReplicateTransactionResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  typedef WithAsyncMethod_GetServers<WithAsyncMethod_IdentifyMyself<WithAsyncMethod_ClaimServerId<WithAsyncMethod_ReplicateTransaction<Service > > > > AsyncService;
+  typedef WithAsyncMethod_GetServers<WithAsyncMethod_IdentifyMyself<WithAsyncMethod_GetTransactions<Service > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_GetServers : public BaseClass {
    private:
@@ -256,25 +220,20 @@ class LinkService final {
    public:
     WithCallbackMethod_GetServers() {
       ::grpc::Service::MarkMethodCallback(0,
-          new ::grpc::internal::CallbackUnaryHandler< ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse>(
+          new ::grpc::internal::CallbackServerStreamingHandler< ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse>(
             [this](
-                   ::grpc::CallbackServerContext* context, const ::converse::service::link::GetServersRequest* request, ::converse::service::link::GetServersResponse* response) { return this->GetServers(context, request, response); }));}
-    void SetMessageAllocatorFor_GetServers(
-        ::grpc::MessageAllocator< ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(0);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse>*>(handler)
-              ->SetMessageAllocator(allocator);
+                   ::grpc::CallbackServerContext* context, const ::converse::service::link::GetServersRequest* request) { return this->GetServers(context, request); }));
     }
     ~WithCallbackMethod_GetServers() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::converse::service::link::GetServersResponse* /*response*/) override {
+    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetServersResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerUnaryReactor* GetServers(
-      ::grpc::CallbackServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::converse::service::link::GetServersResponse* /*response*/)  { return nullptr; }
+    virtual ::grpc::ServerWriteReactor< ::converse::service::link::GetServersResponse>* GetServers(
+      ::grpc::CallbackServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/)  { return nullptr; }
   };
   template <class BaseClass>
   class WithCallbackMethod_IdentifyMyself : public BaseClass {
@@ -304,60 +263,28 @@ class LinkService final {
       ::grpc::CallbackServerContext* /*context*/, const ::converse::service::link::IdentifyMyselfRequest* /*request*/, ::converse::service::link::IdentifyMyselfResponse* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithCallbackMethod_ClaimServerId : public BaseClass {
+  class WithCallbackMethod_GetTransactions : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithCallbackMethod_ClaimServerId() {
+    WithCallbackMethod_GetTransactions() {
       ::grpc::Service::MarkMethodCallback(2,
-          new ::grpc::internal::CallbackUnaryHandler< ::converse::service::link::ClaimServerIdRequest, ::converse::service::link::ClaimServerIdResponse>(
+          new ::grpc::internal::CallbackServerStreamingHandler< ::converse::service::link::GetTransactionsRequest, ::converse::service::link::GetTransactionsResponse>(
             [this](
-                   ::grpc::CallbackServerContext* context, const ::converse::service::link::ClaimServerIdRequest* request, ::converse::service::link::ClaimServerIdResponse* response) { return this->ClaimServerId(context, request, response); }));}
-    void SetMessageAllocatorFor_ClaimServerId(
-        ::grpc::MessageAllocator< ::converse::service::link::ClaimServerIdRequest, ::converse::service::link::ClaimServerIdResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(2);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::converse::service::link::ClaimServerIdRequest, ::converse::service::link::ClaimServerIdResponse>*>(handler)
-              ->SetMessageAllocator(allocator);
+                   ::grpc::CallbackServerContext* context, const ::converse::service::link::GetTransactionsRequest* request) { return this->GetTransactions(context, request); }));
     }
-    ~WithCallbackMethod_ClaimServerId() override {
+    ~WithCallbackMethod_GetTransactions() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status ClaimServerId(::grpc::ServerContext* /*context*/, const ::converse::service::link::ClaimServerIdRequest* /*request*/, ::converse::service::link::ClaimServerIdResponse* /*response*/) override {
+    ::grpc::Status GetTransactions(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetTransactionsRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetTransactionsResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerUnaryReactor* ClaimServerId(
-      ::grpc::CallbackServerContext* /*context*/, const ::converse::service::link::ClaimServerIdRequest* /*request*/, ::converse::service::link::ClaimServerIdResponse* /*response*/)  { return nullptr; }
+    virtual ::grpc::ServerWriteReactor< ::converse::service::link::GetTransactionsResponse>* GetTransactions(
+      ::grpc::CallbackServerContext* /*context*/, const ::converse::service::link::GetTransactionsRequest* /*request*/)  { return nullptr; }
   };
-  template <class BaseClass>
-  class WithCallbackMethod_ReplicateTransaction : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithCallbackMethod_ReplicateTransaction() {
-      ::grpc::Service::MarkMethodCallback(3,
-          new ::grpc::internal::CallbackUnaryHandler< ::converse::service::link::ReplicateTransactionRequest, ::converse::service::link::ReplicateTransactionResponse>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::converse::service::link::ReplicateTransactionRequest* request, ::converse::service::link::ReplicateTransactionResponse* response) { return this->ReplicateTransaction(context, request, response); }));}
-    void SetMessageAllocatorFor_ReplicateTransaction(
-        ::grpc::MessageAllocator< ::converse::service::link::ReplicateTransactionRequest, ::converse::service::link::ReplicateTransactionResponse>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(3);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::converse::service::link::ReplicateTransactionRequest, ::converse::service::link::ReplicateTransactionResponse>*>(handler)
-              ->SetMessageAllocator(allocator);
-    }
-    ~WithCallbackMethod_ReplicateTransaction() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ReplicateTransaction(::grpc::ServerContext* /*context*/, const ::converse::service::link::ReplicateTransactionRequest* /*request*/, ::converse::service::link::ReplicateTransactionResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* ReplicateTransaction(
-      ::grpc::CallbackServerContext* /*context*/, const ::converse::service::link::ReplicateTransactionRequest* /*request*/, ::converse::service::link::ReplicateTransactionResponse* /*response*/)  { return nullptr; }
-  };
-  typedef WithCallbackMethod_GetServers<WithCallbackMethod_IdentifyMyself<WithCallbackMethod_ClaimServerId<WithCallbackMethod_ReplicateTransaction<Service > > > > CallbackService;
+  typedef WithCallbackMethod_GetServers<WithCallbackMethod_IdentifyMyself<WithCallbackMethod_GetTransactions<Service > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_GetServers : public BaseClass {
@@ -371,7 +298,7 @@ class LinkService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::converse::service::link::GetServersResponse* /*response*/) override {
+    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetServersResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -394,35 +321,18 @@ class LinkService final {
     }
   };
   template <class BaseClass>
-  class WithGenericMethod_ClaimServerId : public BaseClass {
+  class WithGenericMethod_GetTransactions : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithGenericMethod_ClaimServerId() {
+    WithGenericMethod_GetTransactions() {
       ::grpc::Service::MarkMethodGeneric(2);
     }
-    ~WithGenericMethod_ClaimServerId() override {
+    ~WithGenericMethod_GetTransactions() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status ClaimServerId(::grpc::ServerContext* /*context*/, const ::converse::service::link::ClaimServerIdRequest* /*request*/, ::converse::service::link::ClaimServerIdResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-  };
-  template <class BaseClass>
-  class WithGenericMethod_ReplicateTransaction : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithGenericMethod_ReplicateTransaction() {
-      ::grpc::Service::MarkMethodGeneric(3);
-    }
-    ~WithGenericMethod_ReplicateTransaction() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ReplicateTransaction(::grpc::ServerContext* /*context*/, const ::converse::service::link::ReplicateTransactionRequest* /*request*/, ::converse::service::link::ReplicateTransactionResponse* /*response*/) override {
+    ::grpc::Status GetTransactions(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetTransactionsRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetTransactionsResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -439,12 +349,12 @@ class LinkService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::converse::service::link::GetServersResponse* /*response*/) override {
+    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetServersResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestGetServers(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestGetServers(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncWriter< ::grpc::ByteBuffer>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(0, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -468,43 +378,23 @@ class LinkService final {
     }
   };
   template <class BaseClass>
-  class WithRawMethod_ClaimServerId : public BaseClass {
+  class WithRawMethod_GetTransactions : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithRawMethod_ClaimServerId() {
+    WithRawMethod_GetTransactions() {
       ::grpc::Service::MarkMethodRaw(2);
     }
-    ~WithRawMethod_ClaimServerId() override {
+    ~WithRawMethod_GetTransactions() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status ClaimServerId(::grpc::ServerContext* /*context*/, const ::converse::service::link::ClaimServerIdRequest* /*request*/, ::converse::service::link::ClaimServerIdResponse* /*response*/) override {
+    ::grpc::Status GetTransactions(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetTransactionsRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetTransactionsResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestClaimServerId(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(2, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
-  class WithRawMethod_ReplicateTransaction : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawMethod_ReplicateTransaction() {
-      ::grpc::Service::MarkMethodRaw(3);
-    }
-    ~WithRawMethod_ReplicateTransaction() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ReplicateTransaction(::grpc::ServerContext* /*context*/, const ::converse::service::link::ReplicateTransactionRequest* /*request*/, ::converse::service::link::ReplicateTransactionResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestReplicateTransaction(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestGetTransactions(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncWriter< ::grpc::ByteBuffer>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(2, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -514,20 +404,20 @@ class LinkService final {
    public:
     WithRawCallbackMethod_GetServers() {
       ::grpc::Service::MarkMethodRawCallback(0,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+          new ::grpc::internal::CallbackServerStreamingHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetServers(context, request, response); }));
+                   ::grpc::CallbackServerContext* context, const::grpc::ByteBuffer* request) { return this->GetServers(context, request); }));
     }
     ~WithRawCallbackMethod_GetServers() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::converse::service::link::GetServersResponse* /*response*/) override {
+    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetServersResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerUnaryReactor* GetServers(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+    virtual ::grpc::ServerWriteReactor< ::grpc::ByteBuffer>* GetServers(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/)  { return nullptr; }
   };
   template <class BaseClass>
   class WithRawCallbackMethod_IdentifyMyself : public BaseClass {
@@ -552,75 +442,26 @@ class LinkService final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithRawCallbackMethod_ClaimServerId : public BaseClass {
+  class WithRawCallbackMethod_GetTransactions : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithRawCallbackMethod_ClaimServerId() {
+    WithRawCallbackMethod_GetTransactions() {
       ::grpc::Service::MarkMethodRawCallback(2,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+          new ::grpc::internal::CallbackServerStreamingHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->ClaimServerId(context, request, response); }));
+                   ::grpc::CallbackServerContext* context, const::grpc::ByteBuffer* request) { return this->GetTransactions(context, request); }));
     }
-    ~WithRawCallbackMethod_ClaimServerId() override {
+    ~WithRawCallbackMethod_GetTransactions() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status ClaimServerId(::grpc::ServerContext* /*context*/, const ::converse::service::link::ClaimServerIdRequest* /*request*/, ::converse::service::link::ClaimServerIdResponse* /*response*/) override {
+    ::grpc::Status GetTransactions(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetTransactionsRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetTransactionsResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerUnaryReactor* ClaimServerId(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
-  class WithRawCallbackMethod_ReplicateTransaction : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawCallbackMethod_ReplicateTransaction() {
-      ::grpc::Service::MarkMethodRawCallback(3,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->ReplicateTransaction(context, request, response); }));
-    }
-    ~WithRawCallbackMethod_ReplicateTransaction() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status ReplicateTransaction(::grpc::ServerContext* /*context*/, const ::converse::service::link::ReplicateTransactionRequest* /*request*/, ::converse::service::link::ReplicateTransactionResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* ReplicateTransaction(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
-  class WithStreamedUnaryMethod_GetServers : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_GetServers() {
-      ::grpc::Service::MarkMethodStreamed(0,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse>* streamer) {
-                       return this->StreamedGetServers(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_GetServers() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::converse::service::link::GetServersResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedGetServers(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::converse::service::link::GetServersRequest,::converse::service::link::GetServersResponse>* server_unary_streamer) = 0;
+    virtual ::grpc::ServerWriteReactor< ::grpc::ByteBuffer>* GetTransactions(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/)  { return nullptr; }
   };
   template <class BaseClass>
   class WithStreamedUnaryMethod_IdentifyMyself : public BaseClass {
@@ -649,63 +490,63 @@ class LinkService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedIdentifyMyself(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::converse::service::link::IdentifyMyselfRequest,::converse::service::link::IdentifyMyselfResponse>* server_unary_streamer) = 0;
   };
+  typedef WithStreamedUnaryMethod_IdentifyMyself<Service > StreamedUnaryService;
   template <class BaseClass>
-  class WithStreamedUnaryMethod_ClaimServerId : public BaseClass {
+  class WithSplitStreamingMethod_GetServers : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithStreamedUnaryMethod_ClaimServerId() {
+    WithSplitStreamingMethod_GetServers() {
+      ::grpc::Service::MarkMethodStreamed(0,
+        new ::grpc::internal::SplitServerStreamingHandler<
+          ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerSplitStreamer<
+                     ::converse::service::link::GetServersRequest, ::converse::service::link::GetServersResponse>* streamer) {
+                       return this->StreamedGetServers(context,
+                         streamer);
+                  }));
+    }
+    ~WithSplitStreamingMethod_GetServers() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status GetServers(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetServersRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetServersResponse>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with split streamed
+    virtual ::grpc::Status StreamedGetServers(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::converse::service::link::GetServersRequest,::converse::service::link::GetServersResponse>* server_split_streamer) = 0;
+  };
+  template <class BaseClass>
+  class WithSplitStreamingMethod_GetTransactions : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithSplitStreamingMethod_GetTransactions() {
       ::grpc::Service::MarkMethodStreamed(2,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::converse::service::link::ClaimServerIdRequest, ::converse::service::link::ClaimServerIdResponse>(
+        new ::grpc::internal::SplitServerStreamingHandler<
+          ::converse::service::link::GetTransactionsRequest, ::converse::service::link::GetTransactionsResponse>(
             [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::converse::service::link::ClaimServerIdRequest, ::converse::service::link::ClaimServerIdResponse>* streamer) {
-                       return this->StreamedClaimServerId(context,
+                   ::grpc::ServerSplitStreamer<
+                     ::converse::service::link::GetTransactionsRequest, ::converse::service::link::GetTransactionsResponse>* streamer) {
+                       return this->StreamedGetTransactions(context,
                          streamer);
                   }));
     }
-    ~WithStreamedUnaryMethod_ClaimServerId() override {
+    ~WithSplitStreamingMethod_GetTransactions() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status ClaimServerId(::grpc::ServerContext* /*context*/, const ::converse::service::link::ClaimServerIdRequest* /*request*/, ::converse::service::link::ClaimServerIdResponse* /*response*/) override {
+    ::grpc::Status GetTransactions(::grpc::ServerContext* /*context*/, const ::converse::service::link::GetTransactionsRequest* /*request*/, ::grpc::ServerWriter< ::converse::service::link::GetTransactionsResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedClaimServerId(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::converse::service::link::ClaimServerIdRequest,::converse::service::link::ClaimServerIdResponse>* server_unary_streamer) = 0;
+    // replace default version of method with split streamed
+    virtual ::grpc::Status StreamedGetTransactions(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::converse::service::link::GetTransactionsRequest,::converse::service::link::GetTransactionsResponse>* server_split_streamer) = 0;
   };
-  template <class BaseClass>
-  class WithStreamedUnaryMethod_ReplicateTransaction : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_ReplicateTransaction() {
-      ::grpc::Service::MarkMethodStreamed(3,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::converse::service::link::ReplicateTransactionRequest, ::converse::service::link::ReplicateTransactionResponse>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::converse::service::link::ReplicateTransactionRequest, ::converse::service::link::ReplicateTransactionResponse>* streamer) {
-                       return this->StreamedReplicateTransaction(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_ReplicateTransaction() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status ReplicateTransaction(::grpc::ServerContext* /*context*/, const ::converse::service::link::ReplicateTransactionRequest* /*request*/, ::converse::service::link::ReplicateTransactionResponse* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedReplicateTransaction(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::converse::service::link::ReplicateTransactionRequest,::converse::service::link::ReplicateTransactionResponse>* server_unary_streamer) = 0;
-  };
-  typedef WithStreamedUnaryMethod_GetServers<WithStreamedUnaryMethod_IdentifyMyself<WithStreamedUnaryMethod_ClaimServerId<WithStreamedUnaryMethod_ReplicateTransaction<Service > > > > StreamedUnaryService;
-  typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_GetServers<WithStreamedUnaryMethod_IdentifyMyself<WithStreamedUnaryMethod_ClaimServerId<WithStreamedUnaryMethod_ReplicateTransaction<Service > > > > StreamedService;
+  typedef WithSplitStreamingMethod_GetServers<WithSplitStreamingMethod_GetTransactions<Service > > SplitStreamedService;
+  typedef WithSplitStreamingMethod_GetServers<WithStreamedUnaryMethod_IdentifyMyself<WithSplitStreamingMethod_GetTransactions<Service > > > StreamedService;
 };
 
 }  // namespace link

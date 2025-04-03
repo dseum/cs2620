@@ -16,34 +16,28 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Sets compiler flags
-set(CXX_FLAGS
-    -Wall
-    -Wconversion
-    -Wextra
-    -Wpedantic
-    -Wshadow
-    -Wunused
-    -march=native)
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
-  set(CXX_FLAGS ${CXX_FLAGS} -g -O0)
-  set(CMAKE_BUILD_TYPE Release)
+  add_compile_options(-g -O0)
+  set(CMAKE_BUILD_TYPE Debug)
 elseif(CMAKE_BUILD_TYPE STREQUAL Release)
-  set(CXX_FLAGS ${CXX_FLAGS} -DNDEBUG -O3)
+  add_compile_options(-DNDEBUG -O3)
 else()
-  message(FATAL_ERROR "unknown build type: ${CMAKE_BUILD_TYPE}")
+  message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
 endif()
+# add_compile_options(-Wall -Wconversion -Wextra -Wpedantic -Wshadow -Wunused)
 
 # Finds packages
-find_package(Boost CONFIG REQUIRED COMPONENTS algorithm date_time log log_setup
-                                              program_options)
+find_package(
+  Boost CONFIG REQUIRED COMPONENTS algorithm date_time log log_setup
+                                   program_options unit_test_framework)
 find_package(gRPC CONFIG REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(unofficial-argon2 CONFIG REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 # Adds subdirectories
-add_subdirectory(../lib_logging ${CMAKE_BINARY_DIR}/lib_logging)
-add_subdirectory(../lib_proto ${CMAKE_BINARY_DIR}/lib_proto)
+add_subdirectory(../lib_logging ${CMAKE_CURRENT_BINARY_DIR}/lib_logging)
+add_subdirectory(../lib_proto ${CMAKE_CURRENT_BINARY_DIR}/lib_proto)
 
 set(SQL_HPP src/sql.hpp)
 file(READ src/main.sql MAIN_SQL)
@@ -62,10 +56,23 @@ add_custom_target(sql_hpp DEPENDS ${SQL_HPP})
 
 add_executable(exe_server)
 set_target_properties(exe_server PROPERTIES OUTPUT_NAME exe)
-target_sources(exe_server PRIVATE src/main.cpp src/database.cpp src/server.cpp src/link.cpp)
+target_sources(
+  exe_server
+  PRIVATE src/main.cpp
+          src/database.cpp
+          src/reader.cpp
+          src/server.cpp
+          src/service/health/impl.cpp
+          src/service/link/impl.cpp
+          src/service/main/impl.cpp)
 target_include_directories(exe_server PRIVATE src)
 target_link_libraries(
   exe_server
-  PRIVATE Boost::algorithm Boost::program_options lib_logging lib_proto
-          unofficial::argon2::libargon2 unofficial::sqlite3::sqlite3)
+  PRIVATE Boost::algorithm
+          Boost::program_options
+          Boost::unit_test_framework
+          lib_logging
+          lib_proto
+          unofficial::argon2::libargon2
+          unofficial::sqlite3::sqlite3)
 add_dependencies(exe_server sql_hpp)

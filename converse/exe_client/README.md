@@ -7,5 +7,5 @@ This is the project for the Converse client executable.
 ### Execute
 
 ```sh
-build/src/exe_client/exe
+build/exe --host 0.0.0.0 --port 50051
 ```

@@ -3,21 +3,20 @@ syntax = "proto3";
 package converse.service.link;
 
 service LinkService {
-  rpc GetServers(GetServersRequest) returns (GetServersResponse);
+  rpc GetServers(GetServersRequest) returns (stream GetServersResponse);
   rpc IdentifyMyself(IdentifyMyselfRequest) returns (IdentifyMyselfResponse);
-  rpc ClaimServerId(ClaimServerIdRequest) returns (ClaimServerIdResponse);
-  rpc ReplicateTransaction(ReplicateTransactionRequest)
-      returns (ReplicateTransactionResponse);
+  rpc GetTransactions(GetTransactionsRequest) returns (stream GetTransactionsResponse);
 }
 
-message GetServersRequest {
-  // The ID of the server making the request.
-  uint64 server_id = 1;
-}
+message GetServersRequest {}
 
 message GetServersResponse {
-  // A list of server IDs that are currently available.
-  repeated uint64 server_ids = 1;
+  repeated ServerAddress cluster_addresses = 1;
+}
+
+message ServerAddress {
+  string host = 1;
+  uint32 port = 2;
 }
 
 message IdentifyMyselfRequest {
@@ -26,36 +25,21 @@ message IdentifyMyselfRequest {
 }
 
 message IdentifyMyselfResponse {
-  // The ID of the server that is being identified.
-  uint64 server_id = 1;
+  repeated ServerAddress cluster_addresses = 1;
+  bytes database = 2;
 }
 
-message ClaimServerIdRequest {
-  // The ID of the server making the request.
-  uint64 server_id = 1;
-}
+message GetTransactionsRequest {}
 
-message ClaimServerIdResponse {
-  // The ID of the server that is being claimed.
-  uint64 server_id = 1;
-}
-
-message ReplicateTransactionRequest {
+message GetTransactionsResponse {
   uint64 transaction_id = 1;
 
   // Each transaction can include one or more operations (insert, update, etc.).
   repeated Operation operations = 2;
 }
 
-message ReplicateTransactionResponse {
-  // Whether the backup applied the transaction successfully.
-  bool success = 1;
-  // A string for error details, if any.
-  string error_message = 2;
-}
-
 // Each "Operation" represents an insert, update, or delete statement
-// in a structured form. This parallels your existing approach: 
+// in a structured form. This parallels your existing approach:
 //  - table_name could be "users", "messages", etc.
 //  - new_values could hold columns for an insert or an update
 //  - old_key_values identifies which row(s) to update or delete
@@ -76,4 +60,3 @@ enum OperationType {
   OPERATION_TYPE_INSERT = 1;
   OPERATION_TYPE_UPDATE = 2;
 }
-

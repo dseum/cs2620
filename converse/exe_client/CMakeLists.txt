@@ -16,22 +16,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Sets compiler flags
-set(CXX_FLAGS
-    -Wall
-    -Wconversion
-    -Wextra
-    -Wpedantic
-    -Wshadow
-    -Wunused
-    -march=native)
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
-  set(CXX_FLAGS ${CXX_FLAGS} -g -O0)
-  set(CMAKE_BUILD_TYPE Release)
+  add_compile_options(-g -O0)
+  set(CMAKE_BUILD_TYPE Debug)
 elseif(CMAKE_BUILD_TYPE STREQUAL Release)
-  set(CXX_FLAGS ${CXX_FLAGS} -DNDEBUG -O3)
+  add_compile_options(-DNDEBUG -O3)
 else()
-  message(FATAL_ERROR "unknown build type: ${CMAKE_BUILD_TYPE}")
+  message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
 endif()
+# add_compile_options(-Wall -Wconversion -Wextra -Wpedantic -Wshadow -Wunused)
 
 # Finds packages
 find_package(Boost CONFIG REQUIRED COMPONENTS date_time log log_setup)
@@ -40,8 +33,8 @@ find_package(Protobuf CONFIG REQUIRED)
 find_package(Qt6 CONFIG REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
 
 # Adds subdirectories
-add_subdirectory(../lib_logging ${CMAKE_BINARY_DIR}/lib_logging)
-add_subdirectory(../lib_proto ${CMAKE_BINARY_DIR}/lib_proto)
+add_subdirectory(../lib_logging ${CMAKE_CURRENT_BINARY_DIR}/lib_logging)
+add_subdirectory(../lib_proto ${CMAKE_CURRENT_BINARY_DIR}/lib_proto)
 
 qt_standard_project_setup(REQUIRES 6.8.2)
 qt_add_executable(exe_client)

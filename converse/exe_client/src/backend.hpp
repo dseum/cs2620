@@ -1,14 +1,17 @@
 #pragma once
 
+#include <converse/service/link/link.grpc.pb.h>
+#include <converse/service/link/link.pb.h>
 #include <converse/service/main/main.grpc.pb.h>
+#include <converse/service/main/main.pb.h>
 #include <qtypes.h>
 
 #include <QList>
 #include <QObject>
 #include <QtQml>
 #include <memory>
+#include <shared_mutex>
 
-#include "converse/service/main/main.pb.h"
 #include "reader.hpp"
 
 namespace converse {
@@ -207,6 +210,17 @@ class OtherUsersModel : public QAbstractListModel {
     QList<User *> other_users_;
 };
 
+class ServerAddress {
+   public:
+    ServerAddress(const std::string &host, int port);
+    std::string host;
+    int port;
+
+    operator std::string() const;
+    bool operator<(const ServerAddress &rhs) const;
+    bool operator==(const ServerAddress &rhs) const;
+};
+
 class Backend : public QObject {
     Q_OBJECT
     QML_ELEMENT
@@ -249,6 +263,7 @@ class Backend : public QObject {
                              const QSet<int> &read_message_ids);
     void requestGetMessages();
     void requestDeleteMessage(int message_id, int message_index);
+    void handle_reconnect(const grpc::Status &status);
 
    signals:
     void userChanged(bool nothing);
@@ -272,14 +287,19 @@ class Backend : public QObject {
     void unreadMessage(int conversation_id, int message_id);
 
    private:
+    std::shared_mutex channel_mutex_;
     std::shared_ptr<grpc::ChannelInterface> channel_;
-    std::unique_ptr<service::main::MainService::Stub> stub_;
+    std::unique_ptr<service::main::MainService::Stub> mainservice_stub_;
+    std::unique_ptr<service::link::LinkService::Stub> linkservice_stub_;
+    std::deque<ServerAddress> cluster_addresses_;
 
-    grpc::ClientContext ReceiveMessage_context_;
+    service::link::GetServersRequest GetServers_request_;
+    std::unique_ptr<service::link::reader::GetServersReader> GetServers_reader_;
+
     service::main::ReceiveMessageRequest ReceiveMessage_request_;
     std::unique_ptr<service::main::reader::ReceiveMessageReader>
         ReceiveMessage_reader_;
-    grpc::ClientContext ReceiveReadMessages_context_;
+
     service::main::ReceiveReadMessagesRequest ReceiveReadMessages_request_;
     std::unique_ptr<service::main::reader::ReceiveReadMessagesReader>
         ReceiveReadMessages_reader_;

@@ -20,6 +20,7 @@
 #include "google/protobuf/io/coded_stream.h"
 #include "google/protobuf/arena.h"
 #include "google/protobuf/arenastring.h"
+#include "google/protobuf/generated_message_bases.h"
 #include "google/protobuf/generated_message_tctable_decl.h"
 #include "google/protobuf/generated_message_util.h"
 #include "google/protobuf/metadata_lite.h"
@@ -58,18 +59,18 @@ extern const ::google::protobuf::internal::DescriptorTable
 namespace converse {
 namespace service {
 namespace link {
-class ClaimServerIdRequest;
-struct ClaimServerIdRequestDefaultTypeInternal;
-extern ClaimServerIdRequestDefaultTypeInternal _ClaimServerIdRequest_default_instance_;
-class ClaimServerIdResponse;
-struct ClaimServerIdResponseDefaultTypeInternal;
-extern ClaimServerIdResponseDefaultTypeInternal _ClaimServerIdResponse_default_instance_;
 class GetServersRequest;
 struct GetServersRequestDefaultTypeInternal;
 extern GetServersRequestDefaultTypeInternal _GetServersRequest_default_instance_;
 class GetServersResponse;
 struct GetServersResponseDefaultTypeInternal;
 extern GetServersResponseDefaultTypeInternal _GetServersResponse_default_instance_;
+class GetTransactionsRequest;
+struct GetTransactionsRequestDefaultTypeInternal;
+extern GetTransactionsRequestDefaultTypeInternal _GetTransactionsRequest_default_instance_;
+class GetTransactionsResponse;
+struct GetTransactionsResponseDefaultTypeInternal;
+extern GetTransactionsResponseDefaultTypeInternal _GetTransactionsResponse_default_instance_;
 class IdentifyMyselfRequest;
 struct IdentifyMyselfRequestDefaultTypeInternal;
 extern IdentifyMyselfRequestDefaultTypeInternal _IdentifyMyselfRequest_default_instance_;
@@ -85,12 +86,9 @@ extern Operation_NewValuesEntry_DoNotUseDefaultTypeInternal _Operation_NewValues
 class Operation_OldKeyValuesEntry_DoNotUse;
 struct Operation_OldKeyValuesEntry_DoNotUseDefaultTypeInternal;
 extern Operation_OldKeyValuesEntry_DoNotUseDefaultTypeInternal _Operation_OldKeyValuesEntry_DoNotUse_default_instance_;
-class ReplicateTransactionRequest;
-struct ReplicateTransactionRequestDefaultTypeInternal;
-extern ReplicateTransactionRequestDefaultTypeInternal _ReplicateTransactionRequest_default_instance_;
-class ReplicateTransactionResponse;
-struct ReplicateTransactionResponseDefaultTypeInternal;
-extern ReplicateTransactionResponseDefaultTypeInternal _ReplicateTransactionResponse_default_instance_;
+class ServerAddress;
+struct ServerAddressDefaultTypeInternal;
+extern ServerAddressDefaultTypeInternal _ServerAddress_default_instance_;
 }  // namespace link
 }  // namespace service
 }  // namespace converse
@@ -142,31 +140,31 @@ inline bool OperationType_Parse(absl::string_view name, OperationType* value) {
 
 // -------------------------------------------------------------------
 
-class ReplicateTransactionResponse final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:converse.service.link.ReplicateTransactionResponse) */ {
+class ServerAddress final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:converse.service.link.ServerAddress) */ {
  public:
-  inline ReplicateTransactionResponse() : ReplicateTransactionResponse(nullptr) {}
-  ~ReplicateTransactionResponse() PROTOBUF_FINAL;
+  inline ServerAddress() : ServerAddress(nullptr) {}
+  ~ServerAddress() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ReplicateTransactionResponse* msg, std::destroying_delete_t) {
+  void operator delete(ServerAddress* msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ReplicateTransactionResponse));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(ServerAddress));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ReplicateTransactionResponse(
+  explicit PROTOBUF_CONSTEXPR ServerAddress(
       ::google::protobuf::internal::ConstantInitialized);
 
-  inline ReplicateTransactionResponse(const ReplicateTransactionResponse& from) : ReplicateTransactionResponse(nullptr, from) {}
-  inline ReplicateTransactionResponse(ReplicateTransactionResponse&& from) noexcept
-      : ReplicateTransactionResponse(nullptr, std::move(from)) {}
-  inline ReplicateTransactionResponse& operator=(const ReplicateTransactionResponse& from) {
+  inline ServerAddress(const ServerAddress& from) : ServerAddress(nullptr, from) {}
+  inline ServerAddress(ServerAddress&& from) noexcept
+      : ServerAddress(nullptr, std::move(from)) {}
+  inline ServerAddress& operator=(const ServerAddress& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ReplicateTransactionResponse& operator=(ReplicateTransactionResponse&& from) noexcept {
+  inline ServerAddress& operator=(ServerAddress&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -194,16 +192,16 @@ class ReplicateTransactionResponse final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const ReplicateTransactionResponse& default_instance() {
+  static const ServerAddress& default_instance() {
     return *internal_default_instance();
   }
-  static inline const ReplicateTransactionResponse* internal_default_instance() {
-    return reinterpret_cast<const ReplicateTransactionResponse*>(
-        &_ReplicateTransactionResponse_default_instance_);
+  static inline const ServerAddress* internal_default_instance() {
+    return reinterpret_cast<const ServerAddress*>(
+        &_ServerAddress_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 7;
-  friend void swap(ReplicateTransactionResponse& a, ReplicateTransactionResponse& b) { a.Swap(&b); }
-  inline void Swap(ReplicateTransactionResponse* other) {
+  static constexpr int kIndexInFileMessages = 2;
+  friend void swap(ServerAddress& a, ServerAddress& b) { a.Swap(&b); }
+  inline void Swap(ServerAddress* other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -211,7 +209,7 @@ class ReplicateTransactionResponse final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ReplicateTransactionResponse* other) {
+  void UnsafeArenaSwap(ServerAddress* other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -219,13 +217,13 @@ class ReplicateTransactionResponse final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  ReplicateTransactionResponse* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ReplicateTransactionResponse>(arena);
+  ServerAddress* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<ServerAddress>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ReplicateTransactionResponse& from);
+  void CopyFrom(const ServerAddress& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ReplicateTransactionResponse& from) { ReplicateTransactionResponse::MergeImpl(*this, from); }
+  void MergeFrom(const ServerAddress& from) { ServerAddress::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(
@@ -262,18 +260,18 @@ class ReplicateTransactionResponse final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(ReplicateTransactionResponse* other);
+  void InternalSwap(ServerAddress* other);
  private:
   template <typename T>
   friend ::absl::string_view(
       ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "converse.service.link.ReplicateTransactionResponse"; }
+  static ::absl::string_view FullMessageName() { return "converse.service.link.ServerAddress"; }
 
  protected:
-  explicit ReplicateTransactionResponse(::google::protobuf::Arena* arena);
-  ReplicateTransactionResponse(::google::protobuf::Arena* arena, const ReplicateTransactionResponse& from);
-  ReplicateTransactionResponse(::google::protobuf::Arena* arena, ReplicateTransactionResponse&& from) noexcept
-      : ReplicateTransactionResponse(arena) {
+  explicit ServerAddress(::google::protobuf::Arena* arena);
+  ServerAddress(::google::protobuf::Arena* arena, const ServerAddress& from);
+  ServerAddress(::google::protobuf::Arena* arena, ServerAddress&& from) noexcept
+      : ServerAddress(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
@@ -288,42 +286,42 @@ class ReplicateTransactionResponse final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kErrorMessageFieldNumber = 2,
-    kSuccessFieldNumber = 1,
+    kHostFieldNumber = 1,
+    kPortFieldNumber = 2,
   };
-  // string error_message = 2 [json_name = "errorMessage"];
-  void clear_error_message() ;
-  const std::string& error_message() const;
+  // string host = 1 [json_name = "host"];
+  void clear_host() ;
+  const std::string& host() const;
   template <typename Arg_ = const std::string&, typename... Args_>
-  void set_error_message(Arg_&& arg, Args_... args);
-  std::string* mutable_error_message();
-  PROTOBUF_NODISCARD std::string* release_error_message();
-  void set_allocated_error_message(std::string* value);
+  void set_host(Arg_&& arg, Args_... args);
+  std::string* mutable_host();
+  PROTOBUF_NODISCARD std::string* release_host();
+  void set_allocated_host(std::string* value);
 
   private:
-  const std::string& _internal_error_message() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_error_message(
+  const std::string& _internal_host() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_host(
       const std::string& value);
-  std::string* _internal_mutable_error_message();
+  std::string* _internal_mutable_host();
 
   public:
-  // bool success = 1 [json_name = "success"];
-  void clear_success() ;
-  bool success() const;
-  void set_success(bool value);
+  // uint32 port = 2 [json_name = "port"];
+  void clear_port() ;
+  ::uint32_t port() const;
+  void set_port(::uint32_t value);
 
   private:
-  bool _internal_success() const;
-  void _internal_set_success(bool value);
+  ::uint32_t _internal_port() const;
+  void _internal_set_port(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:converse.service.link.ReplicateTransactionResponse)
+  // @@protoc_insertion_point(class_scope:converse.service.link.ServerAddress)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
       1, 2, 0,
-      72, 2>
+      48, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -339,9 +337,9 @@ class ReplicateTransactionResponse final : public ::google::protobuf::Message
                           ::google::protobuf::Arena* arena);
     inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                           ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ReplicateTransactionResponse& from_msg);
-    ::google::protobuf::internal::ArenaStringPtr error_message_;
-    bool success_;
+                          const ServerAddress& from_msg);
+    ::google::protobuf::internal::ArenaStringPtr host_;
+    ::uint32_t port_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -428,196 +426,6 @@ class Operation_NewValuesEntry_DoNotUse final
 };
 // -------------------------------------------------------------------
 
-class IdentifyMyselfResponse final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:converse.service.link.IdentifyMyselfResponse) */ {
- public:
-  inline IdentifyMyselfResponse() : IdentifyMyselfResponse(nullptr) {}
-  ~IdentifyMyselfResponse() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(IdentifyMyselfResponse* msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(IdentifyMyselfResponse));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR IdentifyMyselfResponse(
-      ::google::protobuf::internal::ConstantInitialized);
-
-  inline IdentifyMyselfResponse(const IdentifyMyselfResponse& from) : IdentifyMyselfResponse(nullptr, from) {}
-  inline IdentifyMyselfResponse(IdentifyMyselfResponse&& from) noexcept
-      : IdentifyMyselfResponse(nullptr, std::move(from)) {}
-  inline IdentifyMyselfResponse& operator=(const IdentifyMyselfResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline IdentifyMyselfResponse& operator=(IdentifyMyselfResponse&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const IdentifyMyselfResponse& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const IdentifyMyselfResponse* internal_default_instance() {
-    return reinterpret_cast<const IdentifyMyselfResponse*>(
-        &_IdentifyMyselfResponse_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 3;
-  friend void swap(IdentifyMyselfResponse& a, IdentifyMyselfResponse& b) { a.Swap(&b); }
-  inline void Swap(IdentifyMyselfResponse* other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(IdentifyMyselfResponse* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  IdentifyMyselfResponse* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<IdentifyMyselfResponse>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const IdentifyMyselfResponse& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const IdentifyMyselfResponse& from) { IdentifyMyselfResponse::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(IdentifyMyselfResponse* other);
- private:
-  template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "converse.service.link.IdentifyMyselfResponse"; }
-
- protected:
-  explicit IdentifyMyselfResponse(::google::protobuf::Arena* arena);
-  IdentifyMyselfResponse(::google::protobuf::Arena* arena, const IdentifyMyselfResponse& from);
-  IdentifyMyselfResponse(::google::protobuf::Arena* arena, IdentifyMyselfResponse&& from) noexcept
-      : IdentifyMyselfResponse(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
-  static constexpr auto InternalNewImpl_();
-  static const ::google::protobuf::internal::ClassDataFull _class_data_;
-
- public:
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kServerIdFieldNumber = 1,
-  };
-  // uint64 server_id = 1 [json_name = "serverId"];
-  void clear_server_id() ;
-  ::uint64_t server_id() const;
-  void set_server_id(::uint64_t value);
-
-  private:
-  ::uint64_t _internal_server_id() const;
-  void _internal_set_server_id(::uint64_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:converse.service.link.IdentifyMyselfResponse)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
-      0, 2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const IdentifyMyselfResponse& from_msg);
-    ::uint64_t server_id_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_converse_2fservice_2flink_2flink_2eproto;
-};
-// -------------------------------------------------------------------
-
 class IdentifyMyselfRequest final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:converse.service.link.IdentifyMyselfRequest) */ {
  public:
@@ -677,7 +485,7 @@ class IdentifyMyselfRequest final : public ::google::protobuf::Message
     return reinterpret_cast<const IdentifyMyselfRequest*>(
         &_IdentifyMyselfRequest_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 2;
+  static constexpr int kIndexInFileMessages = 3;
   friend void swap(IdentifyMyselfRequest& a, IdentifyMyselfRequest& b) { a.Swap(&b); }
   inline void Swap(IdentifyMyselfRequest* other) {
     if (other == this) return;
@@ -826,31 +634,30 @@ class IdentifyMyselfRequest final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
-class GetServersResponse final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:converse.service.link.GetServersResponse) */ {
+class GetTransactionsRequest final : public ::google::protobuf::internal::ZeroFieldsBase
+/* @@protoc_insertion_point(class_definition:converse.service.link.GetTransactionsRequest) */ {
  public:
-  inline GetServersResponse() : GetServersResponse(nullptr) {}
-  ~GetServersResponse() PROTOBUF_FINAL;
+  inline GetTransactionsRequest() : GetTransactionsRequest(nullptr) {}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(GetServersResponse* msg, std::destroying_delete_t) {
+  void operator delete(GetTransactionsRequest* msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(GetServersResponse));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(GetTransactionsRequest));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR GetServersResponse(
+  explicit PROTOBUF_CONSTEXPR GetTransactionsRequest(
       ::google::protobuf::internal::ConstantInitialized);
 
-  inline GetServersResponse(const GetServersResponse& from) : GetServersResponse(nullptr, from) {}
-  inline GetServersResponse(GetServersResponse&& from) noexcept
-      : GetServersResponse(nullptr, std::move(from)) {}
-  inline GetServersResponse& operator=(const GetServersResponse& from) {
+  inline GetTransactionsRequest(const GetTransactionsRequest& from) : GetTransactionsRequest(nullptr, from) {}
+  inline GetTransactionsRequest(GetTransactionsRequest&& from) noexcept
+      : GetTransactionsRequest(nullptr, std::move(from)) {}
+  inline GetTransactionsRequest& operator=(const GetTransactionsRequest& from) {
     CopyFrom(from);
     return *this;
   }
-  inline GetServersResponse& operator=(GetServersResponse&& from) noexcept {
+  inline GetTransactionsRequest& operator=(GetTransactionsRequest&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -878,16 +685,16 @@ class GetServersResponse final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const GetServersResponse& default_instance() {
+  static const GetTransactionsRequest& default_instance() {
     return *internal_default_instance();
   }
-  static inline const GetServersResponse* internal_default_instance() {
-    return reinterpret_cast<const GetServersResponse*>(
-        &_GetServersResponse_default_instance_);
+  static inline const GetTransactionsRequest* internal_default_instance() {
+    return reinterpret_cast<const GetTransactionsRequest*>(
+        &_GetTransactionsRequest_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 1;
-  friend void swap(GetServersResponse& a, GetServersResponse& b) { a.Swap(&b); }
-  inline void Swap(GetServersResponse* other) {
+  static constexpr int kIndexInFileMessages = 5;
+  friend void swap(GetTransactionsRequest& a, GetTransactionsRequest& b) { a.Swap(&b); }
+  inline void Swap(GetTransactionsRequest* other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -895,7 +702,7 @@ class GetServersResponse final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(GetServersResponse* other) {
+  void UnsafeArenaSwap(GetTransactionsRequest* other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -903,61 +710,33 @@ class GetServersResponse final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  GetServersResponse* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<GetServersResponse>(arena);
+  GetTransactionsRequest* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::internal::ZeroFieldsBase::DefaultConstruct<GetTransactionsRequest>(arena);
   }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const GetServersResponse& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const GetServersResponse& from) { GetServersResponse::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  using ::google::protobuf::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const GetTransactionsRequest& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::google::protobuf::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const GetTransactionsRequest& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
 
   public:
   bool IsInitialized() const {
     return true;
   }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(GetServersResponse* other);
  private:
   template <typename T>
   friend ::absl::string_view(
       ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "converse.service.link.GetServersResponse"; }
+  static ::absl::string_view FullMessageName() { return "converse.service.link.GetTransactionsRequest"; }
 
  protected:
-  explicit GetServersResponse(::google::protobuf::Arena* arena);
-  GetServersResponse(::google::protobuf::Arena* arena, const GetServersResponse& from);
-  GetServersResponse(::google::protobuf::Arena* arena, GetServersResponse&& from) noexcept
-      : GetServersResponse(arena) {
+  explicit GetTransactionsRequest(::google::protobuf::Arena* arena);
+  GetTransactionsRequest(::google::protobuf::Arena* arena, const GetTransactionsRequest& from);
+  GetTransactionsRequest(::google::protobuf::Arena* arena, GetTransactionsRequest&& from) noexcept
+      : GetTransactionsRequest(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
@@ -971,33 +750,12 @@ class GetServersResponse final : public ::google::protobuf::Message
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
-  enum : int {
-    kServerIdsFieldNumber = 1,
-  };
-  // repeated uint64 server_ids = 1 [json_name = "serverIds"];
-  int server_ids_size() const;
-  private:
-  int _internal_server_ids_size() const;
-
-  public:
-  void clear_server_ids() ;
-  ::uint64_t server_ids(int index) const;
-  void set_server_ids(int index, ::uint64_t value);
-  void add_server_ids(::uint64_t value);
-  const ::google::protobuf::RepeatedField<::uint64_t>& server_ids() const;
-  ::google::protobuf::RepeatedField<::uint64_t>* mutable_server_ids();
-
-  private:
-  const ::google::protobuf::RepeatedField<::uint64_t>& _internal_server_ids() const;
-  ::google::protobuf::RepeatedField<::uint64_t>* _internal_mutable_server_ids();
-
-  public:
-  // @@protoc_insertion_point(class_scope:converse.service.link.GetServersResponse)
+  // @@protoc_insertion_point(class_scope:converse.service.link.GetTransactionsRequest)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
+      0, 0, 0,
       0, 2>
       _table_;
 
@@ -1014,22 +772,17 @@ class GetServersResponse final : public ::google::protobuf::Message
                           ::google::protobuf::Arena* arena);
     inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                           ::google::protobuf::Arena* arena, const Impl_& from,
-                          const GetServersResponse& from_msg);
-    ::google::protobuf::RepeatedField<::uint64_t> server_ids_;
-    ::google::protobuf::internal::CachedSize _server_ids_cached_byte_size_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
+                          const GetTransactionsRequest& from_msg);
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
-  union { Impl_ _impl_; };
   friend struct ::TableStruct_converse_2fservice_2flink_2flink_2eproto;
 };
 // -------------------------------------------------------------------
 
-class GetServersRequest final : public ::google::protobuf::Message
+class GetServersRequest final : public ::google::protobuf::internal::ZeroFieldsBase
 /* @@protoc_insertion_point(class_definition:converse.service.link.GetServersRequest) */ {
  public:
   inline GetServersRequest() : GetServersRequest(nullptr) {}
-  ~GetServersRequest() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
   void operator delete(GetServersRequest* msg, std::destroying_delete_t) {
@@ -1103,49 +856,21 @@ class GetServersRequest final : public ::google::protobuf::Message
   // implements Message ----------------------------------------------
 
   GetServersRequest* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<GetServersRequest>(arena);
+    return ::google::protobuf::internal::ZeroFieldsBase::DefaultConstruct<GetServersRequest>(arena);
   }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const GetServersRequest& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const GetServersRequest& from) { GetServersRequest::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
+  using ::google::protobuf::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const GetServersRequest& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::google::protobuf::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const GetServersRequest& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
 
   public:
   bool IsInitialized() const {
     return true;
   }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(GetServersRequest* other);
  private:
   template <typename T>
   friend ::absl::string_view(
@@ -1170,25 +895,12 @@ class GetServersRequest final : public ::google::protobuf::Message
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
-  enum : int {
-    kServerIdFieldNumber = 1,
-  };
-  // uint64 server_id = 1 [json_name = "serverId"];
-  void clear_server_id() ;
-  ::uint64_t server_id() const;
-  void set_server_id(::uint64_t value);
-
-  private:
-  ::uint64_t _internal_server_id() const;
-  void _internal_set_server_id(::uint64_t value);
-
-  public:
   // @@protoc_insertion_point(class_scope:converse.service.link.GetServersRequest)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
+      0, 0, 0,
       0, 2>
       _table_;
 
@@ -1206,391 +918,8 @@ class GetServersRequest final : public ::google::protobuf::Message
     inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const GetServersRequest& from_msg);
-    ::uint64_t server_id_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_converse_2fservice_2flink_2flink_2eproto;
-};
-// -------------------------------------------------------------------
-
-class ClaimServerIdResponse final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:converse.service.link.ClaimServerIdResponse) */ {
- public:
-  inline ClaimServerIdResponse() : ClaimServerIdResponse(nullptr) {}
-  ~ClaimServerIdResponse() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ClaimServerIdResponse* msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ClaimServerIdResponse));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ClaimServerIdResponse(
-      ::google::protobuf::internal::ConstantInitialized);
-
-  inline ClaimServerIdResponse(const ClaimServerIdResponse& from) : ClaimServerIdResponse(nullptr, from) {}
-  inline ClaimServerIdResponse(ClaimServerIdResponse&& from) noexcept
-      : ClaimServerIdResponse(nullptr, std::move(from)) {}
-  inline ClaimServerIdResponse& operator=(const ClaimServerIdResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ClaimServerIdResponse& operator=(ClaimServerIdResponse&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const ClaimServerIdResponse& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ClaimServerIdResponse* internal_default_instance() {
-    return reinterpret_cast<const ClaimServerIdResponse*>(
-        &_ClaimServerIdResponse_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 5;
-  friend void swap(ClaimServerIdResponse& a, ClaimServerIdResponse& b) { a.Swap(&b); }
-  inline void Swap(ClaimServerIdResponse* other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(ClaimServerIdResponse* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  ClaimServerIdResponse* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ClaimServerIdResponse>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ClaimServerIdResponse& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ClaimServerIdResponse& from) { ClaimServerIdResponse::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(ClaimServerIdResponse* other);
- private:
-  template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "converse.service.link.ClaimServerIdResponse"; }
-
- protected:
-  explicit ClaimServerIdResponse(::google::protobuf::Arena* arena);
-  ClaimServerIdResponse(::google::protobuf::Arena* arena, const ClaimServerIdResponse& from);
-  ClaimServerIdResponse(::google::protobuf::Arena* arena, ClaimServerIdResponse&& from) noexcept
-      : ClaimServerIdResponse(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
-  static constexpr auto InternalNewImpl_();
-  static const ::google::protobuf::internal::ClassDataFull _class_data_;
-
- public:
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kServerIdFieldNumber = 1,
-  };
-  // uint64 server_id = 1 [json_name = "serverId"];
-  void clear_server_id() ;
-  ::uint64_t server_id() const;
-  void set_server_id(::uint64_t value);
-
-  private:
-  ::uint64_t _internal_server_id() const;
-  void _internal_set_server_id(::uint64_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:converse.service.link.ClaimServerIdResponse)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
-      0, 2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ClaimServerIdResponse& from_msg);
-    ::uint64_t server_id_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_converse_2fservice_2flink_2flink_2eproto;
-};
-// -------------------------------------------------------------------
-
-class ClaimServerIdRequest final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:converse.service.link.ClaimServerIdRequest) */ {
- public:
-  inline ClaimServerIdRequest() : ClaimServerIdRequest(nullptr) {}
-  ~ClaimServerIdRequest() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ClaimServerIdRequest* msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ClaimServerIdRequest));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ClaimServerIdRequest(
-      ::google::protobuf::internal::ConstantInitialized);
-
-  inline ClaimServerIdRequest(const ClaimServerIdRequest& from) : ClaimServerIdRequest(nullptr, from) {}
-  inline ClaimServerIdRequest(ClaimServerIdRequest&& from) noexcept
-      : ClaimServerIdRequest(nullptr, std::move(from)) {}
-  inline ClaimServerIdRequest& operator=(const ClaimServerIdRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ClaimServerIdRequest& operator=(ClaimServerIdRequest&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const ClaimServerIdRequest& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ClaimServerIdRequest* internal_default_instance() {
-    return reinterpret_cast<const ClaimServerIdRequest*>(
-        &_ClaimServerIdRequest_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 4;
-  friend void swap(ClaimServerIdRequest& a, ClaimServerIdRequest& b) { a.Swap(&b); }
-  inline void Swap(ClaimServerIdRequest* other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(ClaimServerIdRequest* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  ClaimServerIdRequest* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ClaimServerIdRequest>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ClaimServerIdRequest& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ClaimServerIdRequest& from) { ClaimServerIdRequest::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(ClaimServerIdRequest* other);
- private:
-  template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "converse.service.link.ClaimServerIdRequest"; }
-
- protected:
-  explicit ClaimServerIdRequest(::google::protobuf::Arena* arena);
-  ClaimServerIdRequest(::google::protobuf::Arena* arena, const ClaimServerIdRequest& from);
-  ClaimServerIdRequest(::google::protobuf::Arena* arena, ClaimServerIdRequest&& from) noexcept
-      : ClaimServerIdRequest(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
-  static constexpr auto InternalNewImpl_();
-  static const ::google::protobuf::internal::ClassDataFull _class_data_;
-
- public:
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kServerIdFieldNumber = 1,
-  };
-  // uint64 server_id = 1 [json_name = "serverId"];
-  void clear_server_id() ;
-  ::uint64_t server_id() const;
-  void set_server_id(::uint64_t value);
-
-  private:
-  ::uint64_t _internal_server_id() const;
-  void _internal_set_server_id(::uint64_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:converse.service.link.ClaimServerIdRequest)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
-      0, 2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ClaimServerIdRequest& from_msg);
-    ::uint64_t server_id_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
   friend struct ::TableStruct_converse_2fservice_2flink_2flink_2eproto;
 };
 // -------------------------------------------------------------------
@@ -1654,7 +983,7 @@ class Operation final : public ::google::protobuf::Message
     return reinterpret_cast<const Operation*>(
         &_Operation_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 10;
+  static constexpr int kIndexInFileMessages = 9;
   friend void swap(Operation& a, Operation& b) { a.Swap(&b); }
   inline void Swap(Operation* other) {
     if (other == this) return;
@@ -1843,31 +1172,31 @@ class Operation final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
-class ReplicateTransactionRequest final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:converse.service.link.ReplicateTransactionRequest) */ {
+class IdentifyMyselfResponse final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:converse.service.link.IdentifyMyselfResponse) */ {
  public:
-  inline ReplicateTransactionRequest() : ReplicateTransactionRequest(nullptr) {}
-  ~ReplicateTransactionRequest() PROTOBUF_FINAL;
+  inline IdentifyMyselfResponse() : IdentifyMyselfResponse(nullptr) {}
+  ~IdentifyMyselfResponse() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ReplicateTransactionRequest* msg, std::destroying_delete_t) {
+  void operator delete(IdentifyMyselfResponse* msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ReplicateTransactionRequest));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(IdentifyMyselfResponse));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ReplicateTransactionRequest(
+  explicit PROTOBUF_CONSTEXPR IdentifyMyselfResponse(
       ::google::protobuf::internal::ConstantInitialized);
 
-  inline ReplicateTransactionRequest(const ReplicateTransactionRequest& from) : ReplicateTransactionRequest(nullptr, from) {}
-  inline ReplicateTransactionRequest(ReplicateTransactionRequest&& from) noexcept
-      : ReplicateTransactionRequest(nullptr, std::move(from)) {}
-  inline ReplicateTransactionRequest& operator=(const ReplicateTransactionRequest& from) {
+  inline IdentifyMyselfResponse(const IdentifyMyselfResponse& from) : IdentifyMyselfResponse(nullptr, from) {}
+  inline IdentifyMyselfResponse(IdentifyMyselfResponse&& from) noexcept
+      : IdentifyMyselfResponse(nullptr, std::move(from)) {}
+  inline IdentifyMyselfResponse& operator=(const IdentifyMyselfResponse& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ReplicateTransactionRequest& operator=(ReplicateTransactionRequest&& from) noexcept {
+  inline IdentifyMyselfResponse& operator=(IdentifyMyselfResponse&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -1895,16 +1224,16 @@ class ReplicateTransactionRequest final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const ReplicateTransactionRequest& default_instance() {
+  static const IdentifyMyselfResponse& default_instance() {
     return *internal_default_instance();
   }
-  static inline const ReplicateTransactionRequest* internal_default_instance() {
-    return reinterpret_cast<const ReplicateTransactionRequest*>(
-        &_ReplicateTransactionRequest_default_instance_);
+  static inline const IdentifyMyselfResponse* internal_default_instance() {
+    return reinterpret_cast<const IdentifyMyselfResponse*>(
+        &_IdentifyMyselfResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 6;
-  friend void swap(ReplicateTransactionRequest& a, ReplicateTransactionRequest& b) { a.Swap(&b); }
-  inline void Swap(ReplicateTransactionRequest* other) {
+  static constexpr int kIndexInFileMessages = 4;
+  friend void swap(IdentifyMyselfResponse& a, IdentifyMyselfResponse& b) { a.Swap(&b); }
+  inline void Swap(IdentifyMyselfResponse* other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -1912,7 +1241,7 @@ class ReplicateTransactionRequest final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ReplicateTransactionRequest* other) {
+  void UnsafeArenaSwap(IdentifyMyselfResponse* other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -1920,13 +1249,13 @@ class ReplicateTransactionRequest final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  ReplicateTransactionRequest* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ReplicateTransactionRequest>(arena);
+  IdentifyMyselfResponse* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<IdentifyMyselfResponse>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ReplicateTransactionRequest& from);
+  void CopyFrom(const IdentifyMyselfResponse& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ReplicateTransactionRequest& from) { ReplicateTransactionRequest::MergeImpl(*this, from); }
+  void MergeFrom(const IdentifyMyselfResponse& from) { IdentifyMyselfResponse::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(
@@ -1963,18 +1292,430 @@ class ReplicateTransactionRequest final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(ReplicateTransactionRequest* other);
+  void InternalSwap(IdentifyMyselfResponse* other);
  private:
   template <typename T>
   friend ::absl::string_view(
       ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "converse.service.link.ReplicateTransactionRequest"; }
+  static ::absl::string_view FullMessageName() { return "converse.service.link.IdentifyMyselfResponse"; }
 
  protected:
-  explicit ReplicateTransactionRequest(::google::protobuf::Arena* arena);
-  ReplicateTransactionRequest(::google::protobuf::Arena* arena, const ReplicateTransactionRequest& from);
-  ReplicateTransactionRequest(::google::protobuf::Arena* arena, ReplicateTransactionRequest&& from) noexcept
-      : ReplicateTransactionRequest(arena) {
+  explicit IdentifyMyselfResponse(::google::protobuf::Arena* arena);
+  IdentifyMyselfResponse(::google::protobuf::Arena* arena, const IdentifyMyselfResponse& from);
+  IdentifyMyselfResponse(::google::protobuf::Arena* arena, IdentifyMyselfResponse&& from) noexcept
+      : IdentifyMyselfResponse(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kClusterAddressesFieldNumber = 1,
+    kDatabaseFieldNumber = 2,
+  };
+  // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+  int cluster_addresses_size() const;
+  private:
+  int _internal_cluster_addresses_size() const;
+
+  public:
+  void clear_cluster_addresses() ;
+  ::converse::service::link::ServerAddress* mutable_cluster_addresses(int index);
+  ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>* mutable_cluster_addresses();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>& _internal_cluster_addresses() const;
+  ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>* _internal_mutable_cluster_addresses();
+  public:
+  const ::converse::service::link::ServerAddress& cluster_addresses(int index) const;
+  ::converse::service::link::ServerAddress* add_cluster_addresses();
+  const ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>& cluster_addresses() const;
+  // bytes database = 2 [json_name = "database"];
+  void clear_database() ;
+  const std::string& database() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_database(Arg_&& arg, Args_... args);
+  std::string* mutable_database();
+  PROTOBUF_NODISCARD std::string* release_database();
+  void set_allocated_database(std::string* value);
+
+  private:
+  const std::string& _internal_database() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_database(
+      const std::string& value);
+  std::string* _internal_mutable_database();
+
+  public:
+  // @@protoc_insertion_point(class_scope:converse.service.link.IdentifyMyselfResponse)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 1,
+      0, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const IdentifyMyselfResponse& from_msg);
+    ::google::protobuf::RepeatedPtrField< ::converse::service::link::ServerAddress > cluster_addresses_;
+    ::google::protobuf::internal::ArenaStringPtr database_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_converse_2fservice_2flink_2flink_2eproto;
+};
+// -------------------------------------------------------------------
+
+class GetServersResponse final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:converse.service.link.GetServersResponse) */ {
+ public:
+  inline GetServersResponse() : GetServersResponse(nullptr) {}
+  ~GetServersResponse() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(GetServersResponse* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(GetServersResponse));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR GetServersResponse(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline GetServersResponse(const GetServersResponse& from) : GetServersResponse(nullptr, from) {}
+  inline GetServersResponse(GetServersResponse&& from) noexcept
+      : GetServersResponse(nullptr, std::move(from)) {}
+  inline GetServersResponse& operator=(const GetServersResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetServersResponse& operator=(GetServersResponse&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GetServersResponse& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GetServersResponse* internal_default_instance() {
+    return reinterpret_cast<const GetServersResponse*>(
+        &_GetServersResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 1;
+  friend void swap(GetServersResponse& a, GetServersResponse& b) { a.Swap(&b); }
+  inline void Swap(GetServersResponse* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetServersResponse* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GetServersResponse* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<GetServersResponse>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const GetServersResponse& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const GetServersResponse& from) { GetServersResponse::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(GetServersResponse* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "converse.service.link.GetServersResponse"; }
+
+ protected:
+  explicit GetServersResponse(::google::protobuf::Arena* arena);
+  GetServersResponse(::google::protobuf::Arena* arena, const GetServersResponse& from);
+  GetServersResponse(::google::protobuf::Arena* arena, GetServersResponse&& from) noexcept
+      : GetServersResponse(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kClusterAddressesFieldNumber = 1,
+  };
+  // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+  int cluster_addresses_size() const;
+  private:
+  int _internal_cluster_addresses_size() const;
+
+  public:
+  void clear_cluster_addresses() ;
+  ::converse::service::link::ServerAddress* mutable_cluster_addresses(int index);
+  ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>* mutable_cluster_addresses();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>& _internal_cluster_addresses() const;
+  ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>* _internal_mutable_cluster_addresses();
+  public:
+  const ::converse::service::link::ServerAddress& cluster_addresses(int index) const;
+  ::converse::service::link::ServerAddress* add_cluster_addresses();
+  const ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>& cluster_addresses() const;
+  // @@protoc_insertion_point(class_scope:converse.service.link.GetServersResponse)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 1,
+      0, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const GetServersResponse& from_msg);
+    ::google::protobuf::RepeatedPtrField< ::converse::service::link::ServerAddress > cluster_addresses_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_converse_2fservice_2flink_2flink_2eproto;
+};
+// -------------------------------------------------------------------
+
+class GetTransactionsResponse final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:converse.service.link.GetTransactionsResponse) */ {
+ public:
+  inline GetTransactionsResponse() : GetTransactionsResponse(nullptr) {}
+  ~GetTransactionsResponse() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(GetTransactionsResponse* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(GetTransactionsResponse));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR GetTransactionsResponse(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline GetTransactionsResponse(const GetTransactionsResponse& from) : GetTransactionsResponse(nullptr, from) {}
+  inline GetTransactionsResponse(GetTransactionsResponse&& from) noexcept
+      : GetTransactionsResponse(nullptr, std::move(from)) {}
+  inline GetTransactionsResponse& operator=(const GetTransactionsResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetTransactionsResponse& operator=(GetTransactionsResponse&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GetTransactionsResponse& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GetTransactionsResponse* internal_default_instance() {
+    return reinterpret_cast<const GetTransactionsResponse*>(
+        &_GetTransactionsResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 6;
+  friend void swap(GetTransactionsResponse& a, GetTransactionsResponse& b) { a.Swap(&b); }
+  inline void Swap(GetTransactionsResponse* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetTransactionsResponse* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GetTransactionsResponse* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<GetTransactionsResponse>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const GetTransactionsResponse& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const GetTransactionsResponse& from) { GetTransactionsResponse::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(GetTransactionsResponse* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "converse.service.link.GetTransactionsResponse"; }
+
+ protected:
+  explicit GetTransactionsResponse(::google::protobuf::Arena* arena);
+  GetTransactionsResponse(::google::protobuf::Arena* arena, const GetTransactionsResponse& from);
+  GetTransactionsResponse(::google::protobuf::Arena* arena, GetTransactionsResponse&& from) noexcept
+      : GetTransactionsResponse(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
@@ -2019,7 +1760,7 @@ class ReplicateTransactionRequest final : public ::google::protobuf::Message
   void _internal_set_transaction_id(::uint64_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:converse.service.link.ReplicateTransactionRequest)
+  // @@protoc_insertion_point(class_scope:converse.service.link.GetTransactionsResponse)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -2041,7 +1782,7 @@ class ReplicateTransactionRequest final : public ::google::protobuf::Message
                           ::google::protobuf::Arena* arena);
     inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                           ::google::protobuf::Arena* arena, const Impl_& from,
-                          const ReplicateTransactionRequest& from_msg);
+                          const GetTransactionsResponse& from_msg);
     ::google::protobuf::RepeatedPtrField< ::converse::service::link::Operation > operations_;
     ::uint64_t transaction_id_;
     ::google::protobuf::internal::CachedSize _cached_size_;
@@ -2067,75 +1808,131 @@ class ReplicateTransactionRequest final : public ::google::protobuf::Message
 
 // GetServersRequest
 
-// uint64 server_id = 1 [json_name = "serverId"];
-inline void GetServersRequest::clear_server_id() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_id_ = ::uint64_t{0u};
-}
-inline ::uint64_t GetServersRequest::server_id() const {
-  // @@protoc_insertion_point(field_get:converse.service.link.GetServersRequest.server_id)
-  return _internal_server_id();
-}
-inline void GetServersRequest::set_server_id(::uint64_t value) {
-  _internal_set_server_id(value);
-  // @@protoc_insertion_point(field_set:converse.service.link.GetServersRequest.server_id)
-}
-inline ::uint64_t GetServersRequest::_internal_server_id() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.server_id_;
-}
-inline void GetServersRequest::_internal_set_server_id(::uint64_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_id_ = value;
-}
-
 // -------------------------------------------------------------------
 
 // GetServersResponse
 
-// repeated uint64 server_ids = 1 [json_name = "serverIds"];
-inline int GetServersResponse::_internal_server_ids_size() const {
-  return _internal_server_ids().size();
+// repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+inline int GetServersResponse::_internal_cluster_addresses_size() const {
+  return _internal_cluster_addresses().size();
 }
-inline int GetServersResponse::server_ids_size() const {
-  return _internal_server_ids_size();
+inline int GetServersResponse::cluster_addresses_size() const {
+  return _internal_cluster_addresses_size();
 }
-inline void GetServersResponse::clear_server_ids() {
+inline void GetServersResponse::clear_cluster_addresses() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_ids_.Clear();
+  _impl_.cluster_addresses_.Clear();
 }
-inline ::uint64_t GetServersResponse::server_ids(int index) const {
-  // @@protoc_insertion_point(field_get:converse.service.link.GetServersResponse.server_ids)
-  return _internal_server_ids().Get(index);
-}
-inline void GetServersResponse::set_server_ids(int index, ::uint64_t value) {
-  _internal_mutable_server_ids()->Set(index, value);
-  // @@protoc_insertion_point(field_set:converse.service.link.GetServersResponse.server_ids)
-}
-inline void GetServersResponse::add_server_ids(::uint64_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _internal_mutable_server_ids()->Add(value);
-  // @@protoc_insertion_point(field_add:converse.service.link.GetServersResponse.server_ids)
-}
-inline const ::google::protobuf::RepeatedField<::uint64_t>& GetServersResponse::server_ids() const
+inline ::converse::service::link::ServerAddress* GetServersResponse::mutable_cluster_addresses(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:converse.service.link.GetServersResponse.server_ids)
-  return _internal_server_ids();
+  // @@protoc_insertion_point(field_mutable:converse.service.link.GetServersResponse.cluster_addresses)
+  return _internal_mutable_cluster_addresses()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedField<::uint64_t>* GetServersResponse::mutable_server_ids()
+inline ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>* GetServersResponse::mutable_cluster_addresses()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:converse.service.link.GetServersResponse.server_ids)
+  // @@protoc_insertion_point(field_mutable_list:converse.service.link.GetServersResponse.cluster_addresses)
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_server_ids();
+  return _internal_mutable_cluster_addresses();
 }
-inline const ::google::protobuf::RepeatedField<::uint64_t>&
-GetServersResponse::_internal_server_ids() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.server_ids_;
+inline const ::converse::service::link::ServerAddress& GetServersResponse::cluster_addresses(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:converse.service.link.GetServersResponse.cluster_addresses)
+  return _internal_cluster_addresses().Get(index);
 }
-inline ::google::protobuf::RepeatedField<::uint64_t>* GetServersResponse::_internal_mutable_server_ids() {
+inline ::converse::service::link::ServerAddress* GetServersResponse::add_cluster_addresses() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::converse::service::link::ServerAddress* _add = _internal_mutable_cluster_addresses()->Add();
+  // @@protoc_insertion_point(field_add:converse.service.link.GetServersResponse.cluster_addresses)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>& GetServersResponse::cluster_addresses() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:converse.service.link.GetServersResponse.cluster_addresses)
+  return _internal_cluster_addresses();
+}
+inline const ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>&
+GetServersResponse::_internal_cluster_addresses() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.server_ids_;
+  return _impl_.cluster_addresses_;
+}
+inline ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>*
+GetServersResponse::_internal_mutable_cluster_addresses() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.cluster_addresses_;
+}
+
+// -------------------------------------------------------------------
+
+// ServerAddress
+
+// string host = 1 [json_name = "host"];
+inline void ServerAddress::clear_host() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.host_.ClearToEmpty();
+}
+inline const std::string& ServerAddress::host() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:converse.service.link.ServerAddress.host)
+  return _internal_host();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void ServerAddress::set_host(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.host_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:converse.service.link.ServerAddress.host)
+}
+inline std::string* ServerAddress::mutable_host() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_host();
+  // @@protoc_insertion_point(field_mutable:converse.service.link.ServerAddress.host)
+  return _s;
+}
+inline const std::string& ServerAddress::_internal_host() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.host_.Get();
+}
+inline void ServerAddress::_internal_set_host(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.host_.Set(value, GetArena());
+}
+inline std::string* ServerAddress::_internal_mutable_host() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.host_.Mutable( GetArena());
+}
+inline std::string* ServerAddress::release_host() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:converse.service.link.ServerAddress.host)
+  return _impl_.host_.Release();
+}
+inline void ServerAddress::set_allocated_host(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.host_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.host_.IsDefault()) {
+    _impl_.host_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:converse.service.link.ServerAddress.host)
+}
+
+// uint32 port = 2 [json_name = "port"];
+inline void ServerAddress::clear_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_ = 0u;
+}
+inline ::uint32_t ServerAddress::port() const {
+  // @@protoc_insertion_point(field_get:converse.service.link.ServerAddress.port)
+  return _internal_port();
+}
+inline void ServerAddress::set_port(::uint32_t value) {
+  _internal_set_port(value);
+  // @@protoc_insertion_point(field_set:converse.service.link.ServerAddress.port)
+}
+inline ::uint32_t ServerAddress::_internal_port() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.port_;
+}
+inline void ServerAddress::_internal_set_port(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -2216,227 +2013,180 @@ inline void IdentifyMyselfRequest::_internal_set_port(::uint32_t value) {
 
 // IdentifyMyselfResponse
 
-// uint64 server_id = 1 [json_name = "serverId"];
-inline void IdentifyMyselfResponse::clear_server_id() {
+// repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+inline int IdentifyMyselfResponse::_internal_cluster_addresses_size() const {
+  return _internal_cluster_addresses().size();
+}
+inline int IdentifyMyselfResponse::cluster_addresses_size() const {
+  return _internal_cluster_addresses_size();
+}
+inline void IdentifyMyselfResponse::clear_cluster_addresses() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_id_ = ::uint64_t{0u};
+  _impl_.cluster_addresses_.Clear();
 }
-inline ::uint64_t IdentifyMyselfResponse::server_id() const {
-  // @@protoc_insertion_point(field_get:converse.service.link.IdentifyMyselfResponse.server_id)
-  return _internal_server_id();
+inline ::converse::service::link::ServerAddress* IdentifyMyselfResponse::mutable_cluster_addresses(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:converse.service.link.IdentifyMyselfResponse.cluster_addresses)
+  return _internal_mutable_cluster_addresses()->Mutable(index);
 }
-inline void IdentifyMyselfResponse::set_server_id(::uint64_t value) {
-  _internal_set_server_id(value);
-  // @@protoc_insertion_point(field_set:converse.service.link.IdentifyMyselfResponse.server_id)
+inline ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>* IdentifyMyselfResponse::mutable_cluster_addresses()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:converse.service.link.IdentifyMyselfResponse.cluster_addresses)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_cluster_addresses();
 }
-inline ::uint64_t IdentifyMyselfResponse::_internal_server_id() const {
+inline const ::converse::service::link::ServerAddress& IdentifyMyselfResponse::cluster_addresses(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:converse.service.link.IdentifyMyselfResponse.cluster_addresses)
+  return _internal_cluster_addresses().Get(index);
+}
+inline ::converse::service::link::ServerAddress* IdentifyMyselfResponse::add_cluster_addresses() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::converse::service::link::ServerAddress* _add = _internal_mutable_cluster_addresses()->Add();
+  // @@protoc_insertion_point(field_add:converse.service.link.IdentifyMyselfResponse.cluster_addresses)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>& IdentifyMyselfResponse::cluster_addresses() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:converse.service.link.IdentifyMyselfResponse.cluster_addresses)
+  return _internal_cluster_addresses();
+}
+inline const ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>&
+IdentifyMyselfResponse::_internal_cluster_addresses() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.server_id_;
+  return _impl_.cluster_addresses_;
 }
-inline void IdentifyMyselfResponse::_internal_set_server_id(::uint64_t value) {
+inline ::google::protobuf::RepeatedPtrField<::converse::service::link::ServerAddress>*
+IdentifyMyselfResponse::_internal_mutable_cluster_addresses() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.cluster_addresses_;
+}
+
+// bytes database = 2 [json_name = "database"];
+inline void IdentifyMyselfResponse::clear_database() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_id_ = value;
+  _impl_.database_.ClearToEmpty();
+}
+inline const std::string& IdentifyMyselfResponse::database() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:converse.service.link.IdentifyMyselfResponse.database)
+  return _internal_database();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void IdentifyMyselfResponse::set_database(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.database_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:converse.service.link.IdentifyMyselfResponse.database)
+}
+inline std::string* IdentifyMyselfResponse::mutable_database() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_database();
+  // @@protoc_insertion_point(field_mutable:converse.service.link.IdentifyMyselfResponse.database)
+  return _s;
+}
+inline const std::string& IdentifyMyselfResponse::_internal_database() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.database_.Get();
+}
+inline void IdentifyMyselfResponse::_internal_set_database(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.database_.Set(value, GetArena());
+}
+inline std::string* IdentifyMyselfResponse::_internal_mutable_database() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.database_.Mutable( GetArena());
+}
+inline std::string* IdentifyMyselfResponse::release_database() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:converse.service.link.IdentifyMyselfResponse.database)
+  return _impl_.database_.Release();
+}
+inline void IdentifyMyselfResponse::set_allocated_database(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.database_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.database_.IsDefault()) {
+    _impl_.database_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:converse.service.link.IdentifyMyselfResponse.database)
 }
 
 // -------------------------------------------------------------------
 
-// ClaimServerIdRequest
-
-// uint64 server_id = 1 [json_name = "serverId"];
-inline void ClaimServerIdRequest::clear_server_id() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_id_ = ::uint64_t{0u};
-}
-inline ::uint64_t ClaimServerIdRequest::server_id() const {
-  // @@protoc_insertion_point(field_get:converse.service.link.ClaimServerIdRequest.server_id)
-  return _internal_server_id();
-}
-inline void ClaimServerIdRequest::set_server_id(::uint64_t value) {
-  _internal_set_server_id(value);
-  // @@protoc_insertion_point(field_set:converse.service.link.ClaimServerIdRequest.server_id)
-}
-inline ::uint64_t ClaimServerIdRequest::_internal_server_id() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.server_id_;
-}
-inline void ClaimServerIdRequest::_internal_set_server_id(::uint64_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_id_ = value;
-}
+// GetTransactionsRequest
 
 // -------------------------------------------------------------------
 
-// ClaimServerIdResponse
-
-// uint64 server_id = 1 [json_name = "serverId"];
-inline void ClaimServerIdResponse::clear_server_id() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_id_ = ::uint64_t{0u};
-}
-inline ::uint64_t ClaimServerIdResponse::server_id() const {
-  // @@protoc_insertion_point(field_get:converse.service.link.ClaimServerIdResponse.server_id)
-  return _internal_server_id();
-}
-inline void ClaimServerIdResponse::set_server_id(::uint64_t value) {
-  _internal_set_server_id(value);
-  // @@protoc_insertion_point(field_set:converse.service.link.ClaimServerIdResponse.server_id)
-}
-inline ::uint64_t ClaimServerIdResponse::_internal_server_id() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.server_id_;
-}
-inline void ClaimServerIdResponse::_internal_set_server_id(::uint64_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_id_ = value;
-}
-
-// -------------------------------------------------------------------
-
-// ReplicateTransactionRequest
+// GetTransactionsResponse
 
 // uint64 transaction_id = 1 [json_name = "transactionId"];
-inline void ReplicateTransactionRequest::clear_transaction_id() {
+inline void GetTransactionsResponse::clear_transaction_id() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.transaction_id_ = ::uint64_t{0u};
 }
-inline ::uint64_t ReplicateTransactionRequest::transaction_id() const {
-  // @@protoc_insertion_point(field_get:converse.service.link.ReplicateTransactionRequest.transaction_id)
+inline ::uint64_t GetTransactionsResponse::transaction_id() const {
+  // @@protoc_insertion_point(field_get:converse.service.link.GetTransactionsResponse.transaction_id)
   return _internal_transaction_id();
 }
-inline void ReplicateTransactionRequest::set_transaction_id(::uint64_t value) {
+inline void GetTransactionsResponse::set_transaction_id(::uint64_t value) {
   _internal_set_transaction_id(value);
-  // @@protoc_insertion_point(field_set:converse.service.link.ReplicateTransactionRequest.transaction_id)
+  // @@protoc_insertion_point(field_set:converse.service.link.GetTransactionsResponse.transaction_id)
 }
-inline ::uint64_t ReplicateTransactionRequest::_internal_transaction_id() const {
+inline ::uint64_t GetTransactionsResponse::_internal_transaction_id() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.transaction_id_;
 }
-inline void ReplicateTransactionRequest::_internal_set_transaction_id(::uint64_t value) {
+inline void GetTransactionsResponse::_internal_set_transaction_id(::uint64_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.transaction_id_ = value;
 }
 
 // repeated .converse.service.link.Operation operations = 2 [json_name = "operations"];
-inline int ReplicateTransactionRequest::_internal_operations_size() const {
+inline int GetTransactionsResponse::_internal_operations_size() const {
   return _internal_operations().size();
 }
-inline int ReplicateTransactionRequest::operations_size() const {
+inline int GetTransactionsResponse::operations_size() const {
   return _internal_operations_size();
 }
-inline void ReplicateTransactionRequest::clear_operations() {
+inline void GetTransactionsResponse::clear_operations() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.operations_.Clear();
 }
-inline ::converse::service::link::Operation* ReplicateTransactionRequest::mutable_operations(int index)
+inline ::converse::service::link::Operation* GetTransactionsResponse::mutable_operations(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:converse.service.link.ReplicateTransactionRequest.operations)
+  // @@protoc_insertion_point(field_mutable:converse.service.link.GetTransactionsResponse.operations)
   return _internal_mutable_operations()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::converse::service::link::Operation>* ReplicateTransactionRequest::mutable_operations()
+inline ::google::protobuf::RepeatedPtrField<::converse::service::link::Operation>* GetTransactionsResponse::mutable_operations()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:converse.service.link.ReplicateTransactionRequest.operations)
+  // @@protoc_insertion_point(field_mutable_list:converse.service.link.GetTransactionsResponse.operations)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_operations();
 }
-inline const ::converse::service::link::Operation& ReplicateTransactionRequest::operations(int index) const
+inline const ::converse::service::link::Operation& GetTransactionsResponse::operations(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:converse.service.link.ReplicateTransactionRequest.operations)
+  // @@protoc_insertion_point(field_get:converse.service.link.GetTransactionsResponse.operations)
   return _internal_operations().Get(index);
 }
-inline ::converse::service::link::Operation* ReplicateTransactionRequest::add_operations() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::converse::service::link::Operation* GetTransactionsResponse::add_operations() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::converse::service::link::Operation* _add = _internal_mutable_operations()->Add();
-  // @@protoc_insertion_point(field_add:converse.service.link.ReplicateTransactionRequest.operations)
+  // @@protoc_insertion_point(field_add:converse.service.link.GetTransactionsResponse.operations)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::converse::service::link::Operation>& ReplicateTransactionRequest::operations() const
+inline const ::google::protobuf::RepeatedPtrField<::converse::service::link::Operation>& GetTransactionsResponse::operations() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:converse.service.link.ReplicateTransactionRequest.operations)
+  // @@protoc_insertion_point(field_list:converse.service.link.GetTransactionsResponse.operations)
   return _internal_operations();
 }
 inline const ::google::protobuf::RepeatedPtrField<::converse::service::link::Operation>&
-ReplicateTransactionRequest::_internal_operations() const {
+GetTransactionsResponse::_internal_operations() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.operations_;
 }
 inline ::google::protobuf::RepeatedPtrField<::converse::service::link::Operation>*
-ReplicateTransactionRequest::_internal_mutable_operations() {
+GetTransactionsResponse::_internal_mutable_operations() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.operations_;
-}
-
-// -------------------------------------------------------------------
-
-// ReplicateTransactionResponse
-
-// bool success = 1 [json_name = "success"];
-inline void ReplicateTransactionResponse::clear_success() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.success_ = false;
-}
-inline bool ReplicateTransactionResponse::success() const {
-  // @@protoc_insertion_point(field_get:converse.service.link.ReplicateTransactionResponse.success)
-  return _internal_success();
-}
-inline void ReplicateTransactionResponse::set_success(bool value) {
-  _internal_set_success(value);
-  // @@protoc_insertion_point(field_set:converse.service.link.ReplicateTransactionResponse.success)
-}
-inline bool ReplicateTransactionResponse::_internal_success() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.success_;
-}
-inline void ReplicateTransactionResponse::_internal_set_success(bool value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.success_ = value;
-}
-
-// string error_message = 2 [json_name = "errorMessage"];
-inline void ReplicateTransactionResponse::clear_error_message() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.error_message_.ClearToEmpty();
-}
-inline const std::string& ReplicateTransactionResponse::error_message() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:converse.service.link.ReplicateTransactionResponse.error_message)
-  return _internal_error_message();
-}
-template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void ReplicateTransactionResponse::set_error_message(Arg_&& arg,
-                                                     Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.error_message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:converse.service.link.ReplicateTransactionResponse.error_message)
-}
-inline std::string* ReplicateTransactionResponse::mutable_error_message() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_error_message();
-  // @@protoc_insertion_point(field_mutable:converse.service.link.ReplicateTransactionResponse.error_message)
-  return _s;
-}
-inline const std::string& ReplicateTransactionResponse::_internal_error_message() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.error_message_.Get();
-}
-inline void ReplicateTransactionResponse::_internal_set_error_message(const std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.error_message_.Set(value, GetArena());
-}
-inline std::string* ReplicateTransactionResponse::_internal_mutable_error_message() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _impl_.error_message_.Mutable( GetArena());
-}
-inline std::string* ReplicateTransactionResponse::release_error_message() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:converse.service.link.ReplicateTransactionResponse.error_message)
-  return _impl_.error_message_.Release();
-}
-inline void ReplicateTransactionResponse::set_allocated_error_message(std::string* value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.error_message_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.error_message_.IsDefault()) {
-    _impl_.error_message_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:converse.service.link.ReplicateTransactionResponse.error_message)
 }
 
 // -------------------------------------------------------------------

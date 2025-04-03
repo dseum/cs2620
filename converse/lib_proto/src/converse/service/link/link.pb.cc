@@ -28,16 +28,16 @@ namespace converse {
 namespace service {
 namespace link {
 
-inline constexpr ReplicateTransactionResponse::Impl_::Impl_(
+inline constexpr ServerAddress::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : error_message_(
+      : host_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        success_{false},
+        port_{0u},
         _cached_size_{0} {}
 
 template <typename>
-PROTOBUF_CONSTEXPR ReplicateTransactionResponse::ReplicateTransactionResponse(::_pbi::ConstantInitialized)
+PROTOBUF_CONSTEXPR ServerAddress::ServerAddress(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -45,16 +45,16 @@ PROTOBUF_CONSTEXPR ReplicateTransactionResponse::ReplicateTransactionResponse(::
 #endif  // PROTOBUF_CUSTOM_VTABLE
       _impl_(::_pbi::ConstantInitialized()) {
 }
-struct ReplicateTransactionResponseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR ReplicateTransactionResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~ReplicateTransactionResponseDefaultTypeInternal() {}
+struct ServerAddressDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ServerAddressDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ServerAddressDefaultTypeInternal() {}
   union {
-    ReplicateTransactionResponse _instance;
+    ServerAddress _instance;
   };
 };
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ReplicateTransactionResponseDefaultTypeInternal _ReplicateTransactionResponse_default_instance_;
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ServerAddressDefaultTypeInternal _ServerAddress_default_instance_;
               template <typename>
 PROTOBUF_CONSTEXPR Operation_OldKeyValuesEntry_DoNotUse::Operation_OldKeyValuesEntry_DoNotUse(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -92,31 +92,6 @@ struct Operation_NewValuesEntry_DoNotUseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 Operation_NewValuesEntry_DoNotUseDefaultTypeInternal _Operation_NewValuesEntry_DoNotUse_default_instance_;
 
-inline constexpr IdentifyMyselfResponse::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : server_id_{::uint64_t{0u}},
-        _cached_size_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR IdentifyMyselfResponse::IdentifyMyselfResponse(::_pbi::ConstantInitialized)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(_class_data_.base()),
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
-}
-struct IdentifyMyselfResponseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR IdentifyMyselfResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~IdentifyMyselfResponseDefaultTypeInternal() {}
-  union {
-    IdentifyMyselfResponse _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 IdentifyMyselfResponseDefaultTypeInternal _IdentifyMyselfResponse_default_instance_;
-
 inline constexpr IdentifyMyselfRequest::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : host_(
@@ -144,47 +119,32 @@ struct IdentifyMyselfRequestDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 IdentifyMyselfRequestDefaultTypeInternal _IdentifyMyselfRequest_default_instance_;
-
-inline constexpr GetServersResponse::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : server_ids_{},
-        _server_ids_cached_byte_size_{0},
-        _cached_size_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR GetServersResponse::GetServersResponse(::_pbi::ConstantInitialized)
+              template <typename>
+PROTOBUF_CONSTEXPR GetTransactionsRequest::GetTransactionsRequest(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(_class_data_.base()),
+    : ::google::protobuf::internal::ZeroFieldsBase(_class_data_.base()){}
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
+    : ::google::protobuf::internal::ZeroFieldsBase() {
 }
-struct GetServersResponseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR GetServersResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~GetServersResponseDefaultTypeInternal() {}
+#endif  // PROTOBUF_CUSTOM_VTABLE
+struct GetTransactionsRequestDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR GetTransactionsRequestDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~GetTransactionsRequestDefaultTypeInternal() {}
   union {
-    GetServersResponse _instance;
+    GetTransactionsRequest _instance;
   };
 };
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetServersResponseDefaultTypeInternal _GetServersResponse_default_instance_;
-
-inline constexpr GetServersRequest::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : server_id_{::uint64_t{0u}},
-        _cached_size_{0} {}
-
-template <typename>
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetTransactionsRequestDefaultTypeInternal _GetTransactionsRequest_default_instance_;
+              template <typename>
 PROTOBUF_CONSTEXPR GetServersRequest::GetServersRequest(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(_class_data_.base()),
+    : ::google::protobuf::internal::ZeroFieldsBase(_class_data_.base()){}
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
+    : ::google::protobuf::internal::ZeroFieldsBase() {
 }
+#endif  // PROTOBUF_CUSTOM_VTABLE
 struct GetServersRequestDefaultTypeInternal {
   PROTOBUF_CONSTEXPR GetServersRequestDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
   ~GetServersRequestDefaultTypeInternal() {}
@@ -195,56 +155,6 @@ struct GetServersRequestDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetServersRequestDefaultTypeInternal _GetServersRequest_default_instance_;
-
-inline constexpr ClaimServerIdResponse::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : server_id_{::uint64_t{0u}},
-        _cached_size_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR ClaimServerIdResponse::ClaimServerIdResponse(::_pbi::ConstantInitialized)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(_class_data_.base()),
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
-}
-struct ClaimServerIdResponseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR ClaimServerIdResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~ClaimServerIdResponseDefaultTypeInternal() {}
-  union {
-    ClaimServerIdResponse _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ClaimServerIdResponseDefaultTypeInternal _ClaimServerIdResponse_default_instance_;
-
-inline constexpr ClaimServerIdRequest::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : server_id_{::uint64_t{0u}},
-        _cached_size_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR ClaimServerIdRequest::ClaimServerIdRequest(::_pbi::ConstantInitialized)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(_class_data_.base()),
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
-}
-struct ClaimServerIdRequestDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR ClaimServerIdRequestDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~ClaimServerIdRequestDefaultTypeInternal() {}
-  union {
-    ClaimServerIdRequest _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ClaimServerIdRequestDefaultTypeInternal _ClaimServerIdRequest_default_instance_;
 
 inline constexpr Operation::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -276,14 +186,16 @@ struct OperationDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 OperationDefaultTypeInternal _Operation_default_instance_;
 
-inline constexpr ReplicateTransactionRequest::Impl_::Impl_(
+inline constexpr IdentifyMyselfResponse::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : operations_{},
-        transaction_id_{::uint64_t{0u}},
+      : cluster_addresses_{},
+        database_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
         _cached_size_{0} {}
 
 template <typename>
-PROTOBUF_CONSTEXPR ReplicateTransactionRequest::ReplicateTransactionRequest(::_pbi::ConstantInitialized)
+PROTOBUF_CONSTEXPR IdentifyMyselfResponse::IdentifyMyselfResponse(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
@@ -291,16 +203,67 @@ PROTOBUF_CONSTEXPR ReplicateTransactionRequest::ReplicateTransactionRequest(::_p
 #endif  // PROTOBUF_CUSTOM_VTABLE
       _impl_(::_pbi::ConstantInitialized()) {
 }
-struct ReplicateTransactionRequestDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR ReplicateTransactionRequestDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~ReplicateTransactionRequestDefaultTypeInternal() {}
+struct IdentifyMyselfResponseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR IdentifyMyselfResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~IdentifyMyselfResponseDefaultTypeInternal() {}
   union {
-    ReplicateTransactionRequest _instance;
+    IdentifyMyselfResponse _instance;
   };
 };
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ReplicateTransactionRequestDefaultTypeInternal _ReplicateTransactionRequest_default_instance_;
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 IdentifyMyselfResponseDefaultTypeInternal _IdentifyMyselfResponse_default_instance_;
+
+inline constexpr GetServersResponse::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : cluster_addresses_{},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR GetServersResponse::GetServersResponse(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct GetServersResponseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR GetServersResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~GetServersResponseDefaultTypeInternal() {}
+  union {
+    GetServersResponse _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetServersResponseDefaultTypeInternal _GetServersResponse_default_instance_;
+
+inline constexpr GetTransactionsResponse::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : operations_{},
+        transaction_id_{::uint64_t{0u}},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR GetTransactionsResponse::GetTransactionsResponse(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct GetTransactionsResponseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR GetTransactionsResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~GetTransactionsResponseDefaultTypeInternal() {}
+  union {
+    GetTransactionsResponse _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetTransactionsResponseDefaultTypeInternal _GetTransactionsResponse_default_instance_;
 }  // namespace link
 }  // namespace service
 }  // namespace converse
@@ -318,7 +281,6 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::GetServersRequest, _impl_.server_id_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::converse::service::link::GetServersResponse, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -327,7 +289,17 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::GetServersResponse, _impl_.server_ids_),
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::GetServersResponse, _impl_.cluster_addresses_),
+        ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::ServerAddress, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::ServerAddress, _impl_.host_),
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::ServerAddress, _impl_.port_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::converse::service::link::IdentifyMyselfRequest, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -346,45 +318,26 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::IdentifyMyselfResponse, _impl_.server_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::IdentifyMyselfResponse, _impl_.cluster_addresses_),
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::IdentifyMyselfResponse, _impl_.database_),
         ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ClaimServerIdRequest, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::GetTransactionsRequest, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ClaimServerIdRequest, _impl_.server_id_),
         ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ClaimServerIdResponse, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::GetTransactionsResponse, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ClaimServerIdResponse, _impl_.server_id_),
-        ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ReplicateTransactionRequest, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ReplicateTransactionRequest, _impl_.transaction_id_),
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ReplicateTransactionRequest, _impl_.operations_),
-        ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ReplicateTransactionResponse, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ReplicateTransactionResponse, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::converse::service::link::ReplicateTransactionResponse, _impl_.error_message_),
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::GetTransactionsResponse, _impl_.transaction_id_),
+        PROTOBUF_FIELD_OFFSET(::converse::service::link::GetTransactionsResponse, _impl_.operations_),
         PROTOBUF_FIELD_OFFSET(::converse::service::link::Operation_NewValuesEntry_DoNotUse, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::converse::service::link::Operation_NewValuesEntry_DoNotUse, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -426,26 +379,24 @@ const ::uint32_t
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, -1, -1, sizeof(::converse::service::link::GetServersRequest)},
-        {9, -1, -1, sizeof(::converse::service::link::GetServersResponse)},
-        {18, -1, -1, sizeof(::converse::service::link::IdentifyMyselfRequest)},
-        {28, -1, -1, sizeof(::converse::service::link::IdentifyMyselfResponse)},
-        {37, -1, -1, sizeof(::converse::service::link::ClaimServerIdRequest)},
-        {46, -1, -1, sizeof(::converse::service::link::ClaimServerIdResponse)},
-        {55, -1, -1, sizeof(::converse::service::link::ReplicateTransactionRequest)},
-        {65, -1, -1, sizeof(::converse::service::link::ReplicateTransactionResponse)},
-        {75, 85, -1, sizeof(::converse::service::link::Operation_NewValuesEntry_DoNotUse)},
-        {87, 97, -1, sizeof(::converse::service::link::Operation_OldKeyValuesEntry_DoNotUse)},
-        {99, -1, -1, sizeof(::converse::service::link::Operation)},
+        {8, -1, -1, sizeof(::converse::service::link::GetServersResponse)},
+        {17, -1, -1, sizeof(::converse::service::link::ServerAddress)},
+        {27, -1, -1, sizeof(::converse::service::link::IdentifyMyselfRequest)},
+        {37, -1, -1, sizeof(::converse::service::link::IdentifyMyselfResponse)},
+        {47, -1, -1, sizeof(::converse::service::link::GetTransactionsRequest)},
+        {55, -1, -1, sizeof(::converse::service::link::GetTransactionsResponse)},
+        {65, 75, -1, sizeof(::converse::service::link::Operation_NewValuesEntry_DoNotUse)},
+        {77, 87, -1, sizeof(::converse::service::link::Operation_OldKeyValuesEntry_DoNotUse)},
+        {89, -1, -1, sizeof(::converse::service::link::Operation)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::converse::service::link::_GetServersRequest_default_instance_._instance,
     &::converse::service::link::_GetServersResponse_default_instance_._instance,
+    &::converse::service::link::_ServerAddress_default_instance_._instance,
     &::converse::service::link::_IdentifyMyselfRequest_default_instance_._instance,
     &::converse::service::link::_IdentifyMyselfResponse_default_instance_._instance,
-    &::converse::service::link::_ClaimServerIdRequest_default_instance_._instance,
-    &::converse::service::link::_ClaimServerIdResponse_default_instance_._instance,
-    &::converse::service::link::_ReplicateTransactionRequest_default_instance_._instance,
-    &::converse::service::link::_ReplicateTransactionResponse_default_instance_._instance,
+    &::converse::service::link::_GetTransactionsRequest_default_instance_._instance,
+    &::converse::service::link::_GetTransactionsResponse_default_instance_._instance,
     &::converse::service::link::_Operation_NewValuesEntry_DoNotUse_default_instance_._instance,
     &::converse::service::link::_Operation_OldKeyValuesEntry_DoNotUse_default_instance_._instance,
     &::converse::service::link::_Operation_default_instance_._instance,
@@ -453,61 +404,58 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_converse_2fservice_2flink_2flink_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
     "\n converse/service/link/link.proto\022\025conv"
-    "erse.service.link\"0\n\021GetServersRequest\022\033"
-    "\n\tserver_id\030\001 \001(\004R\010serverId\"3\n\022GetServer"
-    "sResponse\022\035\n\nserver_ids\030\001 \003(\004R\tserverIds"
+    "erse.service.link\"\023\n\021GetServersRequest\"g"
+    "\n\022GetServersResponse\022Q\n\021cluster_addresse"
+    "s\030\001 \003(\0132$.converse.service.link.ServerAd"
+    "dressR\020clusterAddresses\"7\n\rServerAddress"
+    "\022\022\n\004host\030\001 \001(\tR\004host\022\022\n\004port\030\002 \001(\rR\004port"
     "\"\?\n\025IdentifyMyselfRequest\022\022\n\004host\030\001 \001(\tR"
-    "\004host\022\022\n\004port\030\002 \001(\rR\004port\"5\n\026IdentifyMys"
-    "elfResponse\022\033\n\tserver_id\030\001 \001(\004R\010serverId"
-    "\"3\n\024ClaimServerIdRequest\022\033\n\tserver_id\030\001 "
-    "\001(\004R\010serverId\"4\n\025ClaimServerIdResponse\022\033"
-    "\n\tserver_id\030\001 \001(\004R\010serverId\"\206\001\n\033Replicat"
-    "eTransactionRequest\022%\n\016transaction_id\030\001 "
-    "\001(\004R\rtransactionId\022@\n\noperations\030\002 \003(\0132 "
-    ".converse.service.link.OperationR\noperat"
-    "ions\"]\n\034ReplicateTransactionResponse\022\030\n\007"
-    "success\030\001 \001(\010R\007success\022#\n\rerror_message\030"
-    "\002 \001(\tR\014errorMessage\"\215\003\n\tOperation\0228\n\004typ"
-    "e\030\001 \001(\0162$.converse.service.link.Operatio"
-    "nTypeR\004type\022\035\n\ntable_name\030\002 \001(\tR\ttableNa"
-    "me\022N\n\nnew_values\030\003 \003(\0132/.converse.servic"
-    "e.link.Operation.NewValuesEntryR\tnewValu"
-    "es\022X\n\016old_key_values\030\004 \003(\01322.converse.se"
-    "rvice.link.Operation.OldKeyValuesEntryR\014"
-    "oldKeyValues\032<\n\016NewValuesEntry\022\020\n\003key\030\001 "
-    "\001(\tR\003key\022\024\n\005value\030\002 \001(\tR\005value:\0028\001\032\?\n\021Ol"
-    "dKeyValuesEntry\022\020\n\003key\030\001 \001(\tR\003key\022\024\n\005val"
-    "ue\030\002 \001(\tR\005value:\0028\001*e\n\rOperationType\022\036\n\032"
-    "OPERATION_TYPE_UNSPECIFIED\020\000\022\031\n\025OPERATIO"
-    "N_TYPE_INSERT\020\001\022\031\n\025OPERATION_TYPE_UPDATE"
-    "\020\0022\314\003\n\013LinkService\022a\n\nGetServers\022(.conve"
-    "rse.service.link.GetServersRequest\032).con"
-    "verse.service.link.GetServersResponse\022m\n"
-    "\016IdentifyMyself\022,.converse.service.link."
-    "IdentifyMyselfRequest\032-.converse.service"
-    ".link.IdentifyMyselfResponse\022j\n\rClaimSer"
-    "verId\022+.converse.service.link.ClaimServe"
-    "rIdRequest\032,.converse.service.link.Claim"
-    "ServerIdResponse\022\177\n\024ReplicateTransaction"
-    "\0222.converse.service.link.ReplicateTransa"
-    "ctionRequest\0323.converse.service.link.Rep"
-    "licateTransactionResponseB\234\001\n\031com.conver"
-    "se.service.linkB\tLinkProtoP\001\242\002\003CSL\252\002\025Con"
-    "verse.Service.Link\312\002\025Converse\\Service\\Li"
-    "nk\342\002!Converse\\Service\\Link\\GPBMetadata\352\002"
-    "\027Converse::Service::Linkb\006proto3"
+    "\004host\022\022\n\004port\030\002 \001(\rR\004port\"\207\001\n\026IdentifyMy"
+    "selfResponse\022Q\n\021cluster_addresses\030\001 \003(\0132"
+    "$.converse.service.link.ServerAddressR\020c"
+    "lusterAddresses\022\032\n\010database\030\002 \001(\014R\010datab"
+    "ase\"\030\n\026GetTransactionsRequest\"\202\001\n\027GetTra"
+    "nsactionsResponse\022%\n\016transaction_id\030\001 \001("
+    "\004R\rtransactionId\022@\n\noperations\030\002 \003(\0132 .c"
+    "onverse.service.link.OperationR\noperatio"
+    "ns\"\215\003\n\tOperation\0228\n\004type\030\001 \001(\0162$.convers"
+    "e.service.link.OperationTypeR\004type\022\035\n\nta"
+    "ble_name\030\002 \001(\tR\ttableName\022N\n\nnew_values\030"
+    "\003 \003(\0132/.converse.service.link.Operation."
+    "NewValuesEntryR\tnewValues\022X\n\016old_key_val"
+    "ues\030\004 \003(\01322.converse.service.link.Operat"
+    "ion.OldKeyValuesEntryR\014oldKeyValues\032<\n\016N"
+    "ewValuesEntry\022\020\n\003key\030\001 \001(\tR\003key\022\024\n\005value"
+    "\030\002 \001(\tR\005value:\0028\001\032\?\n\021OldKeyValuesEntry\022\020"
+    "\n\003key\030\001 \001(\tR\003key\022\024\n\005value\030\002 \001(\tR\005value:\002"
+    "8\001*e\n\rOperationType\022\036\n\032OPERATION_TYPE_UN"
+    "SPECIFIED\020\000\022\031\n\025OPERATION_TYPE_INSERT\020\001\022\031"
+    "\n\025OPERATION_TYPE_UPDATE\020\0022\325\002\n\013LinkServic"
+    "e\022c\n\nGetServers\022(.converse.service.link."
+    "GetServersRequest\032).converse.service.lin"
+    "k.GetServersResponse0\001\022m\n\016IdentifyMyself"
+    "\022,.converse.service.link.IdentifyMyselfR"
+    "equest\032-.converse.service.link.IdentifyM"
+    "yselfResponse\022r\n\017GetTransactions\022-.conve"
+    "rse.service.link.GetTransactionsRequest\032"
+    "..converse.service.link.GetTransactionsR"
+    "esponse0\001B\234\001\n\031com.converse.service.linkB"
+    "\tLinkProtoP\001\242\002\003CSL\252\002\025Converse.Service.Li"
+    "nk\312\002\025Converse\\Service\\Link\342\002!Converse\\Se"
+    "rvice\\Link\\GPBMetadata\352\002\027Converse::Servi"
+    "ce::Linkb\006proto3"
 };
 static ::absl::once_flag descriptor_table_converse_2fservice_2flink_2flink_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_converse_2fservice_2flink_2flink_2eproto = {
     false,
     false,
-    1752,
+    1616,
     descriptor_table_protodef_converse_2fservice_2flink_2flink_2eproto,
     "converse/service/link/link.proto",
     &descriptor_table_converse_2fservice_2flink_2flink_2eproto_once,
     nullptr,
     0,
-    11,
+    10,
     schemas,
     file_default_instances,
     TableStruct_converse_2fservice_2flink_2flink_2eproto::offsets,
@@ -534,36 +482,26 @@ class GetServersRequest::_Internal {
 
 GetServersRequest::GetServersRequest(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, _class_data_.base()) {
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, _class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:converse.service.link.GetServersRequest)
 }
 GetServersRequest::GetServersRequest(
-    ::google::protobuf::Arena* arena, const GetServersRequest& from)
-    : GetServersRequest(arena) {
-  MergeFrom(from);
-}
-inline PROTOBUF_NDEBUG_INLINE GetServersRequest::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
-      : _cached_size_{0} {}
+    ::google::protobuf::Arena* arena,
+    const GetServersRequest& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  GetServersRequest* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
 
-inline void GetServersRequest::SharedCtor(::_pb::Arena* arena) {
-  new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.server_id_ = {};
-}
-GetServersRequest::~GetServersRequest() {
-  // @@protoc_insertion_point(destructor:converse.service.link.GetServersRequest)
-  SharedDtor(*this);
-}
-inline void GetServersRequest::SharedDtor(MessageLite& self) {
-  GetServersRequest& this_ = static_cast<GetServersRequest&>(self);
-  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
-  ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.~Impl_();
+  // @@protoc_insertion_point(copy_constructor:converse.service.link.GetServersRequest)
 }
 
 inline void* GetServersRequest::PlacementNew_(const void*, void* mem,
@@ -583,10 +521,10 @@ const ::google::protobuf::internal::ClassDataFull GetServersRequest::_class_data
         nullptr,  // OnDemandRegisterArenaDtor
         nullptr,  // IsInitialized
         &GetServersRequest::MergeImpl,
-        ::google::protobuf::Message::GetNewImpl<GetServersRequest>(),
+        ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<GetServersRequest>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
         &GetServersRequest::SharedDtor,
-        ::google::protobuf::Message::GetClearImpl<GetServersRequest>(), &GetServersRequest::ByteSizeLong,
+        ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<GetServersRequest>(), &GetServersRequest::ByteSizeLong,
             &GetServersRequest::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
         PROTOBUF_FIELD_OFFSET(GetServersRequest, _impl_._cached_size_),
@@ -602,15 +540,15 @@ const ::google::protobuf::internal::ClassData* GetServersRequest::GetClassData()
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> GetServersRequest::_table_ = {
+const ::_pbi::TcParseTable<0, 0, 0, 0, 2> GetServersRequest::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    0, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
-    offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    4294967295,  // skipmap
+    offsetof(decltype(_table_), field_names),  // no field_entries
+    0,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     _class_data_.base(),
@@ -620,118 +558,24 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> GetServersRequest::_table_ = {
     ::_pbi::TcParser::GetTable<::converse::service::link::GetServersRequest>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint64 server_id = 1 [json_name = "serverId"];
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(GetServersRequest, _impl_.server_id_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(GetServersRequest, _impl_.server_id_)}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
-  }}, {{
-    // uint64 server_id = 1 [json_name = "serverId"];
-    {PROTOBUF_FIELD_OFFSET(GetServersRequest, _impl_.server_id_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
   }},
-  // no aux_entries
+  // no field_entries, or aux_entries
   {{
   }},
 };
 
-PROTOBUF_NOINLINE void GetServersRequest::Clear() {
-// @@protoc_insertion_point(message_clear_start:converse.service.link.GetServersRequest)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  _impl_.server_id_ = ::uint64_t{0u};
-  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
-}
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* GetServersRequest::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const GetServersRequest& this_ = static_cast<const GetServersRequest&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* GetServersRequest::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const GetServersRequest& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:converse.service.link.GetServersRequest)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
-
-          // uint64 server_id = 1 [json_name = "serverId"];
-          if (this_._internal_server_id() != 0) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
-                1, this_._internal_server_id(), target);
-          }
-
-          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:converse.service.link.GetServersRequest)
-          return target;
-        }
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t GetServersRequest::ByteSizeLong(const MessageLite& base) {
-          const GetServersRequest& this_ = static_cast<const GetServersRequest&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t GetServersRequest::ByteSizeLong() const {
-          const GetServersRequest& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:converse.service.link.GetServersRequest)
-          ::size_t total_size = 0;
-
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
-
-           {
-            // uint64 server_id = 1 [json_name = "serverId"];
-            if (this_._internal_server_id() != 0) {
-              total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
-                  this_._internal_server_id());
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
-
-void GetServersRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<GetServersRequest*>(&to_msg);
-  auto& from = static_cast<const GetServersRequest&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:converse.service.link.GetServersRequest)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from._internal_server_id() != 0) {
-    _this->_impl_.server_id_ = from._impl_.server_id_;
-  }
-  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void GetServersRequest::CopyFrom(const GetServersRequest& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:converse.service.link.GetServersRequest)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
 
 
-void GetServersRequest::InternalSwap(GetServersRequest* PROTOBUF_RESTRICT other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-        swap(_impl_.server_id_, other->_impl_.server_id_);
-}
+
+
+
+
 
 ::google::protobuf::Metadata GetServersRequest::GetMetadata() const {
-  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
 
@@ -751,8 +595,7 @@ GetServersResponse::GetServersResponse(::google::protobuf::Arena* arena)
 inline PROTOBUF_NDEBUG_INLINE GetServersResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
     const Impl_& from, const ::converse::service::link::GetServersResponse& from_msg)
-      : server_ids_{visibility, arena, from.server_ids_},
-        _server_ids_cached_byte_size_{0},
+      : cluster_addresses_{visibility, arena, from.cluster_addresses_},
         _cached_size_{0} {}
 
 GetServersResponse::GetServersResponse(
@@ -774,8 +617,7 @@ GetServersResponse::GetServersResponse(
 inline PROTOBUF_NDEBUG_INLINE GetServersResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : server_ids_{visibility, arena},
-        _server_ids_cached_byte_size_{0},
+      : cluster_addresses_{visibility, arena},
         _cached_size_{0} {}
 
 inline void GetServersResponse::SharedCtor(::_pb::Arena* arena) {
@@ -798,8 +640,8 @@ inline void* GetServersResponse::PlacementNew_(const void*, void* mem,
 }
 constexpr auto GetServersResponse::InternalNewImpl_() {
   constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
-      PROTOBUF_FIELD_OFFSET(GetServersResponse, _impl_.server_ids_) +
-          decltype(GetServersResponse::_impl_.server_ids_)::
+      PROTOBUF_FIELD_OFFSET(GetServersResponse, _impl_.cluster_addresses_) +
+          decltype(GetServersResponse::_impl_.cluster_addresses_)::
               InternalGetArenaOffset(
                   ::google::protobuf::Message::internal_visibility()),
   });
@@ -840,7 +682,7 @@ const ::google::protobuf::internal::ClassData* GetServersResponse::GetClassData(
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> GetServersResponse::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 1, 0, 2> GetServersResponse::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -849,8 +691,8 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> GetServersResponse::_table_ = {
     4294967294,  // skipmap
     offsetof(decltype(_table_), field_entries),
     1,  // num_field_entries
-    0,  // num_aux_entries
-    offsetof(decltype(_table_), field_names),  // no aux_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
     _class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
@@ -858,18 +700,18 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> GetServersResponse::_table_ = {
     ::_pbi::TcParser::GetTable<::converse::service::link::GetServersResponse>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // repeated uint64 server_ids = 1 [json_name = "serverIds"];
-    {::_pbi::TcParser::FastV64P1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(GetServersResponse, _impl_.server_ids_)}},
+    // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+    {::_pbi::TcParser::FastMtR1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(GetServersResponse, _impl_.cluster_addresses_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // repeated uint64 server_ids = 1 [json_name = "serverIds"];
-    {PROTOBUF_FIELD_OFFSET(GetServersResponse, _impl_.server_ids_), 0, 0,
-    (0 | ::_fl::kFcRepeated | ::_fl::kPackedUInt64)},
-  }},
-  // no aux_entries
-  {{
+    // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+    {PROTOBUF_FIELD_OFFSET(GetServersResponse, _impl_.cluster_addresses_), 0, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::converse::service::link::ServerAddress>()},
+  }}, {{
   }},
 };
 
@@ -880,7 +722,7 @@ PROTOBUF_NOINLINE void GetServersResponse::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.server_ids_.Clear();
+  _impl_.cluster_addresses_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -899,13 +741,15 @@ PROTOBUF_NOINLINE void GetServersResponse::Clear() {
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
-          // repeated uint64 server_ids = 1 [json_name = "serverIds"];
-          {
-            int byte_size = this_._impl_._server_ids_cached_byte_size_.Get();
-            if (byte_size > 0) {
-              target = stream->WriteUInt64Packed(
-                  1, this_._internal_server_ids(), byte_size, target);
-            }
+          // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+          for (unsigned i = 0, n = static_cast<unsigned>(
+                                   this_._internal_cluster_addresses_size());
+               i < n; i++) {
+            const auto& repfield = this_._internal_cluster_addresses().Get(i);
+            target =
+                ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+                    1, repfield, repfield.GetCachedSize(),
+                    target, stream);
           }
 
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -933,12 +777,12 @@ PROTOBUF_NOINLINE void GetServersResponse::Clear() {
 
           ::_pbi::Prefetch5LinesFrom7Lines(&this_);
            {
-            // repeated uint64 server_ids = 1 [json_name = "serverIds"];
+            // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
             {
-              total_size +=
-                  ::_pbi::WireFormatLite::UInt64SizeWithPackedTagSize(
-                      this_._internal_server_ids(), 1,
-                      this_._impl_._server_ids_cached_byte_size_);
+              total_size += 1UL * this_._internal_cluster_addresses_size();
+              for (const auto& msg : this_._internal_cluster_addresses()) {
+                total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+              }
             }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -953,7 +797,8 @@ void GetServersResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, cons
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  _this->_internal_mutable_server_ids()->MergeFrom(from._internal_server_ids());
+  _this->_internal_mutable_cluster_addresses()->MergeFrom(
+      from._internal_cluster_addresses());
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -968,10 +813,267 @@ void GetServersResponse::CopyFrom(const GetServersResponse& from) {
 void GetServersResponse::InternalSwap(GetServersResponse* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  _impl_.server_ids_.InternalSwap(&other->_impl_.server_ids_);
+  _impl_.cluster_addresses_.InternalSwap(&other->_impl_.cluster_addresses_);
 }
 
 ::google::protobuf::Metadata GetServersResponse::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class ServerAddress::_Internal {
+ public:
+};
+
+ServerAddress::ServerAddress(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:converse.service.link.ServerAddress)
+}
+inline PROTOBUF_NDEBUG_INLINE ServerAddress::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from, const ::converse::service::link::ServerAddress& from_msg)
+      : host_(arena, from.host_),
+        _cached_size_{0} {}
+
+ServerAddress::ServerAddress(
+    ::google::protobuf::Arena* arena,
+    const ServerAddress& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  ServerAddress* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  _impl_.port_ = from._impl_.port_;
+
+  // @@protoc_insertion_point(copy_constructor:converse.service.link.ServerAddress)
+}
+inline PROTOBUF_NDEBUG_INLINE ServerAddress::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : host_(arena),
+        _cached_size_{0} {}
+
+inline void ServerAddress::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.port_ = {};
+}
+ServerAddress::~ServerAddress() {
+  // @@protoc_insertion_point(destructor:converse.service.link.ServerAddress)
+  SharedDtor(*this);
+}
+inline void ServerAddress::SharedDtor(MessageLite& self) {
+  ServerAddress& this_ = static_cast<ServerAddress&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.host_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* ServerAddress::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) ServerAddress(arena);
+}
+constexpr auto ServerAddress::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(ServerAddress),
+                                            alignof(ServerAddress));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull ServerAddress::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_ServerAddress_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &ServerAddress::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<ServerAddress>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &ServerAddress::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<ServerAddress>(), &ServerAddress::ByteSizeLong,
+            &ServerAddress::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(ServerAddress, _impl_._cached_size_),
+        false,
+    },
+    &ServerAddress::kDescriptorMethods,
+    &descriptor_table_converse_2fservice_2flink_2flink_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* ServerAddress::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 0, 48, 2> ServerAddress::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::converse::service::link::ServerAddress>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // uint32 port = 2 [json_name = "port"];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ServerAddress, _impl_.port_), 63>(),
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(ServerAddress, _impl_.port_)}},
+    // string host = 1 [json_name = "host"];
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(ServerAddress, _impl_.host_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string host = 1 [json_name = "host"];
+    {PROTOBUF_FIELD_OFFSET(ServerAddress, _impl_.host_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // uint32 port = 2 [json_name = "port"];
+    {PROTOBUF_FIELD_OFFSET(ServerAddress, _impl_.port_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUInt32)},
+  }},
+  // no aux_entries
+  {{
+    "\43\4\0\0\0\0\0\0"
+    "converse.service.link.ServerAddress"
+    "host"
+  }},
+};
+
+PROTOBUF_NOINLINE void ServerAddress::Clear() {
+// @@protoc_insertion_point(message_clear_start:converse.service.link.ServerAddress)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.host_.ClearToEmpty();
+  _impl_.port_ = 0u;
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* ServerAddress::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const ServerAddress& this_ = static_cast<const ServerAddress&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* ServerAddress::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const ServerAddress& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:converse.service.link.ServerAddress)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // string host = 1 [json_name = "host"];
+          if (!this_._internal_host().empty()) {
+            const std::string& _s = this_._internal_host();
+            ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "converse.service.link.ServerAddress.host");
+            target = stream->WriteStringMaybeAliased(1, _s, target);
+          }
+
+          // uint32 port = 2 [json_name = "port"];
+          if (this_._internal_port() != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+                2, this_._internal_port(), target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:converse.service.link.ServerAddress)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t ServerAddress::ByteSizeLong(const MessageLite& base) {
+          const ServerAddress& this_ = static_cast<const ServerAddress&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t ServerAddress::ByteSizeLong() const {
+          const ServerAddress& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:converse.service.link.ServerAddress)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+           {
+            // string host = 1 [json_name = "host"];
+            if (!this_._internal_host().empty()) {
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                              this_._internal_host());
+            }
+            // uint32 port = 2 [json_name = "port"];
+            if (this_._internal_port() != 0) {
+              total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+                  this_._internal_port());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void ServerAddress::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<ServerAddress*>(&to_msg);
+  auto& from = static_cast<const ServerAddress&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:converse.service.link.ServerAddress)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_host().empty()) {
+    _this->_internal_set_host(from._internal_host());
+  }
+  if (from._internal_port() != 0) {
+    _this->_impl_.port_ = from._impl_.port_;
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ServerAddress::CopyFrom(const ServerAddress& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:converse.service.link.ServerAddress)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void ServerAddress::InternalSwap(ServerAddress* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.host_, &other->_impl_.host_, arena);
+        swap(_impl_.port_, other->_impl_.port_);
+}
+
+::google::protobuf::Metadata ServerAddress::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
@@ -1246,19 +1348,38 @@ IdentifyMyselfResponse::IdentifyMyselfResponse(::google::protobuf::Arena* arena)
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:converse.service.link.IdentifyMyselfResponse)
 }
+inline PROTOBUF_NDEBUG_INLINE IdentifyMyselfResponse::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from, const ::converse::service::link::IdentifyMyselfResponse& from_msg)
+      : cluster_addresses_{visibility, arena, from.cluster_addresses_},
+        database_(arena, from.database_),
+        _cached_size_{0} {}
+
 IdentifyMyselfResponse::IdentifyMyselfResponse(
-    ::google::protobuf::Arena* arena, const IdentifyMyselfResponse& from)
-    : IdentifyMyselfResponse(arena) {
-  MergeFrom(from);
+    ::google::protobuf::Arena* arena,
+    const IdentifyMyselfResponse& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  IdentifyMyselfResponse* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+
+  // @@protoc_insertion_point(copy_constructor:converse.service.link.IdentifyMyselfResponse)
 }
 inline PROTOBUF_NDEBUG_INLINE IdentifyMyselfResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : _cached_size_{0} {}
+      : cluster_addresses_{visibility, arena},
+        database_(arena),
+        _cached_size_{0} {}
 
 inline void IdentifyMyselfResponse::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.server_id_ = {};
 }
 IdentifyMyselfResponse::~IdentifyMyselfResponse() {
   // @@protoc_insertion_point(destructor:converse.service.link.IdentifyMyselfResponse)
@@ -1268,6 +1389,7 @@ inline void IdentifyMyselfResponse::SharedDtor(MessageLite& self) {
   IdentifyMyselfResponse& this_ = static_cast<IdentifyMyselfResponse&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.database_.Destroy();
   this_._impl_.~Impl_();
 }
 
@@ -1276,8 +1398,20 @@ inline void* IdentifyMyselfResponse::PlacementNew_(const void*, void* mem,
   return ::new (mem) IdentifyMyselfResponse(arena);
 }
 constexpr auto IdentifyMyselfResponse::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(IdentifyMyselfResponse),
-                                            alignof(IdentifyMyselfResponse));
+  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
+      PROTOBUF_FIELD_OFFSET(IdentifyMyselfResponse, _impl_.cluster_addresses_) +
+          decltype(IdentifyMyselfResponse::_impl_.cluster_addresses_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+  });
+  if (arena_bits.has_value()) {
+    return ::google::protobuf::internal::MessageCreator::CopyInit(
+        sizeof(IdentifyMyselfResponse), alignof(IdentifyMyselfResponse), *arena_bits);
+  } else {
+    return ::google::protobuf::internal::MessageCreator(&IdentifyMyselfResponse::PlacementNew_,
+                                 sizeof(IdentifyMyselfResponse),
+                                 alignof(IdentifyMyselfResponse));
+  }
 }
 PROTOBUF_CONSTINIT
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
@@ -1307,17 +1441,17 @@ const ::google::protobuf::internal::ClassData* IdentifyMyselfResponse::GetClassD
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> IdentifyMyselfResponse::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 1, 0, 2> IdentifyMyselfResponse::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
-    0,  // num_aux_entries
-    offsetof(decltype(_table_), field_names),  // no aux_entries
+    2,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
     _class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
@@ -1325,18 +1459,24 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> IdentifyMyselfResponse::_table_ = {
     ::_pbi::TcParser::GetTable<::converse::service::link::IdentifyMyselfResponse>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint64 server_id = 1 [json_name = "serverId"];
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(IdentifyMyselfResponse, _impl_.server_id_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(IdentifyMyselfResponse, _impl_.server_id_)}},
+    // bytes database = 2 [json_name = "database"];
+    {::_pbi::TcParser::FastBS1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(IdentifyMyselfResponse, _impl_.database_)}},
+    // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+    {::_pbi::TcParser::FastMtR1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(IdentifyMyselfResponse, _impl_.cluster_addresses_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint64 server_id = 1 [json_name = "serverId"];
-    {PROTOBUF_FIELD_OFFSET(IdentifyMyselfResponse, _impl_.server_id_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
-  }},
-  // no aux_entries
-  {{
+    // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+    {PROTOBUF_FIELD_OFFSET(IdentifyMyselfResponse, _impl_.cluster_addresses_), 0, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+    // bytes database = 2 [json_name = "database"];
+    {PROTOBUF_FIELD_OFFSET(IdentifyMyselfResponse, _impl_.database_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kBytes | ::_fl::kRepAString)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::converse::service::link::ServerAddress>()},
+  }}, {{
   }},
 };
 
@@ -1347,7 +1487,8 @@ PROTOBUF_NOINLINE void IdentifyMyselfResponse::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.server_id_ = ::uint64_t{0u};
+  _impl_.cluster_addresses_.Clear();
+  _impl_.database_.ClearToEmpty();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -1366,11 +1507,21 @@ PROTOBUF_NOINLINE void IdentifyMyselfResponse::Clear() {
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
-          // uint64 server_id = 1 [json_name = "serverId"];
-          if (this_._internal_server_id() != 0) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
-                1, this_._internal_server_id(), target);
+          // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+          for (unsigned i = 0, n = static_cast<unsigned>(
+                                   this_._internal_cluster_addresses_size());
+               i < n; i++) {
+            const auto& repfield = this_._internal_cluster_addresses().Get(i);
+            target =
+                ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+                    1, repfield, repfield.GetCachedSize(),
+                    target, stream);
+          }
+
+          // bytes database = 2 [json_name = "database"];
+          if (!this_._internal_database().empty()) {
+            const std::string& _s = this_._internal_database();
+            target = stream->WriteBytesMaybeAliased(2, _s, target);
           }
 
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -1396,11 +1547,21 @@ PROTOBUF_NOINLINE void IdentifyMyselfResponse::Clear() {
           // Prevent compiler warnings about cached_has_bits being unused
           (void)cached_has_bits;
 
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
            {
-            // uint64 server_id = 1 [json_name = "serverId"];
-            if (this_._internal_server_id() != 0) {
-              total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
-                  this_._internal_server_id());
+            // repeated .converse.service.link.ServerAddress cluster_addresses = 1 [json_name = "clusterAddresses"];
+            {
+              total_size += 1UL * this_._internal_cluster_addresses_size();
+              for (const auto& msg : this_._internal_cluster_addresses()) {
+                total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+              }
+            }
+          }
+           {
+            // bytes database = 2 [json_name = "database"];
+            if (!this_._internal_database().empty()) {
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
+                                              this_._internal_database());
             }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -1415,8 +1576,10 @@ void IdentifyMyselfResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, 
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_server_id() != 0) {
-    _this->_impl_.server_id_ = from._impl_.server_id_;
+  _this->_internal_mutable_cluster_addresses()->MergeFrom(
+      from._internal_cluster_addresses());
+  if (!from._internal_database().empty()) {
+    _this->_internal_set_database(from._internal_database());
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1431,8 +1594,11 @@ void IdentifyMyselfResponse::CopyFrom(const IdentifyMyselfResponse& from) {
 
 void IdentifyMyselfResponse::InternalSwap(IdentifyMyselfResponse* PROTOBUF_RESTRICT other) {
   using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-        swap(_impl_.server_id_, other->_impl_.server_id_);
+  _impl_.cluster_addresses_.InternalSwap(&other->_impl_.cluster_addresses_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.database_, &other->_impl_.database_, arena);
 }
 
 ::google::protobuf::Metadata IdentifyMyselfResponse::GetMetadata() const {
@@ -1440,526 +1606,215 @@ void IdentifyMyselfResponse::InternalSwap(IdentifyMyselfResponse* PROTOBUF_RESTR
 }
 // ===================================================================
 
-class ClaimServerIdRequest::_Internal {
+class GetTransactionsRequest::_Internal {
  public:
 };
 
-ClaimServerIdRequest::ClaimServerIdRequest(::google::protobuf::Arena* arena)
+GetTransactionsRequest::GetTransactionsRequest(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, _class_data_.base()) {
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, _class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:converse.service.link.ClaimServerIdRequest)
+  // @@protoc_insertion_point(arena_constructor:converse.service.link.GetTransactionsRequest)
 }
-ClaimServerIdRequest::ClaimServerIdRequest(
-    ::google::protobuf::Arena* arena, const ClaimServerIdRequest& from)
-    : ClaimServerIdRequest(arena) {
-  MergeFrom(from);
-}
-inline PROTOBUF_NDEBUG_INLINE ClaimServerIdRequest::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
-      : _cached_size_{0} {}
+GetTransactionsRequest::GetTransactionsRequest(
+    ::google::protobuf::Arena* arena,
+    const GetTransactionsRequest& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::internal::ZeroFieldsBase(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  GetTransactionsRequest* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
 
-inline void ClaimServerIdRequest::SharedCtor(::_pb::Arena* arena) {
-  new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.server_id_ = {};
-}
-ClaimServerIdRequest::~ClaimServerIdRequest() {
-  // @@protoc_insertion_point(destructor:converse.service.link.ClaimServerIdRequest)
-  SharedDtor(*this);
-}
-inline void ClaimServerIdRequest::SharedDtor(MessageLite& self) {
-  ClaimServerIdRequest& this_ = static_cast<ClaimServerIdRequest&>(self);
-  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
-  ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.~Impl_();
+  // @@protoc_insertion_point(copy_constructor:converse.service.link.GetTransactionsRequest)
 }
 
-inline void* ClaimServerIdRequest::PlacementNew_(const void*, void* mem,
+inline void* GetTransactionsRequest::PlacementNew_(const void*, void* mem,
                                         ::google::protobuf::Arena* arena) {
-  return ::new (mem) ClaimServerIdRequest(arena);
+  return ::new (mem) GetTransactionsRequest(arena);
 }
-constexpr auto ClaimServerIdRequest::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(ClaimServerIdRequest),
-                                            alignof(ClaimServerIdRequest));
+constexpr auto GetTransactionsRequest::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(GetTransactionsRequest),
+                                            alignof(GetTransactionsRequest));
 }
 PROTOBUF_CONSTINIT
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataFull ClaimServerIdRequest::_class_data_ = {
+const ::google::protobuf::internal::ClassDataFull GetTransactionsRequest::_class_data_ = {
     ::google::protobuf::internal::ClassData{
-        &_ClaimServerIdRequest_default_instance_._instance,
+        &_GetTransactionsRequest_default_instance_._instance,
         &_table_.header,
         nullptr,  // OnDemandRegisterArenaDtor
         nullptr,  // IsInitialized
-        &ClaimServerIdRequest::MergeImpl,
-        ::google::protobuf::Message::GetNewImpl<ClaimServerIdRequest>(),
+        &GetTransactionsRequest::MergeImpl,
+        ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<GetTransactionsRequest>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        &ClaimServerIdRequest::SharedDtor,
-        ::google::protobuf::Message::GetClearImpl<ClaimServerIdRequest>(), &ClaimServerIdRequest::ByteSizeLong,
-            &ClaimServerIdRequest::_InternalSerialize,
+        &GetTransactionsRequest::SharedDtor,
+        ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<GetTransactionsRequest>(), &GetTransactionsRequest::ByteSizeLong,
+            &GetTransactionsRequest::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
-        PROTOBUF_FIELD_OFFSET(ClaimServerIdRequest, _impl_._cached_size_),
+        PROTOBUF_FIELD_OFFSET(GetTransactionsRequest, _impl_._cached_size_),
         false,
     },
-    &ClaimServerIdRequest::kDescriptorMethods,
+    &GetTransactionsRequest::kDescriptorMethods,
     &descriptor_table_converse_2fservice_2flink_2flink_2eproto,
     nullptr,  // tracker
 };
-const ::google::protobuf::internal::ClassData* ClaimServerIdRequest::GetClassData() const {
+const ::google::protobuf::internal::ClassData* GetTransactionsRequest::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> ClaimServerIdRequest::_table_ = {
+const ::_pbi::TcParseTable<0, 0, 0, 0, 2> GetTransactionsRequest::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    0, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
-    offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    4294967295,  // skipmap
+    offsetof(decltype(_table_), field_names),  // no field_entries
+    0,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     _class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::converse::service::link::ClaimServerIdRequest>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::converse::service::link::GetTransactionsRequest>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint64 server_id = 1 [json_name = "serverId"];
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(ClaimServerIdRequest, _impl_.server_id_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(ClaimServerIdRequest, _impl_.server_id_)}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
-  }}, {{
-    // uint64 server_id = 1 [json_name = "serverId"];
-    {PROTOBUF_FIELD_OFFSET(ClaimServerIdRequest, _impl_.server_id_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
   }},
-  // no aux_entries
+  // no field_entries, or aux_entries
   {{
   }},
 };
 
-PROTOBUF_NOINLINE void ClaimServerIdRequest::Clear() {
-// @@protoc_insertion_point(message_clear_start:converse.service.link.ClaimServerIdRequest)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  _impl_.server_id_ = ::uint64_t{0u};
-  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
-}
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ClaimServerIdRequest::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ClaimServerIdRequest& this_ = static_cast<const ClaimServerIdRequest&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ClaimServerIdRequest::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ClaimServerIdRequest& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:converse.service.link.ClaimServerIdRequest)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
-
-          // uint64 server_id = 1 [json_name = "serverId"];
-          if (this_._internal_server_id() != 0) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
-                1, this_._internal_server_id(), target);
-          }
-
-          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:converse.service.link.ClaimServerIdRequest)
-          return target;
-        }
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ClaimServerIdRequest::ByteSizeLong(const MessageLite& base) {
-          const ClaimServerIdRequest& this_ = static_cast<const ClaimServerIdRequest&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ClaimServerIdRequest::ByteSizeLong() const {
-          const ClaimServerIdRequest& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:converse.service.link.ClaimServerIdRequest)
-          ::size_t total_size = 0;
-
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
-
-           {
-            // uint64 server_id = 1 [json_name = "serverId"];
-            if (this_._internal_server_id() != 0) {
-              total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
-                  this_._internal_server_id());
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
-
-void ClaimServerIdRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<ClaimServerIdRequest*>(&to_msg);
-  auto& from = static_cast<const ClaimServerIdRequest&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:converse.service.link.ClaimServerIdRequest)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from._internal_server_id() != 0) {
-    _this->_impl_.server_id_ = from._impl_.server_id_;
-  }
-  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void ClaimServerIdRequest::CopyFrom(const ClaimServerIdRequest& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:converse.service.link.ClaimServerIdRequest)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
 
 
-void ClaimServerIdRequest::InternalSwap(ClaimServerIdRequest* PROTOBUF_RESTRICT other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-        swap(_impl_.server_id_, other->_impl_.server_id_);
-}
 
-::google::protobuf::Metadata ClaimServerIdRequest::GetMetadata() const {
-  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+
+
+
+
+::google::protobuf::Metadata GetTransactionsRequest::GetMetadata() const {
+  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
 
-class ClaimServerIdResponse::_Internal {
+class GetTransactionsResponse::_Internal {
  public:
 };
 
-ClaimServerIdResponse::ClaimServerIdResponse(::google::protobuf::Arena* arena)
+GetTransactionsResponse::GetTransactionsResponse(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, _class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:converse.service.link.ClaimServerIdResponse)
+  // @@protoc_insertion_point(arena_constructor:converse.service.link.GetTransactionsResponse)
 }
-ClaimServerIdResponse::ClaimServerIdResponse(
-    ::google::protobuf::Arena* arena, const ClaimServerIdResponse& from)
-    : ClaimServerIdResponse(arena) {
-  MergeFrom(from);
-}
-inline PROTOBUF_NDEBUG_INLINE ClaimServerIdResponse::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
-      : _cached_size_{0} {}
-
-inline void ClaimServerIdResponse::SharedCtor(::_pb::Arena* arena) {
-  new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.server_id_ = {};
-}
-ClaimServerIdResponse::~ClaimServerIdResponse() {
-  // @@protoc_insertion_point(destructor:converse.service.link.ClaimServerIdResponse)
-  SharedDtor(*this);
-}
-inline void ClaimServerIdResponse::SharedDtor(MessageLite& self) {
-  ClaimServerIdResponse& this_ = static_cast<ClaimServerIdResponse&>(self);
-  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
-  ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.~Impl_();
-}
-
-inline void* ClaimServerIdResponse::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
-  return ::new (mem) ClaimServerIdResponse(arena);
-}
-constexpr auto ClaimServerIdResponse::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(ClaimServerIdResponse),
-                                            alignof(ClaimServerIdResponse));
-}
-PROTOBUF_CONSTINIT
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataFull ClaimServerIdResponse::_class_data_ = {
-    ::google::protobuf::internal::ClassData{
-        &_ClaimServerIdResponse_default_instance_._instance,
-        &_table_.header,
-        nullptr,  // OnDemandRegisterArenaDtor
-        nullptr,  // IsInitialized
-        &ClaimServerIdResponse::MergeImpl,
-        ::google::protobuf::Message::GetNewImpl<ClaimServerIdResponse>(),
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        &ClaimServerIdResponse::SharedDtor,
-        ::google::protobuf::Message::GetClearImpl<ClaimServerIdResponse>(), &ClaimServerIdResponse::ByteSizeLong,
-            &ClaimServerIdResponse::_InternalSerialize,
-#endif  // PROTOBUF_CUSTOM_VTABLE
-        PROTOBUF_FIELD_OFFSET(ClaimServerIdResponse, _impl_._cached_size_),
-        false,
-    },
-    &ClaimServerIdResponse::kDescriptorMethods,
-    &descriptor_table_converse_2fservice_2flink_2flink_2eproto,
-    nullptr,  // tracker
-};
-const ::google::protobuf::internal::ClassData* ClaimServerIdResponse::GetClassData() const {
-  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
-  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
-  return _class_data_.base();
-}
-PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> ClaimServerIdResponse::_table_ = {
-  {
-    0,  // no _has_bits_
-    0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
-    offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
-    offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
-    0,  // num_aux_entries
-    offsetof(decltype(_table_), field_names),  // no aux_entries
-    _class_data_.base(),
-    nullptr,  // post_loop_handler
-    ::_pbi::TcParser::GenericFallback,  // fallback
-    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::converse::service::link::ClaimServerIdResponse>(),  // to_prefetch
-    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
-  }, {{
-    // uint64 server_id = 1 [json_name = "serverId"];
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(ClaimServerIdResponse, _impl_.server_id_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(ClaimServerIdResponse, _impl_.server_id_)}},
-  }}, {{
-    65535, 65535
-  }}, {{
-    // uint64 server_id = 1 [json_name = "serverId"];
-    {PROTOBUF_FIELD_OFFSET(ClaimServerIdResponse, _impl_.server_id_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
-  }},
-  // no aux_entries
-  {{
-  }},
-};
-
-PROTOBUF_NOINLINE void ClaimServerIdResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:converse.service.link.ClaimServerIdResponse)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  _impl_.server_id_ = ::uint64_t{0u};
-  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
-}
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ClaimServerIdResponse::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ClaimServerIdResponse& this_ = static_cast<const ClaimServerIdResponse&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ClaimServerIdResponse::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ClaimServerIdResponse& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:converse.service.link.ClaimServerIdResponse)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
-
-          // uint64 server_id = 1 [json_name = "serverId"];
-          if (this_._internal_server_id() != 0) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
-                1, this_._internal_server_id(), target);
-          }
-
-          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:converse.service.link.ClaimServerIdResponse)
-          return target;
-        }
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ClaimServerIdResponse::ByteSizeLong(const MessageLite& base) {
-          const ClaimServerIdResponse& this_ = static_cast<const ClaimServerIdResponse&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ClaimServerIdResponse::ByteSizeLong() const {
-          const ClaimServerIdResponse& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:converse.service.link.ClaimServerIdResponse)
-          ::size_t total_size = 0;
-
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
-
-           {
-            // uint64 server_id = 1 [json_name = "serverId"];
-            if (this_._internal_server_id() != 0) {
-              total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
-                  this_._internal_server_id());
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
-
-void ClaimServerIdResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<ClaimServerIdResponse*>(&to_msg);
-  auto& from = static_cast<const ClaimServerIdResponse&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:converse.service.link.ClaimServerIdResponse)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from._internal_server_id() != 0) {
-    _this->_impl_.server_id_ = from._impl_.server_id_;
-  }
-  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void ClaimServerIdResponse::CopyFrom(const ClaimServerIdResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:converse.service.link.ClaimServerIdResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-
-void ClaimServerIdResponse::InternalSwap(ClaimServerIdResponse* PROTOBUF_RESTRICT other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-        swap(_impl_.server_id_, other->_impl_.server_id_);
-}
-
-::google::protobuf::Metadata ClaimServerIdResponse::GetMetadata() const {
-  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
-}
-// ===================================================================
-
-class ReplicateTransactionRequest::_Internal {
- public:
-};
-
-ReplicateTransactionRequest::ReplicateTransactionRequest(::google::protobuf::Arena* arena)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, _class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:converse.service.link.ReplicateTransactionRequest)
-}
-inline PROTOBUF_NDEBUG_INLINE ReplicateTransactionRequest::Impl_::Impl_(
+inline PROTOBUF_NDEBUG_INLINE GetTransactionsResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::converse::service::link::ReplicateTransactionRequest& from_msg)
+    const Impl_& from, const ::converse::service::link::GetTransactionsResponse& from_msg)
       : operations_{visibility, arena, from.operations_},
         _cached_size_{0} {}
 
-ReplicateTransactionRequest::ReplicateTransactionRequest(
+GetTransactionsResponse::GetTransactionsResponse(
     ::google::protobuf::Arena* arena,
-    const ReplicateTransactionRequest& from)
+    const GetTransactionsResponse& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, _class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  ReplicateTransactionRequest* const _this = this;
+  GetTransactionsResponse* const _this = this;
   (void)_this;
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   _impl_.transaction_id_ = from._impl_.transaction_id_;
 
-  // @@protoc_insertion_point(copy_constructor:converse.service.link.ReplicateTransactionRequest)
+  // @@protoc_insertion_point(copy_constructor:converse.service.link.GetTransactionsResponse)
 }
-inline PROTOBUF_NDEBUG_INLINE ReplicateTransactionRequest::Impl_::Impl_(
+inline PROTOBUF_NDEBUG_INLINE GetTransactionsResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
       : operations_{visibility, arena},
         _cached_size_{0} {}
 
-inline void ReplicateTransactionRequest::SharedCtor(::_pb::Arena* arena) {
+inline void GetTransactionsResponse::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   _impl_.transaction_id_ = {};
 }
-ReplicateTransactionRequest::~ReplicateTransactionRequest() {
-  // @@protoc_insertion_point(destructor:converse.service.link.ReplicateTransactionRequest)
+GetTransactionsResponse::~GetTransactionsResponse() {
+  // @@protoc_insertion_point(destructor:converse.service.link.GetTransactionsResponse)
   SharedDtor(*this);
 }
-inline void ReplicateTransactionRequest::SharedDtor(MessageLite& self) {
-  ReplicateTransactionRequest& this_ = static_cast<ReplicateTransactionRequest&>(self);
+inline void GetTransactionsResponse::SharedDtor(MessageLite& self) {
+  GetTransactionsResponse& this_ = static_cast<GetTransactionsResponse&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   this_._impl_.~Impl_();
 }
 
-inline void* ReplicateTransactionRequest::PlacementNew_(const void*, void* mem,
+inline void* GetTransactionsResponse::PlacementNew_(const void*, void* mem,
                                         ::google::protobuf::Arena* arena) {
-  return ::new (mem) ReplicateTransactionRequest(arena);
+  return ::new (mem) GetTransactionsResponse(arena);
 }
-constexpr auto ReplicateTransactionRequest::InternalNewImpl_() {
+constexpr auto GetTransactionsResponse::InternalNewImpl_() {
   constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
-      PROTOBUF_FIELD_OFFSET(ReplicateTransactionRequest, _impl_.operations_) +
-          decltype(ReplicateTransactionRequest::_impl_.operations_)::
+      PROTOBUF_FIELD_OFFSET(GetTransactionsResponse, _impl_.operations_) +
+          decltype(GetTransactionsResponse::_impl_.operations_)::
               InternalGetArenaOffset(
                   ::google::protobuf::Message::internal_visibility()),
   });
   if (arena_bits.has_value()) {
     return ::google::protobuf::internal::MessageCreator::ZeroInit(
-        sizeof(ReplicateTransactionRequest), alignof(ReplicateTransactionRequest), *arena_bits);
+        sizeof(GetTransactionsResponse), alignof(GetTransactionsResponse), *arena_bits);
   } else {
-    return ::google::protobuf::internal::MessageCreator(&ReplicateTransactionRequest::PlacementNew_,
-                                 sizeof(ReplicateTransactionRequest),
-                                 alignof(ReplicateTransactionRequest));
+    return ::google::protobuf::internal::MessageCreator(&GetTransactionsResponse::PlacementNew_,
+                                 sizeof(GetTransactionsResponse),
+                                 alignof(GetTransactionsResponse));
   }
 }
 PROTOBUF_CONSTINIT
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataFull ReplicateTransactionRequest::_class_data_ = {
+const ::google::protobuf::internal::ClassDataFull GetTransactionsResponse::_class_data_ = {
     ::google::protobuf::internal::ClassData{
-        &_ReplicateTransactionRequest_default_instance_._instance,
+        &_GetTransactionsResponse_default_instance_._instance,
         &_table_.header,
         nullptr,  // OnDemandRegisterArenaDtor
         nullptr,  // IsInitialized
-        &ReplicateTransactionRequest::MergeImpl,
-        ::google::protobuf::Message::GetNewImpl<ReplicateTransactionRequest>(),
+        &GetTransactionsResponse::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<GetTransactionsResponse>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        &ReplicateTransactionRequest::SharedDtor,
-        ::google::protobuf::Message::GetClearImpl<ReplicateTransactionRequest>(), &ReplicateTransactionRequest::ByteSizeLong,
-            &ReplicateTransactionRequest::_InternalSerialize,
+        &GetTransactionsResponse::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<GetTransactionsResponse>(), &GetTransactionsResponse::ByteSizeLong,
+            &GetTransactionsResponse::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
-        PROTOBUF_FIELD_OFFSET(ReplicateTransactionRequest, _impl_._cached_size_),
+        PROTOBUF_FIELD_OFFSET(GetTransactionsResponse, _impl_._cached_size_),
         false,
     },
-    &ReplicateTransactionRequest::kDescriptorMethods,
+    &GetTransactionsResponse::kDescriptorMethods,
     &descriptor_table_converse_2fservice_2flink_2flink_2eproto,
     nullptr,  // tracker
 };
-const ::google::protobuf::internal::ClassData* ReplicateTransactionRequest::GetClassData() const {
+const ::google::protobuf::internal::ClassData* GetTransactionsResponse::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 1, 0, 2> ReplicateTransactionRequest::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 1, 0, 2> GetTransactionsResponse::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -1974,23 +1829,23 @@ const ::_pbi::TcParseTable<1, 2, 1, 0, 2> ReplicateTransactionRequest::_table_ =
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::converse::service::link::ReplicateTransactionRequest>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::converse::service::link::GetTransactionsResponse>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // repeated .converse.service.link.Operation operations = 2 [json_name = "operations"];
     {::_pbi::TcParser::FastMtR1,
-     {18, 63, 0, PROTOBUF_FIELD_OFFSET(ReplicateTransactionRequest, _impl_.operations_)}},
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(GetTransactionsResponse, _impl_.operations_)}},
     // uint64 transaction_id = 1 [json_name = "transactionId"];
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(ReplicateTransactionRequest, _impl_.transaction_id_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(ReplicateTransactionRequest, _impl_.transaction_id_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(GetTransactionsResponse, _impl_.transaction_id_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(GetTransactionsResponse, _impl_.transaction_id_)}},
   }}, {{
     65535, 65535
   }}, {{
     // uint64 transaction_id = 1 [json_name = "transactionId"];
-    {PROTOBUF_FIELD_OFFSET(ReplicateTransactionRequest, _impl_.transaction_id_), 0, 0,
+    {PROTOBUF_FIELD_OFFSET(GetTransactionsResponse, _impl_.transaction_id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
     // repeated .converse.service.link.Operation operations = 2 [json_name = "operations"];
-    {PROTOBUF_FIELD_OFFSET(ReplicateTransactionRequest, _impl_.operations_), 0, 0,
+    {PROTOBUF_FIELD_OFFSET(GetTransactionsResponse, _impl_.operations_), 0, 0,
     (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
     {::_pbi::TcParser::GetTable<::converse::service::link::Operation>()},
@@ -1998,8 +1853,8 @@ const ::_pbi::TcParseTable<1, 2, 1, 0, 2> ReplicateTransactionRequest::_table_ =
   }},
 };
 
-PROTOBUF_NOINLINE void ReplicateTransactionRequest::Clear() {
-// @@protoc_insertion_point(message_clear_start:converse.service.link.ReplicateTransactionRequest)
+PROTOBUF_NOINLINE void GetTransactionsResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:converse.service.link.GetTransactionsResponse)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -2011,17 +1866,17 @@ PROTOBUF_NOINLINE void ReplicateTransactionRequest::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ReplicateTransactionRequest::_InternalSerialize(
+        ::uint8_t* GetTransactionsResponse::_InternalSerialize(
             const MessageLite& base, ::uint8_t* target,
             ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ReplicateTransactionRequest& this_ = static_cast<const ReplicateTransactionRequest&>(base);
+          const GetTransactionsResponse& this_ = static_cast<const GetTransactionsResponse&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ReplicateTransactionRequest::_InternalSerialize(
+        ::uint8_t* GetTransactionsResponse::_InternalSerialize(
             ::uint8_t* target,
             ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ReplicateTransactionRequest& this_ = *this;
+          const GetTransactionsResponse& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:converse.service.link.ReplicateTransactionRequest)
+          // @@protoc_insertion_point(serialize_to_array_start:converse.service.link.GetTransactionsResponse)
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
@@ -2048,18 +1903,18 @@ PROTOBUF_NOINLINE void ReplicateTransactionRequest::Clear() {
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
                     this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
           }
-          // @@protoc_insertion_point(serialize_to_array_end:converse.service.link.ReplicateTransactionRequest)
+          // @@protoc_insertion_point(serialize_to_array_end:converse.service.link.GetTransactionsResponse)
           return target;
         }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ReplicateTransactionRequest::ByteSizeLong(const MessageLite& base) {
-          const ReplicateTransactionRequest& this_ = static_cast<const ReplicateTransactionRequest&>(base);
+        ::size_t GetTransactionsResponse::ByteSizeLong(const MessageLite& base) {
+          const GetTransactionsResponse& this_ = static_cast<const GetTransactionsResponse&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ReplicateTransactionRequest::ByteSizeLong() const {
-          const ReplicateTransactionRequest& this_ = *this;
+        ::size_t GetTransactionsResponse::ByteSizeLong() const {
+          const GetTransactionsResponse& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:converse.service.link.ReplicateTransactionRequest)
+          // @@protoc_insertion_point(message_byte_size_start:converse.service.link.GetTransactionsResponse)
           ::size_t total_size = 0;
 
           ::uint32_t cached_has_bits = 0;
@@ -2087,10 +1942,10 @@ PROTOBUF_NOINLINE void ReplicateTransactionRequest::Clear() {
                                                      &this_._impl_._cached_size_);
         }
 
-void ReplicateTransactionRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<ReplicateTransactionRequest*>(&to_msg);
-  auto& from = static_cast<const ReplicateTransactionRequest&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:converse.service.link.ReplicateTransactionRequest)
+void GetTransactionsResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<GetTransactionsResponse*>(&to_msg);
+  auto& from = static_cast<const GetTransactionsResponse&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:converse.service.link.GetTransactionsResponse)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -2103,278 +1958,22 @@ void ReplicateTransactionRequest::MergeImpl(::google::protobuf::MessageLite& to_
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void ReplicateTransactionRequest::CopyFrom(const ReplicateTransactionRequest& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:converse.service.link.ReplicateTransactionRequest)
+void GetTransactionsResponse::CopyFrom(const GetTransactionsResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:converse.service.link.GetTransactionsResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 
-void ReplicateTransactionRequest::InternalSwap(ReplicateTransactionRequest* PROTOBUF_RESTRICT other) {
+void GetTransactionsResponse::InternalSwap(GetTransactionsResponse* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   _impl_.operations_.InternalSwap(&other->_impl_.operations_);
         swap(_impl_.transaction_id_, other->_impl_.transaction_id_);
 }
 
-::google::protobuf::Metadata ReplicateTransactionRequest::GetMetadata() const {
-  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
-}
-// ===================================================================
-
-class ReplicateTransactionResponse::_Internal {
- public:
-};
-
-ReplicateTransactionResponse::ReplicateTransactionResponse(::google::protobuf::Arena* arena)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, _class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:converse.service.link.ReplicateTransactionResponse)
-}
-inline PROTOBUF_NDEBUG_INLINE ReplicateTransactionResponse::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::converse::service::link::ReplicateTransactionResponse& from_msg)
-      : error_message_(arena, from.error_message_),
-        _cached_size_{0} {}
-
-ReplicateTransactionResponse::ReplicateTransactionResponse(
-    ::google::protobuf::Arena* arena,
-    const ReplicateTransactionResponse& from)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, _class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  ReplicateTransactionResponse* const _this = this;
-  (void)_this;
-  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
-      from._internal_metadata_);
-  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-  _impl_.success_ = from._impl_.success_;
-
-  // @@protoc_insertion_point(copy_constructor:converse.service.link.ReplicateTransactionResponse)
-}
-inline PROTOBUF_NDEBUG_INLINE ReplicateTransactionResponse::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility,
-    ::google::protobuf::Arena* arena)
-      : error_message_(arena),
-        _cached_size_{0} {}
-
-inline void ReplicateTransactionResponse::SharedCtor(::_pb::Arena* arena) {
-  new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.success_ = {};
-}
-ReplicateTransactionResponse::~ReplicateTransactionResponse() {
-  // @@protoc_insertion_point(destructor:converse.service.link.ReplicateTransactionResponse)
-  SharedDtor(*this);
-}
-inline void ReplicateTransactionResponse::SharedDtor(MessageLite& self) {
-  ReplicateTransactionResponse& this_ = static_cast<ReplicateTransactionResponse&>(self);
-  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
-  ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.error_message_.Destroy();
-  this_._impl_.~Impl_();
-}
-
-inline void* ReplicateTransactionResponse::PlacementNew_(const void*, void* mem,
-                                        ::google::protobuf::Arena* arena) {
-  return ::new (mem) ReplicateTransactionResponse(arena);
-}
-constexpr auto ReplicateTransactionResponse::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(ReplicateTransactionResponse),
-                                            alignof(ReplicateTransactionResponse));
-}
-PROTOBUF_CONSTINIT
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataFull ReplicateTransactionResponse::_class_data_ = {
-    ::google::protobuf::internal::ClassData{
-        &_ReplicateTransactionResponse_default_instance_._instance,
-        &_table_.header,
-        nullptr,  // OnDemandRegisterArenaDtor
-        nullptr,  // IsInitialized
-        &ReplicateTransactionResponse::MergeImpl,
-        ::google::protobuf::Message::GetNewImpl<ReplicateTransactionResponse>(),
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        &ReplicateTransactionResponse::SharedDtor,
-        ::google::protobuf::Message::GetClearImpl<ReplicateTransactionResponse>(), &ReplicateTransactionResponse::ByteSizeLong,
-            &ReplicateTransactionResponse::_InternalSerialize,
-#endif  // PROTOBUF_CUSTOM_VTABLE
-        PROTOBUF_FIELD_OFFSET(ReplicateTransactionResponse, _impl_._cached_size_),
-        false,
-    },
-    &ReplicateTransactionResponse::kDescriptorMethods,
-    &descriptor_table_converse_2fservice_2flink_2flink_2eproto,
-    nullptr,  // tracker
-};
-const ::google::protobuf::internal::ClassData* ReplicateTransactionResponse::GetClassData() const {
-  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
-  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
-  return _class_data_.base();
-}
-PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 72, 2> ReplicateTransactionResponse::_table_ = {
-  {
-    0,  // no _has_bits_
-    0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
-    offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
-    offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
-    0,  // num_aux_entries
-    offsetof(decltype(_table_), field_names),  // no aux_entries
-    _class_data_.base(),
-    nullptr,  // post_loop_handler
-    ::_pbi::TcParser::GenericFallback,  // fallback
-    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::converse::service::link::ReplicateTransactionResponse>(),  // to_prefetch
-    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
-  }, {{
-    // string error_message = 2 [json_name = "errorMessage"];
-    {::_pbi::TcParser::FastUS1,
-     {18, 63, 0, PROTOBUF_FIELD_OFFSET(ReplicateTransactionResponse, _impl_.error_message_)}},
-    // bool success = 1 [json_name = "success"];
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(ReplicateTransactionResponse, _impl_.success_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(ReplicateTransactionResponse, _impl_.success_)}},
-  }}, {{
-    65535, 65535
-  }}, {{
-    // bool success = 1 [json_name = "success"];
-    {PROTOBUF_FIELD_OFFSET(ReplicateTransactionResponse, _impl_.success_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kBool)},
-    // string error_message = 2 [json_name = "errorMessage"];
-    {PROTOBUF_FIELD_OFFSET(ReplicateTransactionResponse, _impl_.error_message_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
-  }},
-  // no aux_entries
-  {{
-    "\62\0\15\0\0\0\0\0"
-    "converse.service.link.ReplicateTransactionResponse"
-    "error_message"
-  }},
-};
-
-PROTOBUF_NOINLINE void ReplicateTransactionResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:converse.service.link.ReplicateTransactionResponse)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  _impl_.error_message_.ClearToEmpty();
-  _impl_.success_ = false;
-  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
-}
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* ReplicateTransactionResponse::_InternalSerialize(
-            const MessageLite& base, ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const ReplicateTransactionResponse& this_ = static_cast<const ReplicateTransactionResponse&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* ReplicateTransactionResponse::_InternalSerialize(
-            ::uint8_t* target,
-            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const ReplicateTransactionResponse& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:converse.service.link.ReplicateTransactionResponse)
-          ::uint32_t cached_has_bits = 0;
-          (void)cached_has_bits;
-
-          // bool success = 1 [json_name = "success"];
-          if (this_._internal_success() != 0) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteBoolToArray(
-                1, this_._internal_success(), target);
-          }
-
-          // string error_message = 2 [json_name = "errorMessage"];
-          if (!this_._internal_error_message().empty()) {
-            const std::string& _s = this_._internal_error_message();
-            ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "converse.service.link.ReplicateTransactionResponse.error_message");
-            target = stream->WriteStringMaybeAliased(2, _s, target);
-          }
-
-          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-            target =
-                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
-          }
-          // @@protoc_insertion_point(serialize_to_array_end:converse.service.link.ReplicateTransactionResponse)
-          return target;
-        }
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t ReplicateTransactionResponse::ByteSizeLong(const MessageLite& base) {
-          const ReplicateTransactionResponse& this_ = static_cast<const ReplicateTransactionResponse&>(base);
-#else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t ReplicateTransactionResponse::ByteSizeLong() const {
-          const ReplicateTransactionResponse& this_ = *this;
-#endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:converse.service.link.ReplicateTransactionResponse)
-          ::size_t total_size = 0;
-
-          ::uint32_t cached_has_bits = 0;
-          // Prevent compiler warnings about cached_has_bits being unused
-          (void)cached_has_bits;
-
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
-           {
-            // string error_message = 2 [json_name = "errorMessage"];
-            if (!this_._internal_error_message().empty()) {
-              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                              this_._internal_error_message());
-            }
-            // bool success = 1 [json_name = "success"];
-            if (this_._internal_success() != 0) {
-              total_size += 2;
-            }
-          }
-          return this_.MaybeComputeUnknownFieldsSize(total_size,
-                                                     &this_._impl_._cached_size_);
-        }
-
-void ReplicateTransactionResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<ReplicateTransactionResponse*>(&to_msg);
-  auto& from = static_cast<const ReplicateTransactionResponse&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:converse.service.link.ReplicateTransactionResponse)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (!from._internal_error_message().empty()) {
-    _this->_internal_set_error_message(from._internal_error_message());
-  }
-  if (from._internal_success() != 0) {
-    _this->_impl_.success_ = from._impl_.success_;
-  }
-  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void ReplicateTransactionResponse::CopyFrom(const ReplicateTransactionResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:converse.service.link.ReplicateTransactionResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-
-void ReplicateTransactionResponse::InternalSwap(ReplicateTransactionResponse* PROTOBUF_RESTRICT other) {
-  using std::swap;
-  auto* arena = GetArena();
-  ABSL_DCHECK_EQ(arena, other->GetArena());
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.error_message_, &other->_impl_.error_message_, arena);
-        swap(_impl_.success_, other->_impl_.success_);
-}
-
-::google::protobuf::Metadata ReplicateTransactionResponse::GetMetadata() const {
+::google::protobuf::Metadata GetTransactionsResponse::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
