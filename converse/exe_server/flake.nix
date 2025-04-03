@@ -36,7 +36,6 @@
               autoconf
               autoconf-archive
               automake
-              cat
               cmake
               git
               llvmPackages_20.clang-tools
