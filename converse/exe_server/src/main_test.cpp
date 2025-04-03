@@ -95,7 +95,6 @@ BOOST_AUTO_TEST_CASE(test_signin_user) {
 }
 
 BOOST_AUTO_TEST_CASE(test_send_message) {
-    resetDatabase();
     std::cout << "Database reset for test_send_message" << std::endl;
 
     // Sign up two users.
