@@ -27,8 +27,9 @@
         {
           devShells.default = pkgs.mkShell {
             buildInputs =
+              with pkgs;
               [ ]
-              ++ pkgs.stdenv.isDarwin [
+              ++ stdenv.isDarwin [
                 apple-sdk_15
               ];
             nativebuildInputs = with pkgs; [
