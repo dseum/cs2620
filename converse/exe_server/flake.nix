@@ -12,10 +12,10 @@
     }:
     flake-utils.lib.eachSystem
       [
-        "aarch64-darwin"
         "x86_64-linux"
-        "arm64-linux"
+        "x86_64-darwin"
         "aarch64-linux"
+        "aarch64-darwin"
       ]
       (
         system:
@@ -29,13 +29,15 @@
             buildInputs =
               with pkgs;
               [ ]
-              ++ pkgs.stdenv.isDarwin [
+              ++ lib.optionals stdenv.isDarwin [
                 apple-sdk_15
               ];
             nativebuildInputs = with pkgs; [
               autoconf
               autoconf-archive
               automake
+              tr
+              cat
               cmake
               git
               llvmPackages_20.clang-tools
