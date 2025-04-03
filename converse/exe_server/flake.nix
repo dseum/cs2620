@@ -34,6 +34,7 @@
                 automake
                 cmake
                 git
+                llvmPackages_20.bintools
                 llvmPackages_20.clang-tools
                 llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx
                 ninja
