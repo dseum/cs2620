@@ -42,7 +42,8 @@ Server::Server(const std::string &name, const Address &my_address,
         linkservice_impl.cluster_writers_mutex);
 
     grpc::ServerBuilder builder;
-    builder.AddListeningPort(my_address, grpc::InsecureServerCredentials());
+    builder.AddListeningPort(std::format("0.0.0.0:{}", my_address.port),
+                             grpc::InsecureServerCredentials());
     builder.RegisterService(&healthservice_impl);
     builder.RegisterService(&linkservice_impl);
     builder.RegisterService(&mainservice_impl);
