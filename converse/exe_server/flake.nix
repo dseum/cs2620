@@ -47,6 +47,8 @@
             shellHook = ''
               export VCPKG_ROOT=${pkgs.vcpkg}/share/vcpkg
               export VCPKG_FORCE_SYSTEM_BINARIES=1
+              export CC=${pkgs.llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx}/bin/clang
+              export CXX=${pkgs.llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx}/bin/clang++
             '';
           };
         }
