@@ -14,6 +14,7 @@
       [
         "aarch64-darwin"
         "x86_64-linux"
+        "arm64-linux"
         "aarch64-linux"
       ]
       (
@@ -26,22 +27,23 @@
         {
           devShells.default = pkgs.mkShell {
             buildInputs =
-              with pkgs;
-              [
-                (if pkgs.stdenv.isDarwin then apple-sdk_15 else null)
-              ]
-              ++ (with pkgs; [
-                autoconf
-                autoconf-archive
-                automake
-                cmake
-                git
-                llvmPackages_20.clang-tools
-                llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx
-                ninja
-                pkg-config
-                vcpkg
-              ]);
+              [ ]
+              ++ pkgs.stdenv.isDarwin [
+                apple-sdk_15
+              ];
+            nativebuildInputs = with pkgs; [
+              autoconf
+              autoconf-archive
+              automake
+              cmake
+              git
+              llvmPackages_20.clang-tools
+              llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx
+              ninja
+              perl
+              pkg-config
+              vcpkg
+            ];
 
             shellHook = ''
               export VCPKG_ROOT=${pkgs.vcpkg}/share/vcpkg
