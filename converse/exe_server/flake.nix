@@ -34,9 +34,8 @@
                 automake
                 cmake
                 git
-                llvmPackages_20.bintools
                 llvmPackages_20.clang-tools
-                llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx
+                llvmPackages_20.clang
                 ninja
                 perl
                 pkg-config
@@ -48,9 +47,8 @@
             shellHook = ''
               export VCPKG_ROOT=${pkgs.vcpkg}/share/vcpkg
               export VCPKG_FORCE_SYSTEM_BINARIES=1
-              export CC=${pkgs.llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx}/bin/clang
-              export CXX=${pkgs.llvmPackages_20.clangWithLibcAndBasicRtAndLibcxx}/bin/clang++
-              export PATH=${pkgs.llvmPackages_20.bintools}/bin:$PATH
+              export CC=${pkgs.llvmPackages_20.clang}/bin/clang
+              export CXX=${pkgs.llvmPackages_20.clang}/bin/clang++
             '';
           };
         }
