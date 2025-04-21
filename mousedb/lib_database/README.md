@@ -43,7 +43,7 @@ To start, run:
 
 ```sh
 docker compose up --build -d
-docker compose attach exe_server
+docker compose attach lib_database
 ```
 
 This will attach you into a shell with the correct environment.
