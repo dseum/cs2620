@@ -1,0 +1,16 @@
+name: mousedb
+services:
+  exe_server:
+    build: .
+    environment:
+      - TERM=${TERM}
+    ports:
+      - 4321:4321
+    stdin_open: true
+    tty: true
+    volumes:
+      - type: tmpfs
+        target: /code/build
+      - type: bind
+        source: .
+        target: /code/exe_server
