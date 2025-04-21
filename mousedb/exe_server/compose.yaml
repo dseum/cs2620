@@ -2,8 +2,6 @@ name: mousedb
 services:
   exe_server:
     build: .
-    environment:
-      - TERM=${TERM}
     ports:
       - 4321:4321
     stdin_open: true
