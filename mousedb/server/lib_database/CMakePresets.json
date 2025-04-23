@@ -12,7 +12,9 @@
       "generator": "Ninja",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_MAKE_PROGRAM": "ninja",
+        "VCPKG_INSTALL_OPTIONS": "--no-print-usage"
       }
     },
     {
@@ -21,7 +23,9 @@
       "generator": "Ninja",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_MAKE_PROGRAM": "ninja",
+        "VCPKG_INSTALL_OPTIONS": "--no-print-usage"
       }
     }
   ],
@@ -35,9 +39,19 @@
       "configurePreset": "release"
     }
   ],
-  "workflowPresets": [
+  "testPresets": [
     {
       "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "build-debug",
       "steps": [
         {
           "type": "configure",
@@ -50,7 +64,7 @@
       ]
     },
     {
-      "name": "release",
+      "name": "build-release",
       "steps": [
         {
           "type": "configure",
@@ -58,6 +72,40 @@
         },
         {
           "type": "build",
+          "name": "release"
+        }
+      ]
+    },
+    {
+      "name": "test-debug",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "release"
+        },
+        {
+          "type": "build",
+          "name": "release"
+        },
+        {
+          "type": "test",
+          "name": "release"
+        }
+      ]
+    },
+    {
+      "name": "test-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "release"
+        },
+        {
+          "type": "build",
+          "name": "release"
+        },
+        {
+          "type": "test",
           "name": "release"
         }
       ]

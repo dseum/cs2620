@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.31)
 
 project(lib_database LANGUAGES CXX)
 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  message(
-    FATAL_ERROR "Linux is required. ${CMAKE_SYSTEM_NAME} is not supported.")
-endif()
-
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   message(FATAL_ERROR "Clang is required.")
 endif()
@@ -26,9 +21,32 @@ find_package(benchmark CONFIG REQUIRED)
 
 enable_testing()
 
+include(GNUInstallDirs)
+
 set(LIB_DATABASE_SRC src/arena.cpp src/memtable.cpp)
-add_library(lib_database ${LIB_DATABASE_SRC})
-target_include_directories(lib_database PRIVATE src)
+add_library(lib_database STATIC ${LIB_DATABASE_SRC})
+set_target_properties(lib_database PROPERTIES EXPORT_NAME database OUTPUT_NAME
+                                                                   database)
+target_include_directories(
+  lib_database
+  PRIVATE src
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include"
+         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+
+install(
+  TARGETS lib_database
+  EXPORT mousedbTargets
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  INCLUDES
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(DIRECTORY include/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(
+  EXPORT mousedbTargets
+  FILE mousedbTargets.cmake
+  NAMESPACE mousedb::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/mousedb")
 
 file(GLOB_RECURSE LIB_DATABASE_TEST_SRC CONFIGURE_DEPENDS *.test.cpp)
 if(LIB_DATABASE_TEST_SRC)

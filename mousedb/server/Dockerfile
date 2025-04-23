@@ -8,6 +8,4 @@ COPY flake.nix flake.lock ./
 
 RUN nix develop --command true
 
-COPY . . 
-
 ENTRYPOINT ["nix", "develop"]

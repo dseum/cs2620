@@ -23,34 +23,9 @@ int main() {
 }
 ```
 
-## Usage
-
-macOS and Windows are not supported.
-
-### Linux
-
-Using Nix is the only supported method.
-
-```sh
-nix build
-```
-
-## Development
-
-Using Docker is the only supported method.
-
-To start, run:
-
-```sh
-docker compose up --build -d
-docker compose attach lib_database
-```
-
-This will attach you into a shell with the correct environment.
+### Development
 
 - To build, run `cmake --workflow build-<target>`
 - To build and test, run `cmake --workflow test-<target>`
 - To test, run `ctest --preset <target>`
 - To bench, build and run `build/exe/bench`
-
-To stop, run `docker compose down`. This leaves volumes that are used for caching.
