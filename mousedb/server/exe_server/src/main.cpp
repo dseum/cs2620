@@ -25,11 +25,12 @@ int main(int argc, char **argv) {
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     try {
-        po::notify(vm);
+        po::notify(vm);  // <-- ensure options are valid first
     } catch (std::exception const &e) {
-        std::cerr << e.what() << "\n\n" << desc << "\n";
+        std::cerr << e.what() << "\n\n" << desc << '\n';
         return 1;
     }
+    std::cout << "starting node on " << host << ':' << port << std::endl;
 
     std::optional<Address> join_addr;
     if (vm.count("join")) {
@@ -51,7 +52,5 @@ int main(int argc, char **argv) {
     workers.reserve(n ? n - 1 : 1);
     for (unsigned i = 1; i < n; ++i) workers.emplace_back([&] { io.run(); });
     io.run();
-
     for (auto &t : workers) t.join();
-    return 0;
 }

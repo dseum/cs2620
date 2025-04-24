@@ -1,11 +1,18 @@
 #include "server.hpp"
 
+#include <chrono>
 #include <iostream>
-#include <thread>
 
 namespace asio = boost::asio;
 namespace endian = boost::endian;
 using tcp = asio::ip::tcp;
+
+inline void log(std::string const &msg) {
+    std::cout << '['
+              << std::chrono::system_clock::to_time_t(
+                     std::chrono::system_clock::now())
+              << "] " << msg << std::endl;
+}
 
 std::vector<asio::const_buffer> Message::to_buffers() const {
     static uint16_t reserved = 0;
@@ -13,19 +20,23 @@ std::vector<asio::const_buffer> Message::to_buffers() const {
         static_cast<uint32_t>(payload.size() + 4));
     uint16_t typ_be =
         endian::native_to_big<uint16_t>(static_cast<uint16_t>(type));
-    return {asio::buffer(&len_be, 4), asio::buffer(&typ_be, 2),
-            asio::buffer(&reserved, 2), asio::buffer(payload)};
+
+    std::memcpy(hdr_.data(), &len_be, 4);
+    std::memcpy(hdr_.data() + 4, &typ_be, 2);
+    std::memcpy(hdr_.data() + 6, &reserved, 2);
+
+    return {asio::buffer(hdr_), asio::buffer(payload)};
 }
 
 Session::Session(tcp::socket sock, ConnectionManager &m, bool outbound)
     : socket_(std::move(sock)),
       mgr_(m),
-      strand_(socket_.get_executor()),
+      strand_(asio::make_strand(socket_.get_executor())),
       outbound_(outbound) {
 }
 
 void Session::start() {
-    if (outbound_) { /* send IDENTIFY once TCP is up */
+    if (outbound_) {
         Message id;
         id.type = FrameType::IDENTIFY;
 
@@ -52,7 +63,6 @@ void Session::start() {
         send(std::move(id));
     }
 
-    // starts read loop
     asio::async_read(
         socket_, asio::buffer(hdr_len_),
         asio::bind_executor(
@@ -86,10 +96,7 @@ void Session::do_write() {
             }));
 }
 
-/* very small header‑parser / dispatcher (identical to earlier version) */
-void Session::process_message(
-    Message &&dummy) { /* dummy only to enter strand */
-    /* read header length already in hdr_len_ */
+void Session::process_message(Message &&) {
     uint32_t len = endian::big_to_native<uint32_t>(
         *reinterpret_cast<uint32_t *>(hdr_len_.data()));
     if (len < 4 || len > (1 << 20)) {
@@ -97,54 +104,55 @@ void Session::process_message(
         return;
     }
 
-    /* read type+flags then body */
     asio::async_read(
-        socket_, asio::buffer(hdr_type_),
-        asio::bind_executor(
-            strand_, [self = shared_from_this(), len](
-                         boost::system::error_code ec, std::size_t) {
-                if (ec) {
-                    self->mgr_.forget(self.get());
-                    return;
-                }
-                uint16_t typ = endian::big_to_native<uint16_t>(
-                    *reinterpret_cast<uint16_t *>(self->hdr_type_.data()));
-                self->body_.resize(len - 4);
-                asio::async_read(
-                    self->socket_, asio::buffer(self->body_),
-                    asio::bind_executor(
-                        self->strand_,
-                        [self, typ](boost::system::error_code ec, std::size_t) {
-                            if (ec) {
-                                self->mgr_.forget(self.get());
-                                return;
-                            }
-                            Message m;
-                            m.type = static_cast<FrameType>(typ);
-                            m.payload.swap(self->body_);
+        socket_, asio::buffer(hdr_hdr_),
+        asio::bind_executor(strand_, [self = shared_from_this(), len](
+                                         boost::system::error_code ec,
+                                         std::size_t) {
+            if (ec) {
+                self->mgr_.forget(self.get());
+                return;
+            }
 
-                            /* ===== handle the frame ===== */
-                            if (m.type == FrameType::IDENTIFY) {
-                                std::cout << "IDENTIFY received ("
-                                          << m.payload.size() << " bytes)\n";
-                            } else if (m.type == FrameType::WAL_APPEND) {
-                                std::cout << "WAL_APPEND received ("
-                                          << m.payload.size() << " bytes)\n";
-                            }
-                            /* loop */
-                            asio::async_read(
-                                self->socket_, asio::buffer(self->hdr_len_),
-                                asio::bind_executor(
-                                    self->strand_,
-                                    [self](boost::system::error_code ec,
-                                           std::size_t) {
-                                        if (!ec)
-                                            self->process_message({});
-                                        else
-                                            self->mgr_.forget(self.get());
-                                    }));
-                        }));
-            }));
+            uint16_t typ = endian::big_to_native<uint16_t>(
+                *reinterpret_cast<uint16_t *>(self->hdr_hdr_.data()));
+            self->body_.resize(len - 4);
+            asio::async_read(
+                self->socket_, asio::buffer(self->body_),
+                asio::bind_executor(
+                    self->strand_,
+                    [self, typ](boost::system::error_code ec, std::size_t) {
+                        if (ec) {
+                            self->mgr_.forget(self.get());
+                            return;
+                        }
+
+                        Message m;
+                        m.type = static_cast<FrameType>(typ);
+                        m.payload.swap(self->body_);
+
+                        log("frame type " +
+                            std::to_string(static_cast<int>(m.type)) + " (" +
+                            std::to_string(m.payload.size()) + " B)");
+
+                        if (m.type == FrameType::IDENTIFY)
+                            log("IDENTIFY received");
+                        else if (m.type == FrameType::WAL_APPEND)
+                            log("WAL_APPEND received");
+
+                        asio::async_read(
+                            self->socket_, asio::buffer(self->hdr_len_),
+                            asio::bind_executor(
+                                self->strand_,
+                                [self](boost::system::error_code ec,
+                                       std::size_t) {
+                                    if (!ec)
+                                        self->process_message({});
+                                    else
+                                        self->mgr_.forget(self.get());
+                                }));
+                    }));
+        }));
 }
 
 ConnectionManager::ConnectionManager(asio::io_context &io, Address self,
@@ -153,7 +161,8 @@ ConnectionManager::ConnectionManager(asio::io_context &io, Address self,
       acceptor_(io, tcp::endpoint(tcp::v4(), self.port)),
       self_(std::move(self)),
       join_(std::move(join)),
-      hb_timer_(io) {
+      hb_timer_(io),
+      resolver_(asio::make_strand(io)) {
 }
 
 void ConnectionManager::run() {
@@ -165,6 +174,8 @@ void ConnectionManager::run() {
 void ConnectionManager::do_accept() {
     acceptor_.async_accept([this](boost::system::error_code ec, tcp::socket s) {
         if (!ec) {
+            log("ACCEPT from " + s.remote_endpoint().address().to_string() +
+                ':' + std::to_string(s.remote_endpoint().port()));
             auto sess = std::make_shared<Session>(std::move(s), *this, false);
             {
                 std::lock_guard lk(mtx_);
@@ -177,16 +188,27 @@ void ConnectionManager::do_accept() {
 }
 
 void ConnectionManager::connect_to(Address const &a) {
-    tcp::resolver res(io_);
-    res.async_resolve(
+    resolver_.async_resolve(
         a.host, std::to_string(a.port),
-        [this](boost::system::error_code ec, tcp::resolver::results_type r) {
-            if (ec) return;
+        [this, a](boost::system::error_code ec, tcp::resolver::results_type r) {
+            if (ec) {
+                log("resolve " + a.host + " failed: " + ec.message());
+                return;
+            }
+
+            log("resolved " + a.host + ':' + std::to_string(a.port));
             auto sock = std::make_shared<tcp::socket>(io_);
             asio::async_connect(
                 *sock, r,
-                [this, sock](boost::system::error_code ec, tcp::endpoint) {
-                    if (ec) return;
+                [this, sock, a](boost::system::error_code ec, tcp::endpoint) {
+                    if (ec) {
+                        log("connect to " + a.host +
+                            " failed: " + ec.message());
+                        return;
+                    }
+
+                    log("CONNECTED to " + a.host + ':' +
+                        std::to_string(a.port));
                     auto sess = std::make_shared<Session>(std::move(*sock),
                                                           *this, true);
                     {
@@ -211,6 +233,7 @@ void ConnectionManager::forget(Session *s) {
 void ConnectionManager::schedule_hb() {
     hb_timer_.expires_after(std::chrono::seconds(2));
     hb_timer_.async_wait([this](boost::system::error_code) {
+        log("heartbeat → " + std::to_string(sessions_.size()) + " peer(s)");
         Message hb;
         hb.type = FrameType::HEARTBEAT;
         send_all(hb);
