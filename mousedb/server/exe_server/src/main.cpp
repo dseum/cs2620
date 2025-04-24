@@ -1,23 +1,33 @@
+#include <boost/asio.hpp>
+#include <boost/program_options.hpp>
+#include <iostream>
+#include <optional>
+#include <string>
+#include <thread>
+#include <vector>
+
 #include "server.hpp"
 
+namespace po = boost::program_options;
+namespace asio = boost::asio;
+
 int main(int argc, char **argv) {
-    boost::program_options::options_description desc("options");
+    po::options_description desc("options");
     std::string host = "0.0.0.0", join;
     int port;
-    desc.add_options()("port",
-                       boost::program_options::value<int>(&port)->required(),
+
+    desc.add_options()("port", po::value<int>(&port)->required(),
                        "listen port")(
-        "host",
-        boost::program_options::value<std::string>(&host)->default_value(host),
-        "bind address")("join",
-                        boost::program_options::value<std::string>(&join),
+        "host", po::value<std::string>(&host)->default_value(host),
+        "bind address")("join", po::value<std::string>(&join),
                         "leader host:port");
-    boost::program_options::variables_map vm;
-    store(parse_command_line(argc, argv, desc), vm);
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
     try {
-        notify(vm);
+        po::notify(vm);
     } catch (std::exception const &e) {
-        std::cerr << e.what() << "\n" << desc;
+        std::cerr << e.what() << "\n\n" << desc << "\n";
         return 1;
     }
 
@@ -32,11 +42,16 @@ int main(int argc, char **argv) {
     }
 
     asio::io_context io;
-    ConnectionManager cm(io, {host, port}, join_addr);
+    Address self{host, port};
+    ConnectionManager cm(io, self, join_addr);
     cm.run();
 
-    std::vector<std::jthread> workers;
-    for (unsigned i = 1; i < std::thread::hardware_concurrency(); ++i)
-        workers.emplace_back([&] { io.run(); });
+    auto n = std::thread::hardware_concurrency();
+    std::vector<std::thread> workers;
+    workers.reserve(n ? n - 1 : 1);
+    for (unsigned i = 1; i < n; ++i) workers.emplace_back([&] { io.run(); });
     io.run();
+
+    for (auto &t : workers) t.join();
+    return 0;
 }

@@ -5,6 +5,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/endian/conversion.hpp>
+#include <boost/program_options.hpp>
 #include <deque>
 #include <mutex>
 #include <optional>
@@ -56,10 +57,11 @@ class Session : public std::enable_shared_from_this<Session> {
    private:
     void do_read_header();
     void process_message(Message &&);
+    void do_write();
 
     boost::asio::ip::tcp::socket socket_;
     ConnectionManager &mgr_;
-    boost::asio::strand<boost::asio::io_context::executor_type> strand_;
+    boost::asio::strand<boost::asio::any_io_executor> strand_;
 
     std::array<uint8_t, 4> hdr_len_{};
     std::array<uint8_t, 4> hdr_type_{};
