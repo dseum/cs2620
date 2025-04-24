@@ -7,8 +7,8 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./exe_server:/code/exe_server
-      - ./lib_database:/code/lib_database
+      - ./exe_server:/code/exe_server:delegated
+      - ./lib_database:/code/lib_database:delegated
       - root:/root
 
 volumes:
