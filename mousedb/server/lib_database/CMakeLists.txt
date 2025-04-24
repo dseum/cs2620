@@ -30,8 +30,8 @@ set_target_properties(lib_database PROPERTIES EXPORT_NAME database OUTPUT_NAME
 target_include_directories(
   lib_database
   PRIVATE src
-  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include"
-         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+         "$<INSTALL_INTERFACE:include>")
 
 install(
   TARGETS lib_database
@@ -47,6 +47,18 @@ install(
   FILE mousedbTargets.cmake
   NAMESPACE mousedb::
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/mousedb")
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/mousedbConfigVersion.cmake"
+  VERSION 1.0.0
+  COMPATIBILITY SameMajorVersion)
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/mousedbConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/mousedbConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/mousedb")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/mousedbConfig.cmake"
+              "${CMAKE_CURRENT_BINARY_DIR}/mousedbConfigVersion.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/mousedb")
 
 file(GLOB_RECURSE LIB_DATABASE_TEST_SRC CONFIGURE_DEPENDS *.test.cpp)
 if(LIB_DATABASE_TEST_SRC)

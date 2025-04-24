@@ -5,6 +5,14 @@
       "version>=": "1.87.0#1"
     },
     {
+      "name": "boost-endian",
+      "version>=": "1.87.0#0"
+    },
+    {
+      "name": "boost-program-options",
+      "version>=": "1.87.0#0"
+    },
+    {
       "name": "gtest",
       "version>=": "1.16.0#1"
     }
