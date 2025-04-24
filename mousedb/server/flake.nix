@@ -14,6 +14,7 @@
         pkgs.llvmPackages_20.clang
         pkgs.ninja
         pkgs.pkg-config-unwrapped
+        pkgs.unixtools.netstat
         pkgs.vcpkg
       ];
       env = pkgs: {
