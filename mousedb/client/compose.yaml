@@ -1,0 +1,14 @@
+name: mousedb-client
+services:
+  shell:
+    build: .
+    environment:
+      - TERM
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/code
+      - root:/root
+
+volumes:
+  root:
