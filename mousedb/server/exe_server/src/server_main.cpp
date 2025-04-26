@@ -1,10 +1,8 @@
+#include <quill/LogMacros.h>
+
 #include <boost/asio.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
-#include <optional>
-#include <string>
-#include <thread>
-#include <vector>
 
 #include "server.hpp"
 
@@ -12,10 +10,10 @@ namespace po = boost::program_options;
 namespace asio = boost::asio;
 
 int main(int argc, char **argv) {
-    po::options_description desc("options");
     std::string host = "0.0.0.0", join;
     int port;
 
+    po::options_description desc("server options");
     desc.add_options()("port", po::value<int>(&port)->required(),
                        "listen port")(
         "host", po::value<std::string>(&host)->default_value(host),
@@ -23,14 +21,13 @@ int main(int argc, char **argv) {
                         "leader host:port");
 
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
     try {
-        po::notify(vm);  // <-- ensure options are valid first
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+        po::notify(vm);
     } catch (std::exception const &e) {
         std::cerr << e.what() << "\n\n" << desc << '\n';
         return 1;
     }
-    std::cout << "starting node on " << host << ':' << port << std::endl;
 
     std::optional<Address> join_addr;
     if (vm.count("join")) {
@@ -45,6 +42,8 @@ int main(int argc, char **argv) {
     asio::io_context io;
     Address self{host, port};
     ConnectionManager cm(io, self, join_addr);
+
+    LOG_INFO(get_logger(), "starting node {}:{}", host, port);
     cm.run();
 
     auto n = std::thread::hardware_concurrency();

@@ -1,31 +1,22 @@
 #include "server.hpp"
 
-#include <chrono>
-#include <cstring>
-#include <iostream>
+#include <quill/LogMacros.h>
 
 namespace asio = boost::asio;
 namespace endian = boost::endian;
 using tcp = asio::ip::tcp;
 
-static void log(std::string const &s) {
-    std::cout << '['
-              << std::chrono::system_clock::to_time_t(
-                     std::chrono::system_clock::now())
-              << "] " << s << '\n';
-}
-
 std::vector<asio::const_buffer> Message::to_buffers() {
-    static uint16_t reserved = 0;
+    static uint16_t rsvd = 0;
 
     uint32_t len_be = endian::native_to_big<uint32_t>(
         static_cast<uint32_t>(payload.size() + 4));
     uint16_t typ_be =
         endian::native_to_big<uint16_t>(static_cast<uint16_t>(type));
 
-    std::memcpy(hdr_.data(), &len_be, sizeof(len_be));
-    std::memcpy(hdr_.data() + 4, &typ_be, sizeof(typ_be));
-    std::memcpy(hdr_.data() + 6, &reserved, sizeof(reserved));
+    std::memcpy(hdr_.data(), &len_be, 4);
+    std::memcpy(hdr_.data() + 4, &typ_be, 2);
+    std::memcpy(hdr_.data() + 6, &rsvd, 2);
 
     return {asio::buffer(hdr_), asio::buffer(payload)};
 }
@@ -34,7 +25,7 @@ Session::Session(tcp::socket sock, ConnectionManager &mgr, Address self_addr,
                  bool outbound)
     : socket_(std::move(sock)),
       mgr_(mgr),
-      strand_(asio::make_strand(socket_.get_executor())),
+      strand_(socket_.get_executor()),
       outbound_(outbound),
       self_addr_(std::move(self_addr)),
       remote_{"", 0} {
@@ -44,24 +35,17 @@ void Session::start() {
     if (outbound_) {
         Message id;
         id.type = FrameType::IDENTIFY;
-
-        uint16_t hlen_be =
-            endian::native_to_big<uint16_t>(self_addr_.host.size());
-        uint16_t port_be = endian::native_to_big<uint16_t>(self_addr_.port);
-
+        uint16_t h_be = endian::native_to_big<uint16_t>(self_addr_.host.size());
+        uint16_t p_be = endian::native_to_big<uint16_t>(self_addr_.port);
         id.payload.reserve(2 + self_addr_.host.size() + 2);
-        id.payload.insert(id.payload.end(),
-                          reinterpret_cast<uint8_t *>(&hlen_be),
-                          reinterpret_cast<uint8_t *>(&hlen_be) + 2);
+        id.payload.insert(id.payload.end(), reinterpret_cast<uint8_t *>(&h_be),
+                          reinterpret_cast<uint8_t *>(&h_be) + 2);
         id.payload.insert(id.payload.end(), self_addr_.host.begin(),
                           self_addr_.host.end());
-        id.payload.insert(id.payload.end(),
-                          reinterpret_cast<uint8_t *>(&port_be),
-                          reinterpret_cast<uint8_t *>(&port_be) + 2);
-
+        id.payload.insert(id.payload.end(), reinterpret_cast<uint8_t *>(&p_be),
+                          reinterpret_cast<uint8_t *>(&p_be) + 2);
         send(std::move(id));
     }
-
     asio::async_read(socket_, asio::buffer(hdr_len_),
                      asio::bind_executor(strand_, [self = shared_from_this()](
                                                       auto ec, std::size_t) {
@@ -100,7 +84,7 @@ void Session::process_message(Message &&) {
     }
 
     asio::async_read(
-        socket_, asio::buffer(hdr_hdr_),
+        socket_, asio::buffer(hdr_typ_),
         asio::bind_executor(strand_, [self = shared_from_this(), len](
                                          auto ec, std::size_t) {
             if (ec) {
@@ -109,13 +93,12 @@ void Session::process_message(Message &&) {
             }
 
             uint16_t typ_be =
-                *reinterpret_cast<uint16_t *>(self->hdr_hdr_.data());
+                *reinterpret_cast<uint16_t *>(self->hdr_typ_.data());
             FrameType typ =
                 static_cast<FrameType>(endian::big_to_native<uint16_t>(typ_be));
 
-            // NEW: read and discard the 2-byte reserved field
             asio::async_read(
-                self->socket_, asio::buffer(self->hdr_reserved_),
+                self->socket_, asio::buffer(self->hdr_rsv_),
                 asio::bind_executor(self->strand_, [self, typ, len](
                                                        auto ec2, std::size_t) {
                     if (ec2) {
@@ -134,33 +117,111 @@ void Session::process_message(Message &&) {
                                 return;
                             }
 
-                            if (typ == FrameType::IDENTIFY) {
-                                const uint8_t *p = self->body_.data();
-                                uint16_t hlen = endian::big_to_native<uint16_t>(
-                                    *reinterpret_cast<const uint16_t *>(p));
-                                p += 2;
-                                std::string host(
-                                    reinterpret_cast<const char *>(p), hlen);
-                                p += hlen;
-                                uint16_t port = endian::big_to_native<uint16_t>(
-                                    *reinterpret_cast<const uint16_t *>(p));
+                            const uint8_t *p = self->body_.data();
 
-                                Address listen{std::move(host),
-                                               static_cast<int>(port)};
-                                self->set_remote(listen);
-                                self->mgr_.on_identify(self.get(), listen);
-                            } else if (typ == FrameType::PEER) {
-                                const uint8_t *p = self->body_.data();
-                                uint16_t hlen = endian::big_to_native<uint16_t>(
-                                    *reinterpret_cast<const uint16_t *>(p));
-                                p += 2;
-                                std::string host(
-                                    reinterpret_cast<const char *>(p), hlen);
-                                p += hlen;
-                                uint16_t port = endian::big_to_native<uint16_t>(
-                                    *reinterpret_cast<const uint16_t *>(p));
+                            switch (typ) {
+                                case FrameType::IDENTIFY: {
+                                    uint16_t hlen =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    p += 2;
+                                    std::string host(
+                                        reinterpret_cast<const char *>(p),
+                                        hlen);
+                                    p += hlen;
+                                    uint16_t port =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    self->set_remote(
+                                        {host, static_cast<int>(port)});
+                                    self->mgr_.on_identify(
+                                        self.get(),
+                                        {host, static_cast<int>(port)});
+                                    break;
+                                }
+                                case FrameType::PEER: {
+                                    uint16_t hlen =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    p += 2;
+                                    std::string host(
+                                        reinterpret_cast<const char *>(p),
+                                        hlen);
+                                    p += hlen;
+                                    uint16_t port =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    self->mgr_.connect_to(
+                                        {host, static_cast<int>(port)});
+                                    break;
+                                }
+                                case FrameType::WRITE_REQ: {
+                                    uint16_t klen =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    p += 2;
+                                    std::string key(
+                                        reinterpret_cast<const char *>(p),
+                                        klen);
+                                    p += klen;
+                                    uint32_t vlen =
+                                        endian::big_to_native<uint32_t>(
+                                            *reinterpret_cast<const uint32_t *>(
+                                                p));
+                                    p += 4;
+                                    std::string val(
+                                        reinterpret_cast<const char *>(p),
+                                        vlen);
+                                    self->mgr_.kv_put(key, val);
 
-                                self->mgr_.connect_to(Address{host, port});
+                                    Message r;
+                                    r.type = FrameType::WRITE_RESP;
+                                    r.payload = {0};
+                                    self->send(std::move(r));
+                                    break;
+                                }
+                                case FrameType::READ_REQ: {
+                                    uint16_t klen =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    p += 2;
+                                    std::string key(
+                                        reinterpret_cast<const char *>(p),
+                                        klen);
+
+                                    auto val = self->mgr_.kv_get(key);
+                                    Message r;
+                                    r.type = FrameType::READ_RESP;
+                                    if (val) {
+                                        r.payload.reserve(1 + 4 + val->size());
+                                        r.payload.push_back(0);
+                                        uint32_t vlen_be =
+                                            endian::native_to_big<uint32_t>(
+                                                val->size());
+                                        r.payload.insert(
+                                            r.payload.end(),
+                                            reinterpret_cast<uint8_t *>(
+                                                &vlen_be),
+                                            reinterpret_cast<uint8_t *>(
+                                                &vlen_be) +
+                                                4);
+                                        r.payload.insert(r.payload.end(),
+                                                         val->begin(),
+                                                         val->end());
+                                    } else {
+                                        r.payload = {1};
+                                    }
+                                    self->send(std::move(r));
+                                    break;
+                                }
+                                default:
+                                    break;
                             }
 
                             asio::async_read(
@@ -178,6 +239,7 @@ void Session::process_message(Message &&) {
         }));
 }
 
+/* ---------- ConnectionManager -------------------------------------- */
 ConnectionManager::ConnectionManager(asio::io_context &io, Address self,
                                      std::optional<Address> join)
     : io_(io),
@@ -197,14 +259,14 @@ void ConnectionManager::run() {
 void ConnectionManager::do_accept() {
     acceptor_.async_accept([this](auto ec, tcp::socket s) {
         if (!ec) {
-            auto sess = std::make_shared<Session>(std::move(s), *this, self_,
-                                                  /*outbound=*/false);
+            auto sess =
+                std::make_shared<Session>(std::move(s), *this, self_, false);
             {
                 std::lock_guard lk(mtx_);
                 sessions_.emplace(sess.get(), sess);
             }
             sess->start();
-            log("ACCEPT connection (awaiting IDENTIFY)");
+            LOG_INFO(get_logger(), "ACCEPT → awaiting IDENTIFY");
         }
         do_accept();
     });
@@ -217,7 +279,8 @@ void ConnectionManager::connect_to(Address const &a) {
         a.host, std::to_string(a.port),
         [this, a](auto ec, tcp::resolver::results_type r) {
             if (ec) {
-                log("resolve " + a.host + " failed: " + ec.message());
+                LOG_INFO(get_logger(), "resolve {} failed: {}", a.host,
+                         ec.message());
                 return;
             }
 
@@ -225,21 +288,20 @@ void ConnectionManager::connect_to(Address const &a) {
             asio::async_connect(
                 *sock, r, [this, sock, a](auto ec2, tcp::endpoint) {
                     if (ec2) {
-                        log("connect to " + a.host +
-                            " failed: " + ec2.message());
+                        LOG_INFO(get_logger(), "connect {} failed: {}", a.host,
+                                 ec2.message());
                         return;
                     }
 
-                    auto sess = std::make_shared<Session>(
-                        std::move(*sock), *this, self_, /*outbound=*/true);
+                    auto sess = std::make_shared<Session>(std::move(*sock),
+                                                          *this, self_, true);
                     sess->set_remote(a);
                     {
                         std::lock_guard lk(mtx_);
                         sessions_.emplace(sess.get(), sess);
                     }
                     sess->start();
-                    log("CONNECTED to " + a.host + ':' +
-                        std::to_string(a.port));
+                    LOG_INFO(get_logger(), "CONNECTED → {}:{}", a.host, a.port);
                 });
         });
 }
@@ -251,13 +313,10 @@ bool ConnectionManager::connected(Address const &a) const {
     return false;
 }
 
-void ConnectionManager::on_identify(Session *s, Address const &listen_addr) {
-    s->set_remote(listen_addr);
-    log("IDENTIFY → " + listen_addr.host + ':' +
-        std::to_string(listen_addr.port));
-    broadcast_peer(
-        listen_addr,
-        s);  // broadcast to all peers so everyone is aware of the new server
+void ConnectionManager::on_identify(Session *s, Address const &addr) {
+    s->set_remote(addr);
+    LOG_INFO(get_logger(), "IDENTIFY ← {}:{}", addr.host, addr.port);
+    broadcast_peer(addr, s);
 }
 
 void ConnectionManager::schedule_hb() {
@@ -266,7 +325,14 @@ void ConnectionManager::schedule_hb() {
         Message hb;
         hb.type = FrameType::HEARTBEAT;
         send_all(hb);
-        log("heartbeat → " + std::to_string(sessions_.size()) + " peer(s)");
+
+        std::size_t peer_cnt = 0;
+        {
+            std::lock_guard lk(mtx_);
+            for (auto const &[_, s] : sessions_)
+                if (s->is_server_peer()) ++peer_cnt;
+        }
+        LOG_INFO(get_logger(), "heartbeat to {} peer(s)", peer_cnt);
         schedule_hb();
     });
 }
@@ -275,43 +341,50 @@ void ConnectionManager::send_peer(Address const &a,
                                   std::shared_ptr<Session> const &to) {
     Message m;
     m.type = FrameType::PEER;
-
-    uint16_t hlen_be = endian::native_to_big<uint16_t>(a.host.size());
-    uint16_t port_be = endian::native_to_big<uint16_t>(a.port);
-
+    uint16_t h_be = endian::native_to_big<uint16_t>(a.host.size());
+    uint16_t p_be = endian::native_to_big<uint16_t>(a.port);
     m.payload.reserve(2 + a.host.size() + 2);
-    m.payload.insert(m.payload.end(), reinterpret_cast<uint8_t *>(&hlen_be),
-                     reinterpret_cast<uint8_t *>(&hlen_be) + 2);
+    m.payload.insert(m.payload.end(), reinterpret_cast<uint8_t *>(&h_be),
+                     reinterpret_cast<uint8_t *>(&h_be) + 2);
     m.payload.insert(m.payload.end(), a.host.begin(), a.host.end());
-    m.payload.insert(m.payload.end(), reinterpret_cast<uint8_t *>(&port_be),
-                     reinterpret_cast<uint8_t *>(&port_be) + 2);
-
+    m.payload.insert(m.payload.end(), reinterpret_cast<uint8_t *>(&p_be),
+                     reinterpret_cast<uint8_t *>(&p_be) + 2);
     to->send(std::move(m));
 }
 
 void ConnectionManager::broadcast_peer(Address const &newcomer, Session *skip) {
     std::lock_guard lk(mtx_);
-    for (auto const &[ptr, s] : sessions_) {
-        if (ptr == skip) continue;
-        send_peer(newcomer, s);
-    }
+    for (auto const &[ptr, s] : sessions_)
+        if (ptr != skip) send_peer(newcomer, s);
 
     auto it = sessions_.find(skip);
     if (it != sessions_.end()) {
-        auto const &newcomer_sess = it->second;
-        for (auto const &[ptr, s] : sessions_) {
-            if (ptr == skip) continue;
-            send_peer(s->remote(), newcomer_sess);
-        }
+        auto const &new_sess = it->second;
+        for (auto const &[ptr, s] : sessions_)
+            if (ptr != skip) send_peer(s->remote(), new_sess);
     }
 }
 
 void ConnectionManager::send_all(Message const &m) {
     std::lock_guard lk(mtx_);
-    for (auto &[_, s] : sessions_) s->send(Message(m));
+    for (auto const &[_, s] : sessions_)
+        if (s->is_server_peer()) s->send(Message(m));
 }
 
 void ConnectionManager::forget(Session *s) {
     std::lock_guard lk(mtx_);
     sessions_.erase(s);
+}
+
+/* ---------- KV helpers --------------------------------------------- */
+void ConnectionManager::kv_put(std::string const &k, std::string const &v) {
+    std::unique_lock lk(kv_mtx_);
+    kv_[k] = v;
+}
+
+std::optional<std::string> ConnectionManager::kv_get(std::string const &k) {
+    std::shared_lock lk(kv_mtx_);
+    auto it = kv_.find(k);
+    return it == kv_.end() ? std::nullopt
+                           : std::optional<std::string>(it->second);
 }
