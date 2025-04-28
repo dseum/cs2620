@@ -6,10 +6,6 @@
 
 using namespace mousedb::memtable;
 
-TEST(memtable_KVStore, Basic) {
-    KVStore kvs(4096);
-}
-
 TEST(memtable_KVStore, Insert) {
     KVStore kvs(4096);
     std::string key = "1";
@@ -17,16 +13,17 @@ TEST(memtable_KVStore, Insert) {
     auto ptr = kvs.insert(
         std::span(reinterpret_cast<std::byte *>(key.data()), key.size()),
         std::span(reinterpret_cast<std::byte *>(value.data()), value.size()));
+    EXPECT_NE(ptr, nullptr);
 }
 
-TEST(memtable_KVStore, InsertAndConvertOne) {
+TEST(memtable_KVStore, InsertAndGetOne) {
     KVStore kvs(4096);
     std::string key = "1";
     std::string value = "1";
     auto ptr = kvs.insert(
         std::span(reinterpret_cast<std::byte *>(key.data()), key.size()),
         std::span(reinterpret_cast<std::byte *>(value.data()), value.size()));
-    auto [retrieved_key, retrieved_value] = kvs.convert(ptr);
+    auto [retrieved_key, retrieved_value] = kvs.get(ptr);
     EXPECT_EQ(std::string(reinterpret_cast<const char *>(retrieved_key.data()),
                           retrieved_key.size()),
               key);
@@ -36,7 +33,7 @@ TEST(memtable_KVStore, InsertAndConvertOne) {
         value);
 }
 
-TEST(memtable_KVStore, InsertAndConvertMultiple) {
+TEST(memtable_KVStore, InsertAndGetMultiple) {
     KVStore kvs(4096);
     std::string key = "1";
     std::string value = "1";
@@ -44,7 +41,7 @@ TEST(memtable_KVStore, InsertAndConvertMultiple) {
     auto ptr1 = kvs.insert(
         std::span(reinterpret_cast<std::byte *>(key.data()), key.size()),
         std::span(reinterpret_cast<std::byte *>(value.data()), value.size()));
-    auto [retrieved_key1, retrieved_value1] = kvs.convert(ptr1);
+    auto [retrieved_key1, retrieved_value1] = kvs.get(ptr1);
     EXPECT_EQ(std::string(reinterpret_cast<const char *>(retrieved_key1.data()),
                           retrieved_key1.size()),
               key);
@@ -58,7 +55,7 @@ TEST(memtable_KVStore, InsertAndConvertMultiple) {
     auto ptr2 = kvs.insert(
         std::span(reinterpret_cast<std::byte *>(key.data()), key.size()),
         std::span(reinterpret_cast<std::byte *>(value.data()), value.size()));
-    auto [retrieved_key2, retrieved_value2] = kvs.convert(ptr2);
+    auto [retrieved_key2, retrieved_value2] = kvs.get(ptr2);
     EXPECT_EQ(std::string(reinterpret_cast<const char *>(retrieved_key2.data()),
                           retrieved_key2.size()),
               key);
@@ -72,7 +69,7 @@ TEST(memtable_KVStore, InsertAndConvertMultiple) {
     auto ptr3 = kvs.insert(
         std::span(reinterpret_cast<std::byte *>(key.data()), key.size()),
         std::span(reinterpret_cast<std::byte *>(value.data()), value.size()));
-    auto [retrieved_key3, retrieved_value3] = kvs.convert(ptr3);
+    auto [retrieved_key3, retrieved_value3] = kvs.get(ptr3);
     EXPECT_EQ(std::string(reinterpret_cast<const char *>(retrieved_key3.data()),
                           retrieved_key3.size()),
               key);
@@ -82,7 +79,7 @@ TEST(memtable_KVStore, InsertAndConvertMultiple) {
         value);
 }
 
-TEST(memtable_KVStore, InsertAndConvertStress) {
+TEST(memtable_KVStore, InsertAndGetStress) {
     KVStore kvs(4096);
     std::string key;
     std::string value;
@@ -93,7 +90,7 @@ TEST(memtable_KVStore, InsertAndConvertStress) {
             std::span(reinterpret_cast<std::byte *>(key.data()), key.size()),
             std::span(reinterpret_cast<std::byte *>(value.data()),
                       value.size()));
-        auto [retrieved_key, retrieved_value] = kvs.convert(ptr);
+        auto [retrieved_key, retrieved_value] = kvs.get(ptr);
         EXPECT_EQ(
             std::string(reinterpret_cast<const char *>(retrieved_key.data()),
                         retrieved_key.size()),
@@ -122,19 +119,19 @@ TEST(memtable_KVStore, InsertAndCompare) {
     auto ptr3 = kvs.insert(
         std::span(reinterpret_cast<std::byte *>(key3.data()), key3.size()),
         std::span(reinterpret_cast<std::byte *>(value3.data()), value3.size()));
-    EXPECT_LT(kvs.compare(ptr1, ptr2), 0);
-    EXPECT_GT(kvs.compare(ptr2, ptr1), 0);
-    EXPECT_LT(kvs.compare(ptr1, ptr3), 0);
-    EXPECT_GT(kvs.compare(ptr3, ptr1), 0);
-    EXPECT_LT(kvs.compare(ptr2, ptr3), 0);
-    EXPECT_GT(kvs.compare(ptr3, ptr2), 0);
-    EXPECT_EQ(kvs.compare(ptr1, ptr1), 0);
-    EXPECT_EQ(kvs.compare(ptr2, ptr2), 0);
-    EXPECT_EQ(kvs.compare(ptr3, ptr3), 0);
+    EXPECT_LT(KVStore::compare(ptr1, ptr2), 0);
+    EXPECT_GT(KVStore::compare(ptr2, ptr1), 0);
+    EXPECT_LT(KVStore::compare(ptr1, ptr3), 0);
+    EXPECT_GT(KVStore::compare(ptr3, ptr1), 0);
+    EXPECT_LT(KVStore::compare(ptr2, ptr3), 0);
+    EXPECT_GT(KVStore::compare(ptr3, ptr2), 0);
+    EXPECT_EQ(KVStore::compare(ptr1, ptr1), 0);
+    EXPECT_EQ(KVStore::compare(ptr2, ptr2), 0);
+    EXPECT_EQ(KVStore::compare(ptr3, ptr3), 0);
 }
 
-TEST(memtable_oversize, ValueExceedsSliceSkip) {
-    const size_t slab = 128, slice = 32, skip = 16;
+TEST(memtable_KVStore, ValueExceedsSliceSkip) {
+    const size_t slab = 128;
     KVStore kvs(4096);
 
     // create a value longer than skip but less than slab/2: triggers small-heap
@@ -145,7 +142,7 @@ TEST(memtable_oversize, ValueExceedsSliceSkip) {
         std::span(reinterpret_cast<std::byte *>(key.data()), key.size()),
         std::span(reinterpret_cast<std::byte *>(value_small.data()),
                   value_small.size()));
-    auto [rk, rv] = kvs.convert(psmall);
+    auto [rk, rv] = kvs.get(psmall);
     EXPECT_EQ(rv.size(), value_small.size());
     EXPECT_EQ(std::string(reinterpret_cast<char *>(rv.data()), rv.size()),
               value_small);
@@ -156,14 +153,13 @@ TEST(memtable_oversize, ValueExceedsSliceSkip) {
         std::span(reinterpret_cast<std::byte *>(key.data()), key.size()),
         std::span(reinterpret_cast<std::byte *>(value_huge.data()),
                   value_huge.size()));
-    auto [rk2, rv2] = kvs.convert(phuge);
+    auto [rk2, rv2] = kvs.get(phuge);
     EXPECT_EQ(rv2.size(), value_huge.size());
     EXPECT_EQ(std::string(reinterpret_cast<char *>(rv2.data()), rv2.size()),
               value_huge);
 }
 
-TEST(memtable_concurrent, ManyThreadsInsertAndConvert) {
-    constexpr size_t slab = 4096, slice = 512, skip = 128;
+TEST(memtable_KVStore, ManyThreadsInsertAndGet) {
     constexpr int THREADS = 8;
     constexpr int OPS_PER_THREAD = 1000;
 
@@ -200,10 +196,87 @@ TEST(memtable_concurrent, ManyThreadsInsertAndConvert) {
 
     // verifies all records
     for (auto &r : records) {
-        auto [rk, rv] = kvs.convert(r.p);
+        auto [rk, rv] = kvs.get(r.p);
         std::string kk(reinterpret_cast<char *>(rk.data()), rk.size());
         std::string vv(reinterpret_cast<char *>(rv.data()), rv.size());
         EXPECT_EQ(kk, r.key);
         EXPECT_EQ(vv, r.value);
+    }
+}
+
+TEST(memtable_KVSkipList, InsertAndGet) {
+    MemTable<KVSkipList> memtable;
+    std::string key = "1";
+    std::string value = "1";
+    memtable.insert(key, value);
+    auto retrieved_value = memtable.find(key);
+    EXPECT_TRUE(retrieved_value.has_value());
+    EXPECT_EQ(*retrieved_value, value);
+}
+
+TEST(memtable_KVSkipList, InsertAndRemove) {
+    MemTable<KVSkipList> memtable;
+    std::string key = "1";
+    std::string value = "1";
+    memtable.insert(key, value);
+    auto retrieved_value = memtable.find(key);
+    EXPECT_TRUE(retrieved_value.has_value());
+    EXPECT_EQ(*retrieved_value, value);
+    memtable.remove(key);
+    retrieved_value = memtable.find(key);
+    EXPECT_FALSE(retrieved_value.has_value());
+}
+
+TEST(memtable_KVSkipList, InsertAndGetMultiple) {
+    MemTable<KVSkipList> memtable;
+    for (int i = 0; i < 1000; ++i) {
+        std::string key = std::to_string(i);
+        std::string value = std::to_string(i);
+        memtable.insert(key, value);
+    }
+}
+
+TEST(memtable_KVSkipList, InsertAndRemoveMultiple) {
+    MemTable<KVSkipList> memtable;
+    for (int i = 0; i < 1000; ++i) {
+        std::string key = std::to_string(i);
+        std::string value = std::to_string(i);
+        memtable.insert(key, value);
+    }
+    for (int i = 0; i < 1000; ++i) {
+        std::string key = std::to_string(i);
+        memtable.remove(key);
+        auto retrieved_value = memtable.find(key);
+        EXPECT_FALSE(retrieved_value.has_value());
+    }
+}
+
+TEST(memtable_KVSkipList, InsertAndGetStress) {
+    MemTable<KVSkipList> memtable;
+    for (int i = 0; i < 10000; ++i) {
+        std::string key = std::to_string(i);
+        std::string value = std::to_string(i);
+        memtable.insert(key, value);
+    }
+    for (int i = 0; i < 10000; ++i) {
+        std::string key = std::to_string(i);
+        auto retrieved_value = memtable.find(key);
+        EXPECT_TRUE(retrieved_value.has_value());
+        EXPECT_EQ(*retrieved_value, std::to_string(i));
+    }
+}
+
+TEST(memtable_KVSkipList, InsertAndRemoveStress) {
+    MemTable<KVSkipList> memtable;
+    for (int i = 0; i < 10000; ++i) {
+        std::string key = std::to_string(i);
+        std::string value = std::to_string(i);
+        memtable.insert(key, value);
+    }
+    for (int i = 0; i < 10000; ++i) {
+        std::string key = std::to_string(i);
+        memtable.remove(key);
+        auto retrieved_value = memtable.find(key);
+        EXPECT_FALSE(retrieved_value.has_value());
     }
 }

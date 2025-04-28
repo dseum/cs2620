@@ -7,7 +7,7 @@
 #include <mutex>
 #include <thread>
 
-static auto optimize_slab_size(size_t slab_size) -> size_t {
+inline static auto optimize_slab_size(size_t slab_size) -> size_t {
     slab_size = std::max(slab_size, static_cast<size_t>(4096));
     slab_size = std::min(slab_size, static_cast<size_t>(2u << 30));
     size_t align_unit = alignof(std::max_align_t);
@@ -43,7 +43,7 @@ auto Arena::allocate_slab(size_t size) -> ptr_type {
     return slab;
 }
 
-auto Arena::unused() -> size_t const {
+auto Arena::unused() const -> size_t {
     return active_slab_unused_;
 }
 
@@ -67,7 +67,7 @@ ConcurrentArena::ConcurrentArena(size_t slab_size)
       shards_(round_up_to_power_of_two(num_cpus_)) {
 }
 
-auto ConcurrentArena::unused() -> size_t const {
+auto ConcurrentArena::unused() const -> size_t {
     return unused_.load(std::memory_order_relaxed);
 }
 
@@ -111,13 +111,13 @@ inline auto ConcurrentArena::update() -> void {
     unused_.store(arena_.unused(), std::memory_order_relaxed);
 }
 
-inline auto ConcurrentArena::get_shard(size_t cpu_id) -> Shard *const {
-    return &shards_[cpu_id & (shards_.size() - 1)];
+inline auto ConcurrentArena::get_shard(size_t cpu_id) const -> Shard * {
+    return const_cast<Shard *>(&shards_[cpu_id & (shards_.size() - 1)]);
 }
 
 inline auto ConcurrentArena::reset_shard() -> Shard * {
     size_t cpu_id = sched_getcpu();
-    if (cpu_id == -1) [[unlikely]] {
+    if (cpu_id == static_cast<size_t>(-1)) [[unlikely]] {
         cpu_id = std::hash<std::thread::id>()(std::this_thread::get_id());
     }
     cpu_id_ = cpu_id | shards_.size();

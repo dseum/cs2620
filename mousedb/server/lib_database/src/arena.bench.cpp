@@ -6,12 +6,22 @@
 
 using namespace mousedb::arena;
 
-static void arena_Malloc(benchmark::State &state) {
+static void arena_BasicMalloc(benchmark::State &state) {
     const size_t size = state.range(0);
     for (auto _ : state) {
-        void *ptr = std::malloc(size);
+        auto ptr = reinterpret_cast<std::byte *>(malloc(size));
         benchmark::DoNotOptimize(ptr);
-        std::free(ptr);
+        free(ptr);
+    }
+    state.SetItemsProcessed(state.iterations());
+}
+
+static void arena_BasicNew(benchmark::State &state) {
+    const size_t size = state.range(0);
+    for (auto _ : state) {
+        auto ptr = new std::byte[size];
+        benchmark::DoNotOptimize(ptr);
+        delete[] ptr;
     }
     state.SetItemsProcessed(state.iterations());
 }
@@ -36,7 +46,18 @@ static void arena_ConcurrentArenaAllocate(benchmark::State &state) {
     state.SetItemsProcessed(state.iterations());
 }
 
-BENCHMARK(arena_Malloc)
+BENCHMARK(arena_BasicMalloc)
+    ->Arg(64)
+    ->Arg(256)
+    ->Arg(1024)
+    ->Arg(4096)
+    ->Threads(1)
+    ->Threads(2)
+    ->Threads(4)
+    ->Threads(8)
+    ->UseRealTime();
+
+BENCHMARK(arena_BasicNew)
     ->Arg(64)
     ->Arg(256)
     ->Arg(1024)

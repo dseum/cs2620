@@ -33,9 +33,11 @@ class Arena {
    public:
     using ptr_type = std::byte *;
 
-    Arena(size_t slab_size);
+    explicit Arena(size_t slab_size);
+    Arena(const Arena &) = delete;
+    Arena &operator=(const Arena &) = delete;
 
-    auto unused() -> size_t const;
+    auto unused() const -> size_t;
 
     auto allocate(size_t size) -> ptr_type;
     auto allocate_slab(size_t size) -> ptr_type;
@@ -51,9 +53,11 @@ class ConcurrentArena {
    public:
     using ptr_type = std::byte *;
 
-    ConcurrentArena(size_t slab_size);
+    explicit ConcurrentArena(size_t slab_size);
+    ConcurrentArena(const ConcurrentArena &) = delete;
+    ConcurrentArena &operator=(const ConcurrentArena &) = delete;
 
-    auto unused() -> size_t const;
+    auto unused() const -> size_t;
 
     auto allocate(size_t size) -> ptr_type;
 
@@ -75,9 +79,9 @@ class ConcurrentArena {
     std::vector<Shard> shards_;
     std::atomic<size_t> unused_ = 0;
 
-    auto update() -> void;
-    auto get_shard(size_t cpu_id) -> Shard *const;
-    auto reset_shard() -> Shard *;
+    inline auto update() -> void;
+    inline auto get_shard(size_t cpu_id) const -> Shard *;
+    inline auto reset_shard() -> Shard *;
 };
 }  // namespace arena
 }  // namespace mousedb

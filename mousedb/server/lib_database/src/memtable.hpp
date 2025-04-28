@@ -1,7 +1,9 @@
 #pragma once
 
+#include <shared_mutex>
 #include <span>
 #include <string>
+#include <unordered_map>
 
 #include "arena.hpp"
 
@@ -16,13 +18,20 @@ class KVStore {
    public:
     using ptr_type = arena::ConcurrentArena::ptr_type;
 
-    KVStore(size_t slab_size);
+    explicit KVStore(size_t slab_size);
 
     auto insert(std::span<std::byte> key, std::span<std::byte> value)
         -> ptr_type;
-    auto compare(ptr_type a, ptr_type b) -> int;
-    auto convert(ptr_type ptr)
+    static auto compare(std::span<std::byte> key_a, std::span<std::byte> key_b)
+        -> int;
+    static auto compare(ptr_type a, ptr_type b) -> int;
+    static auto hash(std::span<std::byte> key) -> size_t;
+    static auto hash(ptr_type ptr) -> size_t;
+
+    static auto get(ptr_type ptr)
         -> std::pair<std::span<std::byte>, std::span<std::byte>>;
+    static auto get_key(ptr_type ptr) -> std::span<std::byte>;
+    static auto get_value(ptr_type ptr) -> std::span<std::byte>;
 
    private:
     arena::ConcurrentArena arena_;
@@ -30,31 +39,98 @@ class KVStore {
 
 class KVSkipList {
    public:
-    KVSkipList();
-    ~KVSkipList();
+    explicit KVSkipList(size_t max_height = 12, size_t branching_factor = 4);
+    KVSkipList(const KVSkipList &) = delete;
+    KVSkipList &operator=(const KVSkipList &) = delete;
 
-    void insert(const std::string &key, const std::string &value);
-    std::string get(const std::string &key);
-    void remove(const std::string &key);
+    auto find(std::span<std::byte> key) const
+        -> std::optional<std::span<std::byte>>;
+    auto insert(std::span<std::byte> key, std::span<std::byte> value) -> void;
+    auto erase(std::span<std::byte> key) -> void;
+
+    auto begin() {
+        return nodes_.begin();
+    }
+
+    auto end() {
+        return nodes_.end();
+    }
 
    private:
+    struct Splice {};
+
     struct Node {
-        std::string key;
-        std::string value;
-        Node *next;
+        std::span<std::byte> key;
+
+        bool operator==(const Node &other) const noexcept {
+            return KVStore::compare(key, other.key) == 0;
+        }
     };
 
-    Node *head_;
+    struct NodeHash {
+        std::size_t operator()(const Node &n) const noexcept {
+            return KVStore::hash(n.key);
+        }
+    };
+
+    const size_t max_height_;
+    const size_t branching_factor_;
+
+    KVStore kvs_;
+    std::unordered_map<Node, KVStore::ptr_type, NodeHash> nodes_;
+    mutable std::shared_mutex nodes_mutex_;
 };
 
+template <typename T>
+concept KVMap = requires(const T &t, T &u, std::span<std::byte> key,
+                         std::span<std::byte> value) {
+    { t.find(key) } -> std::same_as<std::optional<std::span<std::byte>>>;
+    { u.insert(key, value) } -> std::same_as<void>;
+    { u.erase(key) } -> std::same_as<void>;
+};
+
+template <KVMap T>
 class MemTable {
    public:
-    MemTable();
-    ~MemTable();
+    auto find(const std::string &key) const -> std::optional<std::string_view>;
+    auto insert(const std::string &key, const std::string &value) -> void;
+    auto remove(const std::string &key) -> void;
 
-    void insert(const std::string &key, const std::string &value);
-    std::string get(const std::string &key);
-    void remove(const std::string &key);
+   private:
+    T byte_map_;
 };
+
+template <KVMap T>
+auto MemTable<T>::find(const std::string &key) const
+    -> std::optional<std::string_view> {
+    std::optional<std::span<std::byte>> value_opt =
+        byte_map_.find({const_cast<std::byte *>(
+                            reinterpret_cast<const std::byte *>(key.data())),
+                        key.size()});
+    if (!value_opt.has_value()) {
+        return std::nullopt;
+    }
+    return std::string_view(reinterpret_cast<const char *>(value_opt->data()),
+                            value_opt->size());
+}
+
+template <KVMap T>
+auto MemTable<T>::insert(const std::string &key, const std::string &value)
+    -> void {
+    byte_map_.insert({const_cast<std::byte *>(
+                          reinterpret_cast<const std::byte *>(key.data())),
+                      key.size()},
+                     {const_cast<std::byte *>(
+                          reinterpret_cast<const std::byte *>(value.data())),
+                      value.size()});
+}
+
+template <KVMap T>
+auto MemTable<T>::remove(const std::string &key) -> void {
+    byte_map_.erase({const_cast<std::byte *>(
+                         reinterpret_cast<const std::byte *>(key.data())),
+                     key.size()});
+}
+
 }  // namespace memtable
 }  // namespace mousedb

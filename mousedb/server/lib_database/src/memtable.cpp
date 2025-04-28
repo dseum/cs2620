@@ -1,6 +1,7 @@
 #include "memtable.hpp"
 
 #include <cstring>
+#include <mutex>
 
 size_t get_varint_size(uint64_t value) {
     size_t bits = 64 - std::countl_zero(value);
@@ -45,6 +46,8 @@ auto KVStore::insert(std::span<std::byte> key, std::span<std::byte> value)
     const auto size_varint_value = get_varint_size(size_value);
     const auto size =
         size_varint_key + size_varint_value + size_key + size_value;
+
+    // Copies into ptr as [key_size, key, value_size, value]
     auto ptr = arena_.allocate(size);
     encode_varint({ptr, size_varint_key}, size_key);
     std::memcpy(ptr + size_varint_key, key.data(), size_key);
@@ -55,11 +58,11 @@ auto KVStore::insert(std::span<std::byte> key, std::span<std::byte> value)
     return ptr;
 }
 
-auto KVStore::compare(ptr_type a, ptr_type b) -> int {
-    uint64_t size_a, size_b;
-    size_t offset_a = decode_varint({a, sizeof(size_t)}, size_a);
-    size_t offset_b = decode_varint({b, sizeof(size_t)}, size_b);
-    int cmp = std::memcmp(a + offset_a, b + offset_b, std::min(size_a, size_b));
+auto KVStore::compare(std::span<std::byte> key_a, std::span<std::byte> key_b)
+    -> int {
+    size_t size_a = key_a.size();
+    size_t size_b = key_b.size();
+    int cmp = std::memcmp(key_a.data(), key_b.data(), std::min(size_a, size_b));
     if (cmp == 0) {
         if (size_a == size_b) {
             return 0;
@@ -69,7 +72,28 @@ auto KVStore::compare(ptr_type a, ptr_type b) -> int {
     return cmp;
 }
 
-auto KVStore::convert(ptr_type ptr)
+auto KVStore::compare(ptr_type a, ptr_type b) -> int {
+    uint64_t size_a, size_b;
+    size_t offset_a = decode_varint({a, sizeof(size_t)}, size_a);
+    size_t offset_b = decode_varint({b, sizeof(size_t)}, size_b);
+    std::span<std::byte> key_a(a + offset_a, size_a);
+    std::span<std::byte> key_b(b + offset_b, size_b);
+    return compare(key_a, key_b);
+}
+
+auto KVStore::hash(std::span<std::byte> key) -> size_t {
+    return std::hash<std::string_view>()(std::string_view(
+        reinterpret_cast<const char *>(key.data()), key.size()));
+}
+
+auto KVStore::hash(ptr_type ptr) -> size_t {
+    uint64_t size_key;
+    size_t offset = decode_varint({ptr, sizeof(size_t)}, size_key);
+    std::span<std::byte> key(ptr + offset, size_key);
+    return hash(key);
+}
+
+auto KVStore::get(ptr_type ptr)
     -> std::pair<std::span<std::byte>, std::span<std::byte>> {
     size_t offset = 0;
     uint64_t size_key;
@@ -80,6 +104,51 @@ auto KVStore::convert(ptr_type ptr)
     offset += decode_varint({ptr + offset, sizeof(size_t)}, size_value);
     std::span<std::byte> value(ptr + offset, size_value);
     return {key, value};
+}
+
+auto KVStore::get_key(ptr_type ptr) -> std::span<std::byte> {
+    size_t offset = 0;
+    uint64_t size_key;
+    offset += decode_varint({ptr, sizeof(size_t)}, size_key);
+    return {ptr + offset, size_key};
+}
+
+auto KVStore::get_value(ptr_type ptr) -> std::span<std::byte> {
+    size_t offset = 0;
+    uint64_t size_key;
+    offset += decode_varint({ptr, sizeof(size_t)}, size_key);
+    offset += size_key;
+    uint64_t size_value;
+    offset += decode_varint({ptr + offset, sizeof(size_t)}, size_value);
+    return {ptr + offset, size_value};
+}
+
+KVSkipList::KVSkipList(size_t max_height, size_t branching_factor)
+    : max_height_(max_height), branching_factor_(branching_factor), kvs_(4096) {
+    std::ignore = max_height_;
+    std::ignore = branching_factor_;
+}
+
+auto KVSkipList::find(std::span<std::byte> key) const
+    -> std::optional<std::span<std::byte>> {
+    std::shared_lock lock(nodes_mutex_);
+    auto it = nodes_.find({key});
+    if (it == nodes_.end()) {
+        return std::nullopt;
+    }
+    return KVStore::get_value(it->second);
+}
+
+auto KVSkipList::insert(std::span<std::byte> key, std::span<std::byte> value)
+    -> void {
+    std::unique_lock lock(nodes_mutex_);
+    auto ptr = kvs_.insert(key, value);
+    nodes_.insert({Node{key}, ptr});
+}
+
+auto KVSkipList::erase(std::span<std::byte> key) -> void {
+    std::unique_lock lock(nodes_mutex_);
+    nodes_.erase({key});
 }
 
 }  // namespace memtable
