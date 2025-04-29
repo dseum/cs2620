@@ -13,12 +13,11 @@ int main(int argc, char **argv) {
     std::string host = "0.0.0.0", join;
     int port;
 
-    po::options_description desc("server options");
+    po::options_description desc("server opts");
     desc.add_options()("port", po::value<int>(&port)->required(),
                        "listen port")(
         "host", po::value<std::string>(&host)->default_value(host),
-        "bind address")("join", po::value<std::string>(&join),
-                        "leader host:port");
+        "bind addr")("join", po::value<std::string>(&join), "leader host:port");
 
     po::variables_map vm;
     try {
@@ -40,12 +39,11 @@ int main(int argc, char **argv) {
     }
 
     asio::io_context io;
-    Address self{host, port};
-    ConnectionManager cm(io, self, join_addr);
+    ConnectionManager cm(io, {host, port}, join_addr);
 
-    LOG_INFO(get_logger(), "starting node {}:{}", host, port);
+    LOG_INFO(get_logger(), "node {}:{}", host, port);
+
     cm.run();
-
     auto n = std::thread::hardware_concurrency();
     std::vector<std::thread> workers;
     workers.reserve(n ? n - 1 : 1);

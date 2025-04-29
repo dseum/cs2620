@@ -1,34 +1,57 @@
 #include "server.hpp"
 
+#include <quill/Backend.h>
+#include <quill/Frontend.h>
 #include <quill/LogMacros.h>
+#include <quill/Logger.h>
+#include <quill/sinks/ConsoleSink.h>
 
 namespace asio = boost::asio;
 namespace endian = boost::endian;
 using tcp = asio::ip::tcp;
 
-std::vector<asio::const_buffer> Message::to_buffers() {
-    static uint16_t rsvd = 0;
-
-    uint32_t len_be = endian::native_to_big<uint32_t>(
-        static_cast<uint32_t>(payload.size() + 4));
-    uint16_t typ_be =
-        endian::native_to_big<uint16_t>(static_cast<uint16_t>(type));
-
-    std::memcpy(hdr_.data(), &len_be, 4);
-    std::memcpy(hdr_.data() + 4, &typ_be, 2);
-    std::memcpy(hdr_.data() + 6, &rsvd, 2);
-
-    return {asio::buffer(hdr_), asio::buffer(payload)};
+/* ---------- helpers to pack/unpack an HLC into 14 bytes ------------------ */
+static void encode_hlc(const HLC &c, std::vector<uint8_t> &out) {
+    uint64_t phys_be = endian::native_to_big<uint64_t>(c.physical_us);
+    uint16_t log_be = endian::native_to_big<uint16_t>(c.logical);
+    uint32_t id_be = endian::native_to_big<uint32_t>(c.node_id);
+    out.insert(out.end(), reinterpret_cast<uint8_t *>(&phys_be),
+               reinterpret_cast<uint8_t *>(&phys_be) + 8);
+    out.insert(out.end(), reinterpret_cast<uint8_t *>(&log_be),
+               reinterpret_cast<uint8_t *>(&log_be) + 2);
+    out.insert(out.end(), reinterpret_cast<uint8_t *>(&id_be),
+               reinterpret_cast<uint8_t *>(&id_be) + 4);
 }
 
+static HLC decode_hlc(const uint8_t *p) {
+    uint64_t phys =
+        endian::big_to_native<uint64_t>(*reinterpret_cast<const uint64_t *>(p));
+    uint16_t log = endian::big_to_native<uint16_t>(
+        *reinterpret_cast<const uint16_t *>(p + 8));
+    uint32_t id = endian::big_to_native<uint32_t>(
+        *reinterpret_cast<const uint32_t *>(p + 10));
+    return HLC{phys, log, id};
+}
+
+/* ---------- Message serialisation --------------------------------------- */
+std::vector<asio::const_buffer> Message::to_buffers() {
+    static uint16_t rsvd = 0;
+    uint32_t len_be = endian::native_to_big<uint32_t>(payload.size() + 4);
+    uint16_t typ_be = endian::native_to_big<uint16_t>(uint16_t(type));
+    std::memcpy(hdr.data(), &len_be, 4);
+    std::memcpy(hdr.data() + 4, &typ_be, 2);
+    std::memcpy(hdr.data() + 6, &rsvd, 2);
+    return {asio::buffer(hdr), asio::buffer(payload)};
+}
+
+/* ------------------- Session implementation ----------------------------- */
 Session::Session(tcp::socket sock, ConnectionManager &mgr, Address self_addr,
                  bool outbound)
     : socket_(std::move(sock)),
       mgr_(mgr),
-      strand_(socket_.get_executor()),
+      strand_(asio::make_strand(socket_.get_executor())),
       outbound_(outbound),
-      self_addr_(std::move(self_addr)),
-      remote_{"", 0} {
+      self_addr_(std::move(self_addr)) {
 }
 
 void Session::start() {
@@ -69,9 +92,8 @@ void Session::do_write() {
                           if (!ec) {
                               self->write_q_.pop_front();
                               if (!self->write_q_.empty()) self->do_write();
-                          } else {
+                          } else
                               self->mgr_.forget(self.get());
-                          }
                       }));
 }
 
@@ -91,12 +113,9 @@ void Session::process_message(Message &&) {
                 self->mgr_.forget(self.get());
                 return;
             }
-
-            uint16_t typ_be =
-                *reinterpret_cast<uint16_t *>(self->hdr_typ_.data());
-            FrameType typ =
-                static_cast<FrameType>(endian::big_to_native<uint16_t>(typ_be));
-
+            FrameType typ = FrameType(endian::big_to_native<uint16_t>(
+                *reinterpret_cast<uint16_t *>(self->hdr_typ_.data())));
+            /* read rsv + body */
             asio::async_read(
                 self->socket_, asio::buffer(self->hdr_rsv_),
                 asio::bind_executor(self->strand_, [self, typ, len](
@@ -105,7 +124,6 @@ void Session::process_message(Message &&) {
                         self->mgr_.forget(self.get());
                         return;
                     }
-
                     self->body_.resize(len - 4);
                     asio::async_read(
                         self->socket_, asio::buffer(self->body_),
@@ -120,45 +138,6 @@ void Session::process_message(Message &&) {
                             const uint8_t *p = self->body_.data();
 
                             switch (typ) {
-                                case FrameType::IDENTIFY: {
-                                    uint16_t hlen =
-                                        endian::big_to_native<uint16_t>(
-                                            *reinterpret_cast<const uint16_t *>(
-                                                p));
-                                    p += 2;
-                                    std::string host(
-                                        reinterpret_cast<const char *>(p),
-                                        hlen);
-                                    p += hlen;
-                                    uint16_t port =
-                                        endian::big_to_native<uint16_t>(
-                                            *reinterpret_cast<const uint16_t *>(
-                                                p));
-                                    self->set_remote(
-                                        {host, static_cast<int>(port)});
-                                    self->mgr_.on_identify(
-                                        self.get(),
-                                        {host, static_cast<int>(port)});
-                                    break;
-                                }
-                                case FrameType::PEER: {
-                                    uint16_t hlen =
-                                        endian::big_to_native<uint16_t>(
-                                            *reinterpret_cast<const uint16_t *>(
-                                                p));
-                                    p += 2;
-                                    std::string host(
-                                        reinterpret_cast<const char *>(p),
-                                        hlen);
-                                    p += hlen;
-                                    uint16_t port =
-                                        endian::big_to_native<uint16_t>(
-                                            *reinterpret_cast<const uint16_t *>(
-                                                p));
-                                    self->mgr_.connect_to(
-                                        {host, static_cast<int>(port)});
-                                    break;
-                                }
                                 case FrameType::WRITE_REQ: {
                                     uint16_t klen =
                                         endian::big_to_native<uint16_t>(
@@ -177,7 +156,11 @@ void Session::process_message(Message &&) {
                                     std::string val(
                                         reinterpret_cast<const char *>(p),
                                         vlen);
-                                    self->mgr_.kv_put(key, val);
+                                    p += vlen;
+                                    HLC remote_ts = decode_hlc(p);
+                                    HLC merged = self->mgr_.hlc_.recv_and_merge(
+                                        remote_ts);
+                                    self->mgr_.kv_put(key, val, merged);
 
                                     Message r;
                                     r.type = FrameType::WRITE_RESP;
@@ -194,16 +177,16 @@ void Session::process_message(Message &&) {
                                     std::string key(
                                         reinterpret_cast<const char *>(p),
                                         klen);
-
-                                    auto val = self->mgr_.kv_get(key);
+                                    auto vr = self->mgr_.kv_get(key);
                                     Message r;
                                     r.type = FrameType::READ_RESP;
-                                    if (val) {
-                                        r.payload.reserve(1 + 4 + val->size());
+                                    if (vr) {
+                                        r.payload.reserve(
+                                            1 + 4 + vr->value.size() + 14);
                                         r.payload.push_back(0);
                                         uint32_t vlen_be =
                                             endian::native_to_big<uint32_t>(
-                                                val->size());
+                                                vr->value.size());
                                         r.payload.insert(
                                             r.payload.end(),
                                             reinterpret_cast<uint8_t *>(
@@ -212,12 +195,48 @@ void Session::process_message(Message &&) {
                                                 &vlen_be) +
                                                 4);
                                         r.payload.insert(r.payload.end(),
-                                                         val->begin(),
-                                                         val->end());
-                                    } else {
+                                                         vr->value.begin(),
+                                                         vr->value.end());
+                                        encode_hlc(vr->clock, r.payload);
+                                    } else
                                         r.payload = {1};
-                                    }
                                     self->send(std::move(r));
+                                    break;
+                                }
+                                case FrameType::IDENTIFY: {
+                                    uint16_t hlen =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    p += 2;
+                                    std::string host(
+                                        reinterpret_cast<const char *>(p),
+                                        hlen);
+                                    p += hlen;
+                                    uint16_t port =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    self->set_remote({host, int(port)});
+                                    self->mgr_.on_identify(self.get(),
+                                                           {host, int(port)});
+                                    break;
+                                }
+                                case FrameType::PEER: {
+                                    uint16_t hlen =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    p += 2;
+                                    std::string host(
+                                        reinterpret_cast<const char *>(p),
+                                        hlen);
+                                    p += hlen;
+                                    uint16_t port =
+                                        endian::big_to_native<uint16_t>(
+                                            *reinterpret_cast<const uint16_t *>(
+                                                p));
+                                    self->mgr_.connect_to({host, int(port)});
                                     break;
                                 }
                                 default:
@@ -242,7 +261,9 @@ void Session::process_message(Message &&) {
 /* ---------- ConnectionManager -------------------------------------- */
 ConnectionManager::ConnectionManager(asio::io_context &io, Address self,
                                      std::optional<Address> join)
-    : io_(io),
+    : hlc_(static_cast<uint32_t>(self.port))  // <-- use ctor param, not member
+      ,
+      io_(io),
       acceptor_(io, tcp::endpoint(tcp::v4(), self.port)),
       self_(std::move(self)),
       join_(std::move(join)),
@@ -273,7 +294,7 @@ void ConnectionManager::do_accept() {
 }
 
 void ConnectionManager::connect_to(Address const &a) {
-    if (a == self_ || connected(a) || a < self_) return;
+    if (a == self_ || connected(a) || !(a < self_)) return;
 
     resolver_.async_resolve(
         a.host, std::to_string(a.port),
@@ -377,14 +398,15 @@ void ConnectionManager::forget(Session *s) {
 }
 
 /* ---------- KV helpers --------------------------------------------- */
-void ConnectionManager::kv_put(std::string const &k, std::string const &v) {
+void ConnectionManager::kv_put(const std::string &k, const std::string &v,
+                               const HLC &ts) {
     std::unique_lock lk(kv_mtx_);
-    kv_[k] = v;
+    auto &slot = kv_[k];
+    if (slot.value.empty() || slot.clock < ts) slot = {v, ts};
 }
 
-std::optional<std::string> ConnectionManager::kv_get(std::string const &k) {
+std::optional<ValueRec> ConnectionManager::kv_get(const std::string &k) {
     std::shared_lock lk(kv_mtx_);
     auto it = kv_.find(k);
-    return it == kv_.end() ? std::nullopt
-                           : std::optional<std::string>(it->second);
+    return it == kv_.end() ? std::nullopt : std::optional<ValueRec>(it->second);
 }
