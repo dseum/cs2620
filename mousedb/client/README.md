@@ -1,39 +1,26 @@
-# client
+# Client
 
-This is the client that provides a remote frontend to the server. The focus of this project is only on connecting to the server.
+This is a simple test client for the key-value server.
+
+The client connects to a server, then repeatedly sends random
+`PUT` (write) and `GET` (read) requests over TCP. It sends 70% writes and 30% reads to simulate standard network traffic.
+
+---
 
 ## Usage
 
-### Linux and macOS
-
-Using Nix is the only supported method.
-
-```sh
-nix build
-```
-
-### Windows
-
-> WIP
-
-You must install the dependencies:
-
-- [CMake](https://cmake.org/download/)
-- [Ninja](https://ninja-build.org/)
-
-```sh
-cmake --workflow windows-release
-```
-
-## Development
-
-Using Docker is the only supported method.
-
-To start, run:
-
-```sh
+```bash
+```bash
+# From client root
 docker compose up --build -d
+#or if already built"
+docker compose up -d
+#then
 docker compose attach shell
 ```
+The executable will be at build/exe/client_main.
 
-To stop, run `docker compose down`. This leaves volumes that are used for caching. To delete them, run `docker compose down --volumes`.
+```bash
+#Simple Example
+./build/exe/client_main --host 127.0.0.1 --port 9000
+```
