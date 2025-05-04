@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <map>
 #include <optional>
 #include <print>
 #include <ranges>
@@ -360,9 +361,129 @@ inline auto Database::reset_shard() -> Shard * {
     return get_shard(cpu_id);
 }
 
-auto Database::compact(std::deque<size_t> &lvl) -> void {
-    std::cout << "COMPACTING" << std::endl;
-    std::ignore = lvl;
+auto Database::compact(std::deque<size_t> &level_ssts) -> void {
+    if (level_ssts.empty()) return;
+
+    std::unique_lock read_lk(sstables_mutex_);
+    auto lvl_it = std::find_if(sstables_.begin(), sstables_.end(),
+                               [&](auto &dq) { return &dq == &level_ssts; });
+    if (lvl_it == sstables_.end()) {
+        // shouldn't happen
+        return;
+    }
+    auto next_it = std::next(lvl_it);
+    read_lk.unlock();
+
+    std::map<std::string, std::vector<char>> merged;
+    for (size_t sst_id : level_ssts) {
+        fs::path p = data_path_ / std::format("{}.sst", sst_id);
+        FILE *in = fopen(p.c_str(), "rb");
+        if (!in)
+            throw std::runtime_error("Failed to open SSTable for compaction");
+
+        fseek(in, -static_cast<long>(sizeof(size_t)), SEEK_END);
+        size_t entry_count;
+        std::ignore = fread(&entry_count, sizeof(size_t), 1, in);
+
+        long idx_pos = -static_cast<long>(sizeof(size_t) * (entry_count + 1));
+        fseek(in, idx_pos, SEEK_END);
+        std::vector<size_t> offsets(entry_count);
+        std::ignore = fread(offsets.data(), sizeof(size_t), entry_count, in);
+
+        // read bloom-filter size just before index[]
+        fseek(in, idx_pos - static_cast<long>(sizeof(size_t)), SEEK_END);
+        size_t bf_sz;
+        std::ignore = fread(&bf_sz, sizeof(size_t), 1, in);
+
+        long data_end = idx_pos - static_cast<long>(sizeof(size_t)) -
+                        static_cast<long>(bf_sz);
+
+        for (size_t i = 0; i < entry_count; ++i) {
+            size_t start = offsets[i];
+            size_t end = (i + 1 < entry_count ? offsets[i + 1] : data_end);
+            size_t seq_sz = end - start;
+
+            std::vector<char> buf(seq_sz);
+            fseek(in, start, SEEK_SET);
+            std::ignore = fread(buf.data(), 1, seq_sz, in);
+
+            // interpret buf.data() as arena‐sequence
+            auto *ptr =
+                reinterpret_cast<memtable::KVStore::ptr_type>(buf.data());
+            // extract key and value spans
+            auto key_span = memtable::KVStore::get_key(ptr);
+            auto val_span = memtable::KVStore::get_value(ptr);
+            auto *raw_b = val_span.data();  // std::byte*
+            auto raw_n = val_span.size();   // size_t
+
+            merged[std::string(reinterpret_cast<const char *>(key_span.data()),
+                               key_span.size())] =
+                std::vector<char>(
+                    reinterpret_cast<const char *>(raw_b),
+                    reinterpret_cast<const char *>(raw_b) + raw_n);
+        }
+
+        fclose(in);
+    }
+
+    {
+        std::scoped_lock write_lk(sstables_mutex_, filters_mutex_);
+        for (size_t id : level_ssts) {
+            fs::remove(data_path_ / std::format("{}.sst", id));
+            filters_.erase(id);
+        }
+        level_ssts.clear();
+    }
+
+    auto temp_mt = std::make_shared<memtable::MemTable<memtable::KVSkipList>>();
+    for (auto &[key, val_bytes] : merged) {
+        temp_mt->insert(key,
+                        std::string_view(val_bytes.data(), val_bytes.size()));
+    }
+
+    size_t new_id = unused_sst_id_++;
+    fs::path out_path = data_path_ / std::format("{}.sst", new_id);
+    FILE *out = fopen(out_path.c_str(), "wb");
+    if (!out) throw std::runtime_error("Failed to create compacted SSTable");
+
+    // build bloom & offsets as in process_memtable()
+    auto bf = std::make_shared<filter::BloomFilter>(temp_mt->size() * 2, 3);
+    std::vector<size_t> new_offsets;
+    size_t cursor = 0;
+
+    for (auto ptr : *temp_mt) {
+        // ptr is a KVStore::ptr_type pointing to the raw sequence
+        size_t seq_sz = memtable::KVStore::get_size(ptr);
+        // write raw sequence bytes exactly
+        auto *data_ptr = reinterpret_cast<const char *>(ptr);
+        fwrite(data_ptr, 1, seq_sz, out);
+
+        // update bloom + offsets
+        auto key_span = memtable::KVStore::get_key(ptr);
+        bf->add(std::string_view(
+            reinterpret_cast<const char *>(key_span.data()), key_span.size()));
+        new_offsets.push_back(cursor);
+        cursor += seq_sz;
+    }
+
+    size_t bf_size = bf->save(out);
+    fwrite(&bf_size, sizeof(size_t), 1, out);
+
+    size_t cnt = new_offsets.size();
+    fwrite(new_offsets.data(), sizeof(size_t), cnt, out);
+    fwrite(&cnt, sizeof(size_t), 1, out);
+
+    fclose(out);
+
+    {
+        std::scoped_lock write_lk(sstables_mutex_, filters_mutex_);
+        if (next_it == sstables_.end()) {
+            sstables_.emplace_back();
+            next_it = std::prev(sstables_.end());
+        }
+        next_it->push_back(new_id);
+        filters_[new_id] = bf;
+    }
 }
 
 Database::Queue::Queue(const std::filesystem::path &data_path,

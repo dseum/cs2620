@@ -56,7 +56,8 @@ set_target_cxx_properties_(lib_database)
 target_compile_and_link_options_(lib_database ${CMAKE_BUILD_TYPE})
 target_include_directories(
   lib_database
-  PUBLIC src "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
          "$<INSTALL_INTERFACE:include>")
 target_link_libraries(lib_database PRIVATE Boost::dynamic_bitset)
 
