@@ -49,15 +49,14 @@ endfunction()
 
 set(LIB_DATABASE_SRC src/arena.cpp src/filter.cpp src/memtable.cpp
                      src/mousedb/database/core.cpp src/random.cpp)
-add_library(lib_database STATIC ${LIB_DATABASE_SRC})
+add_library(lib_database ${LIB_DATABASE_SRC})
 set_target_properties(lib_database PROPERTIES EXPORT_NAME database OUTPUT_NAME
                                                                    database)
 set_target_cxx_properties_(lib_database)
 target_compile_and_link_options_(lib_database ${CMAKE_BUILD_TYPE})
 target_include_directories(
   lib_database
-  PRIVATE src
-  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  PUBLIC src "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
          "$<INSTALL_INTERFACE:include>")
 target_link_libraries(lib_database PRIVATE Boost::dynamic_bitset)
 

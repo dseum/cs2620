@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "hlc.hpp"
+#include "hlce.hpp"
 
 using namespace mousedb::database;
 using mousedb::hlc::HLC;

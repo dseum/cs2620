@@ -268,7 +268,8 @@ ConnectionManager::ConnectionManager(asio::io_context &io, Address self,
       self_(std::move(self)),
       join_(std::move(join)),
       hb_timer_(io),
-      resolver_(asio::make_strand(io)) {
+      resolver_(asio::make_strand(io)),
+      db_("/tmp/mousedb_test", db_opts_) {
 }
 
 void ConnectionManager::run() {
@@ -400,13 +401,16 @@ void ConnectionManager::forget(Session *s) {
 /* ---------- KV helpers --------------------------------------------- */
 void ConnectionManager::kv_put(const std::string &k, const std::string &v,
                                const HLC &ts) {
-    mousedb::database std::unique_lock lk(kv_mtx_);
-    auto &slot = kv_[k];
-    if (slot.value.empty() || slot.clock < ts) slot = {v, ts};
+    db_.insert(k, v, mousedb::hlc::HLC{ts.physical_us, ts.logical, ts.node_id});
 }
 
 std::optional<ValueRec> ConnectionManager::kv_get(const std::string &k) {
-    std::shared_lock lk(kv_mtx_);
-    auto it = kv_.find(k);
-    return it == kv_.end() ? std::nullopt : std::optional<ValueRec>(it->second);
+    std::optional<std::string_view> res = db_.find(k);
+    if (res) {
+        std::string res_str(res.value());
+        return ValueRec{res_str};
+
+    } else {
+        return std::nullopt;
+    }
 }

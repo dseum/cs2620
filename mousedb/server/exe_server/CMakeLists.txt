@@ -16,36 +16,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Pull in Boost.Asio and Boost.ProgramOptions
-find_package(Boost CONFIG REQUIRED COMPONENTS asio program_options)
+find_package(Boost CONFIG REQUIRED COMPONENTS asio dynamic_bitset
+                                              program_options)
 find_package(GTest CONFIG REQUIRED)
-find_package(mousedb CONFIG REQUIRED)
 find_package(quill CONFIG REQUIRED)
+
+add_subdirectory(../lib_database ${CMAKE_CURRENT_BINARY_DIR}/lib_database)
 
 enable_testing()
 
-set(EXE_SERVER_SRC
-  src/server_main.cpp
-  src/server.cpp
-)
+set(EXE_SERVER_SRC src/server_main.cpp src/server.cpp)
 add_executable(exe_server ${EXE_SERVER_SRC})
 set_target_properties(exe_server PROPERTIES OUTPUT_NAME exe/server_main)
 target_include_directories(exe_server PRIVATE src)
-target_link_libraries(exe_server PRIVATE
-  mousedb::database
-  Boost::asio
-  Boost::program_options
-  quill::quill
-)
+target_link_libraries(exe_server PRIVATE lib_database Boost::asio
+                                         Boost::program_options quill::quill)
 
 file(GLOB_RECURSE EXE_SERVER_TEST_SRC CONFIGURE_DEPENDS *.test.cpp)
 if(EXE_SERVER_TEST_SRC)
   add_executable(exe_server_test ${EXE_SERVER_TEST_SRC})
   set_target_properties(exe_server_test PROPERTIES OUTPUT_NAME exe/test)
   target_include_directories(exe_server_test PRIVATE src)
-  target_link_libraries(exe_server_test PRIVATE
-    GTest::gtest_main
-    exe_server
-  )
+  target_link_libraries(exe_server_test PRIVATE GTest::gtest_main exe_server)
 
   include(GoogleTest)
   gtest_discover_tests(exe_server_test)

@@ -1,8 +1,16 @@
 {
   "dependencies": [
     {
+      "name": "benchmark",
+      "version>=": "1.9.2#0"
+    },
+    {
       "name": "boost-asio",
       "version>=": "1.87.0#1"
+    },
+    {
+      "name": "boost-dynamic-bitset",
+      "version>=": "1.87.0#0"
     },
     {
       "name": "boost-endian",

@@ -1,8 +1,14 @@
 #pragma once
+#include <quill/Backend.h>
+#include <quill/Frontend.h>
+#include <quill/Logger.h>
+#include <quill/sinks/ConsoleSink.h>
+
 #include <array>
 #include <boost/asio.hpp>
 #include <boost/endian/conversion.hpp>
 #include <deque>
+#include <mousedb/database/core.hpp>
 #include <mutex>
 #include <optional>
 #include <shared_mutex>
@@ -12,11 +18,6 @@
 
 #include "hlc.hpp"
 #include "lww.hpp"
-
-#include <quill/Backend.h>
-#include <quill/Frontend.h>
-#include <quill/Logger.h>
-#include <quill/sinks/ConsoleSink.h>
 
 inline quill::Logger *get_logger() {
     static struct Init {
@@ -158,4 +159,7 @@ class ConnectionManager {
     /* in-memory KV (temporary) */
     mutable std::shared_mutex kv_mtx_;
     std::unordered_map<std::string, ValueRec> kv_;
+
+    mousedb::database::Options db_opts_;
+    mousedb::database::Database db_;
 };

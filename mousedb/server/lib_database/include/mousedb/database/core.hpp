@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "filter.hpp"
-#include "hlc.hpp"
+#include "hlce.hpp"
 #include "memtable.hpp"
 #include "spin_mutex.hpp"
 
@@ -35,9 +35,9 @@ class Database {
     ~Database();
 
     auto find(std::string_view key) -> std::optional<std::string_view>;
-    auto insert(std::string_view key, std::string_view value, hlc::HLC ts)
-        -> void;
-    auto erase(std::string_view key, hlc::HLC ts) -> void;
+    auto insert(std::string_view key, std::string_view value,
+                mousedb::hlc::HLC ts) -> void;
+    auto erase(std::string_view key, mousedb::hlc::HLC ts) -> void;
 
    private:
     class Queue {
