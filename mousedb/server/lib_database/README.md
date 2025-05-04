@@ -25,6 +25,16 @@ int main() {
 
 ### Development
 
+Note that if you get the following error
+
+```
+ Target "lib_database" INTERFACE_INCLUDE_DIRECTORIES property contains path:
+
+    "/code/lib_database/src"
+```
+
+You should change the first PUBLIC to PRIVATE for the `src` headers.
+
 - To build, run `cmake --workflow build-<target>`
 - To build and test, run `cmake --workflow test-<target>`
 - To test, run `ctest --preset <target>`
