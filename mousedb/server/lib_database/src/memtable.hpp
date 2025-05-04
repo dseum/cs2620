@@ -49,7 +49,7 @@ class KVSkipList {
     KVSkipList &operator=(const KVSkipList &) = delete;
 
     auto find(std::span<std::byte> key) const
-        -> std::optional<std::span<std::byte>>;
+        -> std::vector<std::span<std::byte>>;
     auto insert(std::span<std::byte> key, std::span<std::byte> value) -> void;
     auto erase(std::span<std::byte> key) -> void;
 
@@ -72,34 +72,19 @@ class KVSkipList {
    private:
     struct Splice {};
 
-    struct Node {
-        std::span<std::byte> key;
-
-        bool operator==(const Node &other) const noexcept {
-            return KVStore::compare(key, other.key) == 0;
-        }
-    };
-
-    struct NodeHash {
-        std::size_t operator()(const Node &n) const noexcept {
-            return KVStore::hash(n.key);
-        }
-    };
-
     const size_t max_height_;
     const size_t branching_factor_;
 
     KVStore kvs_;
-    std::unordered_map<Node, KVStore::ptr_type, NodeHash> nodes_;
+    std::deque<KVStore::ptr_type> nodes_;
     mutable std::shared_mutex nodes_mutex_;
 };
 
 template <typename T>
 concept KVMap = requires(const T &t, T &u, std::span<std::byte> key,
                          std::span<std::byte> value) {
-    { t.find(key) } -> std::same_as<std::optional<std::span<std::byte>>>;
+    { t.find(key) } -> std::same_as<std::vector<std::span<std::byte>>>;
     { u.insert(key, value) } -> std::same_as<void>;
-    { u.erase(key) } -> std::same_as<void>;
     { u.used() } -> std::same_as<size_t>;
     { u.size() } -> std::same_as<size_t>;
 };
@@ -107,9 +92,8 @@ concept KVMap = requires(const T &t, T &u, std::span<std::byte> key,
 template <KVMap T>
 class MemTable {
    public:
-    auto find(std::string_view key) const -> std::optional<std::string_view>;
+    auto find(std::string_view key) const -> std::vector<std::string_view>;
     auto insert(std::string_view key, std::string_view value) -> void;
-    auto erase(std::string_view key) -> void;
 
     auto used() const -> size_t;
     auto size() const -> size_t;
@@ -128,16 +112,17 @@ class MemTable {
 
 template <KVMap T>
 auto MemTable<T>::find(std::string_view key) const
-    -> std::optional<std::string_view> {
-    std::optional<std::span<std::byte>> value_opt =
+    -> std::vector<std::string_view> {
+    std::vector<std::string_view> values;
+    auto results =
         byte_map_.find({const_cast<std::byte *>(
                             reinterpret_cast<const std::byte *>(key.data())),
                         key.size()});
-    if (!value_opt.has_value()) {
-        return std::nullopt;
+    for (const auto &result : results) {
+        values.emplace_back(reinterpret_cast<const char *>(result.data()),
+                            result.size());
     }
-    return std::string_view(reinterpret_cast<const char *>(value_opt->data()),
-                            value_opt->size());
+    return values;
 }
 
 template <KVMap T>
@@ -148,13 +133,6 @@ auto MemTable<T>::insert(std::string_view key, std::string_view value) -> void {
                      {const_cast<std::byte *>(
                           reinterpret_cast<const std::byte *>(value.data())),
                       value.size()});
-}
-
-template <KVMap T>
-auto MemTable<T>::erase(std::string_view key) -> void {
-    byte_map_.erase({const_cast<std::byte *>(
-                         reinterpret_cast<const std::byte *>(key.data())),
-                     key.size()});
 }
 
 template <KVMap T>

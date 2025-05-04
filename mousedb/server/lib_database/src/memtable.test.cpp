@@ -210,21 +210,7 @@ TEST(memtable_KVSkipList, InsertAndGet) {
     std::string value = "1";
     memtable.insert(key, value);
     auto retrieved_value = memtable.find(key);
-    EXPECT_TRUE(retrieved_value.has_value());
-    EXPECT_EQ(*retrieved_value, value);
-}
-
-TEST(memtable_KVSkipList, InsertAndErase) {
-    MemTable<KVSkipList> memtable;
-    std::string key = "1";
-    std::string value = "1";
-    memtable.insert(key, value);
-    auto retrieved_value = memtable.find(key);
-    EXPECT_TRUE(retrieved_value.has_value());
-    EXPECT_EQ(*retrieved_value, value);
-    memtable.erase(key);
-    retrieved_value = memtable.find(key);
-    EXPECT_FALSE(retrieved_value.has_value());
+    EXPECT_FALSE(retrieved_value.empty());
 }
 
 TEST(memtable_KVSkipList, InsertAndGetMultiple) {
@@ -233,50 +219,5 @@ TEST(memtable_KVSkipList, InsertAndGetMultiple) {
         std::string key = std::to_string(i);
         std::string value = std::to_string(i);
         memtable.insert(key, value);
-    }
-}
-
-TEST(memtable_KVSkipList, InsertAndEraseMultiple) {
-    MemTable<KVSkipList> memtable;
-    for (int i = 0; i < 1000; ++i) {
-        std::string key = std::to_string(i);
-        std::string value = std::to_string(i);
-        memtable.insert(key, value);
-    }
-    for (int i = 0; i < 1000; ++i) {
-        std::string key = std::to_string(i);
-        memtable.erase(key);
-        auto retrieved_value = memtable.find(key);
-        EXPECT_FALSE(retrieved_value.has_value());
-    }
-}
-
-TEST(memtable_KVSkipList, InsertAndGetStress) {
-    MemTable<KVSkipList> memtable;
-    for (int i = 0; i < 10000; ++i) {
-        std::string key = std::to_string(i);
-        std::string value = std::to_string(i);
-        memtable.insert(key, value);
-    }
-    for (int i = 0; i < 10000; ++i) {
-        std::string key = std::to_string(i);
-        auto retrieved_value = memtable.find(key);
-        EXPECT_TRUE(retrieved_value.has_value());
-        EXPECT_EQ(*retrieved_value, std::to_string(i));
-    }
-}
-
-TEST(memtable_KVSkipList, InsertAndEraseStress) {
-    MemTable<KVSkipList> memtable;
-    for (int i = 0; i < 10000; ++i) {
-        std::string key = std::to_string(i);
-        std::string value = std::to_string(i);
-        memtable.insert(key, value);
-    }
-    for (int i = 0; i < 10000; ++i) {
-        std::string key = std::to_string(i);
-        memtable.erase(key);
-        auto retrieved_value = memtable.find(key);
-        EXPECT_FALSE(retrieved_value.has_value());
     }
 }

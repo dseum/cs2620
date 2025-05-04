@@ -149,26 +149,23 @@ KVSkipList::KVSkipList(size_t max_height, size_t branching_factor)
 }
 
 auto KVSkipList::find(std::span<std::byte> key) const
-    -> std::optional<std::span<std::byte>> {
+    -> std::vector<std::span<std::byte>> {
+    std::vector<std::span<std::byte>> values;
     std::shared_lock lock(nodes_mutex_);
-    auto it = nodes_.find({key});
-    if (it == nodes_.end()) {
-        return std::nullopt;
+    for (const auto &node : nodes_) {
+        auto [test_key, value] = KVStore::get(node);
+        if (KVStore::compare(key, test_key) == 0) {
+            values.push_back(value);
+        }
     }
-    return KVStore::get_value(it->second);
+    return values;
 }
 
 auto KVSkipList::insert(std::span<std::byte> key, std::span<std::byte> value)
     -> void {
     std::unique_lock lock(nodes_mutex_);
     auto ptr = kvs_.insert(key, value);
-    std::span<std::byte> stored_key = KVStore::get_key(ptr);
-    nodes_.insert({{stored_key}, ptr});
-}
-
-auto KVSkipList::erase(std::span<std::byte> key) -> void {
-    std::unique_lock lock(nodes_mutex_);
-    nodes_.erase({key});
+    nodes_.push_back(ptr);
 }
 
 }  // namespace memtable

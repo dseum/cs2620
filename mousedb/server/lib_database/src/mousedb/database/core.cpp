@@ -8,6 +8,7 @@
 #include <cstring>
 #include <iostream>
 #include <optional>
+#include <print>
 #include <ranges>
 #include <span>
 #include <thread>
@@ -34,6 +35,7 @@ Database::Database(const fs::path &root_path, const Options &options)
       data_path_(root_path_ / "data"),
       shards_(num_cpus_),
       memtable_(std::make_shared<memtable::MemTable<memtable::KVSkipList>>()),
+      sstables_(1),
       queue_(data_path_,
              std::max(std::thread::hardware_concurrency() / 2,
                       static_cast<unsigned int>(1)),
@@ -211,9 +213,19 @@ auto Database::insert(std::string_view key, std::string_view value,
 }
 
 auto Database::erase(std::string_view key, hlc::HLC hclock) -> void {
-    std::ignore = hclock;
-    wal_erase(key);
-    internal_erase(key);
+    std::cout << "ERASING " << key << std::endl;
+    std::string value_copy;
+    value_copy.resize(sizeof(hclock.physical_us) + sizeof(hclock.logical) +
+                      sizeof(hclock.node_id));
+    std::memcpy(value_copy.data(), &hclock.physical_us,
+                sizeof(hclock.physical_us));
+    std::memcpy(value_copy.data() + sizeof(hclock.physical_us), &hclock.logical,
+                sizeof(hclock.logical));
+    std::memcpy(
+        value_copy.data() + sizeof(hclock.physical_us) + sizeof(hclock.logical),
+        &hclock.node_id, sizeof(hclock.node_id));
+    wal_insert(key, value_copy);
+    internal_insert(key, value_copy);
 }
 
 auto Database::internal_find(std::string_view key)
@@ -221,16 +233,25 @@ auto Database::internal_find(std::string_view key)
     std::vector<std::string_view> values;
     {
         std::shared_lock lock(memtable_mutex_);
-        std::optional<std::string_view> value = memtable_->find(key);
-        if (value.has_value()) {
-            values.push_back(value.value());
-        }
+        auto res = memtable_->find(key);
+        values.insert(values.end(), res.begin(), res.end());
     }
     {
         queue_.find(key, values);
     }
     if (values.empty()) {
         return std::nullopt;
+    }
+    {
+        std::scoped_lock lock(filters_mutex_, sstables_mutex_);
+        for (const auto &sstable : sstables_[0]) {
+            auto it = filters_.find(sstable);
+            if (it == filters_.end()) {
+                continue;
+            }
+            if (it->second->contains(std::string(key))) {
+            }
+        }
     }
 
     // convert values and get the starting HLC and put into HLC struct
@@ -253,14 +274,19 @@ auto Database::internal_find(std::string_view key)
             value.data() + sizeof(hclock.physical_us) + sizeof(hclock.logical),
             sizeof(hclock.node_id));
         hclocks.push_back({value, hclock});
+        std::println("HLC: {} {} {}", hclock.physical_us, hclock.logical,
+                     hclock.node_id);
     }
     auto value = hlc::lww_select(std::move(hclocks));
     if (!value.has_value()) {
         return std::nullopt;
     }
-    std::cout << value->value << std::endl;
-    std::cout << value->value.size() << std::endl;
-
+    size_t erase_size = sizeof(Item::clock.physical_us) +
+                        sizeof(Item::clock.logical) +
+                        sizeof(Item::clock.node_id);
+    if (value->value.size() <= erase_size) {
+        return std::nullopt;
+    }
     return std::string_view{
         value->value.data() + sizeof(Item::clock.physical_us) +
             sizeof(Item::clock.logical) + sizeof(Item::clock.node_id),
@@ -282,7 +308,7 @@ auto Database::internal_insert(std::string_view key, std::string_view value)
 
 auto Database::internal_erase(std::string_view key) -> void {
     std::shared_lock lock(memtable_mutex_);
-    memtable_->erase(key);
+    std::ignore = key;
 }
 
 auto Database::wal_insert(std::string_view key, std::string_view value)
@@ -332,6 +358,11 @@ inline auto Database::reset_shard() -> Shard * {
     }
     cpu_id_ = cpu_id | shards_.size();
     return get_shard(cpu_id);
+}
+
+auto Database::compact(std::deque<size_t> &lvl) -> void {
+    std::cout << "COMPACTING" << std::endl;
+    std::ignore = lvl;
 }
 
 Database::Queue::Queue(const std::filesystem::path &data_path,
@@ -385,17 +416,16 @@ auto Database::Queue::enqueue_memtable(
 auto Database::Queue::find(std::string_view key,
                            std::vector<std::string_view> &values) -> void {
     std::unique_lock lock(queue_mutex_);
-    std::optional<std::string_view> value;
     for (const auto &memtable : std::views::reverse(queue_)) {
-        value = memtable->find(key);
-        if (value.has_value()) {
-            values.push_back(value.value());
+        auto res = memtable->find(key);
+        if (!res.empty()) {
+            values.insert(values.end(), res.begin(), res.end());
         }
     }
     for (const auto &memtable : std::views::reverse(working_)) {
-        value = memtable->find(key);
-        if (value.has_value()) {
-            values.push_back(value.value());
+        auto res = memtable->find(key);
+        if (!res.empty()) {
+            values.insert(values.end(), res.begin(), res.end());
         }
     }
 }
@@ -409,11 +439,11 @@ auto Database::Queue::process_memtable(
         std::shared_ptr<memtable::MemTable<memtable::KVSkipList>>>::iterator it)
     -> void {
     auto memtable = *it;
+    size_t id = unused_sst_id_++;
 
     std::cout << "Processing memtable with " << memtable->size() << "entries."
               << std::endl;
-    FILE *fp = fopen(
-        (data_path_ / std::format("{}.sst", unused_sst_id_++)).c_str(), "w");
+    FILE *fp = fopen((data_path_ / std::format("{}.sst", id)).c_str(), "w");
     std::ignore = fp;
     // data
     // bloom filter
@@ -425,20 +455,36 @@ auto Database::Queue::process_memtable(
     size_t index = 0;
     std::shared_ptr<filter::BloomFilter> bf =
         std::make_shared<filter::BloomFilter>(memtable_size * 2, 3);
-    for (auto &[node, seq] : *memtable) {
-        std::ignore = node;
+    for (auto &seq : *memtable) {
         size_t seq_size = memtable::KVStore::get_size(seq);
         fwrite(&seq, 1, seq_size, fp);
-        std::string str(reinterpret_cast<const char *>(seq), seq_size);
+        auto key = memtable::KVStore::get_key(seq);
+        std::string_view str(reinterpret_cast<const char *>(key.data()),
+                             key.size());
         bf->add(str);
         indexes.push_back(index);
         index += seq_size;
     }
+    std::cout << "Writing bloom filter" << std::endl;
     {
         size_t bf_size = bf->save(fp);
         fwrite(&bf_size, sizeof(size_t), 1, fp);
-        db_.filters_[unused_sst_id_] = bf;
+        {
+            std::scoped_lock lock(db_.filters_mutex_);
+            db_.filters_[id] = bf;
+        }
+        {
+            std::scoped_lock lock(db_.sstables_mutex_);
+            if (db_.sstables_[0].size() >= 4) {
+                db_.compact(db_.sstables_[0]);
+                db_.sstables_.push_front({});
+                db_.sstables_[0].push_back(id);
+            } else {
+                db_.sstables_[0].push_back(id);
+            }
+        }
     }
+    std::cout << indexes.size() << " versus " << memtable_size << std::endl;
     fwrite(indexes.data(), sizeof(size_t), memtable_size, fp);
     fwrite(&memtable_size, sizeof(size_t), 1, fp);
     {

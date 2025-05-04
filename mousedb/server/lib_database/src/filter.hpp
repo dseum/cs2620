@@ -14,9 +14,9 @@ class BloomFilter {
     BloomFilter(std::size_t size, std::size_t hash_count);
     BloomFilter(FILE *fp);
 
-    auto add(const std::string &item) -> void;
+    auto add(std::string_view item) -> void;
 
-    auto contains(const std::string &item) const -> bool;
+    auto contains(std::string_view item) const -> bool;
     auto save(FILE *fp) const -> size_t;
 
    private:
@@ -24,7 +24,7 @@ class BloomFilter {
     std::size_t hash_count_;
     boost::dynamic_bitset<> bits_;
 
-    auto hash(const std::string &item, std::size_t seed) const -> size_t;
+    auto hash(std::string_view item, std::size_t seed) const -> size_t;
 };
 
 }  // namespace filter

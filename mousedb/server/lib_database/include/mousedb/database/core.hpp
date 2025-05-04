@@ -96,6 +96,8 @@ class Database {
     size_t unused_sst_id_ = 0;
     std::shared_ptr<memtable::MemTable<memtable::KVSkipList>> memtable_;
     std::shared_mutex memtable_mutex_;
+    std::deque<std::deque<size_t>> sstables_;
+    std::mutex sstables_mutex_;
     Queue queue_;
     std::unordered_map<size_t, std::shared_ptr<filter::BloomFilter>> filters_;
     std::shared_mutex filters_mutex_;
@@ -105,6 +107,8 @@ class Database {
     auto internal_erase(std::string_view key) -> void;
     auto wal_insert(std::string_view key, std::string_view value) -> void;
     auto wal_erase(std::string_view key) -> void;
+
+    auto compact(std::deque<size_t> &lvl) -> void;
 
     inline auto get_shard(size_t cpu_id) const -> Shard *;
     inline auto reset_shard() -> Shard *;

@@ -50,14 +50,14 @@ BloomFilter::BloomFilter(FILE *fp) {
     bits_ = std::move(bits);
 }
 
-auto BloomFilter::add(const std::string &item) -> void {
+auto BloomFilter::add(std::string_view item) -> void {
     for (std::size_t i = 0; i < hash_count_; ++i) {
         auto h = hash(item, i) % size_;
         bits_.set(h);
     }
 }
 
-auto BloomFilter::contains(const std::string &item) const -> bool {
+auto BloomFilter::contains(std::string_view item) const -> bool {
     for (std::size_t i = 0; i < hash_count_; ++i) {
         auto h = hash(item, i) % size_;
         if (!bits_.test(h)) {
@@ -91,9 +91,9 @@ auto BloomFilter::save(FILE *fp) const -> size_t {
            nblocks * sizeof(block_type);
 }
 
-auto BloomFilter::hash(const std::string &item, std::size_t seed) const
+auto BloomFilter::hash(std::string_view item, std::size_t seed) const
     -> size_t {
-    static std::hash<std::string> hasher;
+    static std::hash<std::string_view> hasher;
     auto h1 = hasher(item);
     // 64-bit mix inspired by boost::hash_combine's magic constant
     return h1 ^ (seed + 0x9e3779b97f4a7c15ULL + (h1 << 6) + (h1 >> 2));
