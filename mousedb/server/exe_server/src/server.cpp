@@ -400,7 +400,7 @@ void ConnectionManager::forget(Session *s) {
 /* ---------- KV helpers --------------------------------------------- */
 void ConnectionManager::kv_put(const std::string &k, const std::string &v,
                                const HLC &ts) {
-    std::unique_lock lk(kv_mtx_);
+    mousedb::database std::unique_lock lk(kv_mtx_);
     auto &slot = kv_[k];
     if (slot.value.empty() || slot.clock < ts) slot = {v, ts};
 }

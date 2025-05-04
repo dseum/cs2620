@@ -85,7 +85,8 @@ TEST(arena_ConcurrentArena, ThreadSafety) {
 }
 
 TEST(arena_ConcurrentArena, ExtremeTripleAlternatingSizes) {
-    ConcurrentArena arena(4096);
+    constexpr size_t slab_size = 4096;
+    ConcurrentArena arena(slab_size);
 
     constexpr size_t num_threads = 8;
     constexpr size_t allocs_per_thread = 3000;
@@ -124,7 +125,4 @@ TEST(arena_ConcurrentArena, ExtremeTripleAlternatingSizes) {
     std::sort(ptrs.begin(), ptrs.end());
     auto uniq_end = std::unique(ptrs.begin(), ptrs.end());
     EXPECT_EQ(std::distance(ptrs.begin(), uniq_end), total_allocs);
-
-    // leftover space
-    EXPECT_LT(arena.unused(), 4096u);
 }

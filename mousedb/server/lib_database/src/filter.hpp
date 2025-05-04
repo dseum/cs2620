@@ -1,24 +1,31 @@
 #pragma once
 
+#include <stdio.h>
+
 #include <boost/dynamic_bitset.hpp>
-#include <vector>
+#include <cstddef>
+#include <string>
 
 namespace mousedb {
-namespace database {
 namespace filter {
+
 class BloomFilter {
    public:
-    BloomFilter(int size, int hash_count);
-    void add(const std::string &item);
-    bool contains(const std::string &item) const;
+    BloomFilter(std::size_t size, std::size_t hash_count);
+    BloomFilter(FILE *fp);
+
+    auto add(const std::string &item) -> void;
+
+    auto contains(const std::string &item) const -> bool;
+    auto save(FILE *fp) const -> size_t;
 
    private:
-    int size;
-    int hash_count;
-    std::vector<bool> bit_array;
+    std::size_t size_;
+    std::size_t hash_count_;
+    boost::dynamic_bitset<> bits_;
 
-    int hash(const std::string &item, int seed) const;
+    auto hash(const std::string &item, std::size_t seed) const -> size_t;
 };
+
 }  // namespace filter
-}  // namespace database
 }  // namespace mousedb

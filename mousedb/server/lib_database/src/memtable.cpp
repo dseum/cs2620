@@ -38,26 +38,6 @@ namespace memtable {
 KVStore::KVStore(size_t slab_size) : arena_(slab_size) {
 }
 
-auto KVStore::insert(std::span<std::byte> key, std::span<std::byte> value)
-    -> ptr_type {
-    const auto size_key = key.size();
-    const auto size_value = value.size();
-    const auto size_varint_key = get_varint_size(size_key);
-    const auto size_varint_value = get_varint_size(size_value);
-    const auto size =
-        size_varint_key + size_varint_value + size_key + size_value;
-
-    // Copies into ptr as [key_size, key, value_size, value]
-    auto ptr = arena_.allocate(size);
-    encode_varint({ptr, size_varint_key}, size_key);
-    std::memcpy(ptr + size_varint_key, key.data(), size_key);
-    encode_varint({ptr + size_varint_key + size_key, size_varint_value},
-                  size_value);
-    std::memcpy(ptr + size_varint_key + size_key + size_varint_value,
-                value.data(), size_value);
-    return ptr;
-}
-
 auto KVStore::compare(std::span<std::byte> key_a, std::span<std::byte> key_b)
     -> int {
     size_t size_a = key_a.size();
@@ -123,6 +103,45 @@ auto KVStore::get_value(ptr_type ptr) -> std::span<std::byte> {
     return {ptr + offset, size_value};
 }
 
+auto KVStore::get_size(ptr_type ptr) -> size_t {
+    size_t offset = 0;
+    uint64_t size_key;
+    offset += decode_varint({ptr, sizeof(size_t)}, size_key);
+    std::span<std::byte> key(ptr + offset, size_key);
+    offset += size_key;
+    uint64_t size_value;
+    offset += decode_varint({ptr + offset, sizeof(size_t)}, size_value);
+    return offset + size_value;
+}
+
+auto KVStore::insert(std::span<std::byte> key, std::span<std::byte> value)
+    -> ptr_type {
+    const auto size_key = key.size();
+    const auto size_value = value.size();
+    const auto size_varint_key = get_varint_size(size_key);
+    const auto size_varint_value = get_varint_size(size_value);
+    const auto size =
+        size_varint_key + size_varint_value + size_key + size_value;
+
+    // Copies into ptr as [key_size, key, value_size, value]
+    auto ptr = arena_.allocate(size);
+    encode_varint({ptr, size_varint_key}, size_key);
+    std::memcpy(ptr + size_varint_key, key.data(), size_key);
+    encode_varint({ptr + size_varint_key + size_key, size_varint_value},
+                  size_value);
+    std::memcpy(ptr + size_varint_key + size_key + size_varint_value,
+                value.data(), size_value);
+    return ptr;
+}
+
+auto KVStore::used() const -> size_t {
+    return arena_.used();
+}
+
+auto KVStore::size() const -> size_t {
+    return arena_.size();
+}
+
 KVSkipList::KVSkipList(size_t max_height, size_t branching_factor)
     : max_height_(max_height), branching_factor_(branching_factor), kvs_(4096) {
     std::ignore = max_height_;
@@ -143,7 +162,8 @@ auto KVSkipList::insert(std::span<std::byte> key, std::span<std::byte> value)
     -> void {
     std::unique_lock lock(nodes_mutex_);
     auto ptr = kvs_.insert(key, value);
-    nodes_.insert({Node{key}, ptr});
+    std::span<std::byte> stored_key = KVStore::get_key(ptr);
+    nodes_.insert({{stored_key}, ptr});
 }
 
 auto KVSkipList::erase(std::span<std::byte> key) -> void {

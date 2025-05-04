@@ -8,7 +8,7 @@ This is the database that the server provides a frontend to. The focus of this p
 using namespace mousedb::database;
 
 int main() {
-    Database db("/var/lib/mousedb/data"); // This is the default directory
+    Database db("/var/lib/mousedb"); // This is the default directory
 
     db.execute("PUT key value");
     db.execute<Action::PUT>("key", "value"); // This will update the value

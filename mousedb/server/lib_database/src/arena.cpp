@@ -24,27 +24,44 @@ Arena::Arena(size_t slab_size) : slab_size_(optimize_slab_size(slab_size)) {
 }
 
 auto Arena::allocate(size_t size) -> ptr_type {
+    used_ += size;
     if (size >= slab_size_) {
-        return allocate_slab(size);
+        return slabify(size);
     }
     if (size > active_slab_unused_) {
-        active_slab_ = allocate_slab(slab_size_);
+        unused_ += active_slab_unused_ + slab_size_ - size;
+        active_slab_ = slabify(slab_size_);
         active_slab_unused_ = slab_size_ - size;
         return active_slab_;
     }
     ptr_type ptr = active_slab_ + (slab_size_ - active_slab_unused_);
     active_slab_unused_ -= size;
+    unused_ -= size;
     return ptr;
 }
 
 auto Arena::allocate_slab(size_t size) -> ptr_type {
-    ptr_type slab = new std::byte[size];
-    slabs_.emplace_back(slab);
-    return slab;
+    used_ += size;
+    return slabify(size);
 }
 
 auto Arena::unused() const -> size_t {
-    return active_slab_unused_;
+    return unused_;
+}
+
+auto Arena::used() const -> size_t {
+    return used_;
+}
+
+auto Arena::size() const -> size_t {
+    return size_;
+}
+
+auto Arena::slabify(size_t size) -> ptr_type {
+    size_ += size;
+    ptr_type slab = new std::byte[size];
+    slabs_.emplace_back(slab);
+    return slab;
 }
 
 thread_local size_t ConcurrentArena::cpu_id_ = 0;
@@ -67,8 +84,16 @@ ConcurrentArena::ConcurrentArena(size_t slab_size)
       shards_(round_up_to_power_of_two(num_cpus_)) {
 }
 
+auto ConcurrentArena::used() const -> size_t {
+    return used_.load(std::memory_order_relaxed);
+}
+
 auto ConcurrentArena::unused() const -> size_t {
     return unused_.load(std::memory_order_relaxed);
+}
+
+auto ConcurrentArena::size() const -> size_t {
+    return size_.load(std::memory_order_relaxed);
 }
 
 auto ConcurrentArena::allocate(size_t size) -> ptr_type {
@@ -108,7 +133,9 @@ auto ConcurrentArena::allocate(size_t size) -> ptr_type {
 }
 
 inline auto ConcurrentArena::update() -> void {
+    used_.store(arena_.used(), std::memory_order_relaxed);
     unused_.store(arena_.unused(), std::memory_order_relaxed);
+    size_.store(arena_.size(), std::memory_order_relaxed);
 }
 
 inline auto ConcurrentArena::get_shard(size_t cpu_id) const -> Shard * {

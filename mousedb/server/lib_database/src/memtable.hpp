@@ -1,5 +1,6 @@
 #pragma once
 
+#include <condition_variable>
 #include <shared_mutex>
 #include <span>
 #include <string>
@@ -20,8 +21,6 @@ class KVStore {
 
     explicit KVStore(size_t slab_size);
 
-    auto insert(std::span<std::byte> key, std::span<std::byte> value)
-        -> ptr_type;
     static auto compare(std::span<std::byte> key_a, std::span<std::byte> key_b)
         -> int;
     static auto compare(ptr_type a, ptr_type b) -> int;
@@ -32,6 +31,12 @@ class KVStore {
         -> std::pair<std::span<std::byte>, std::span<std::byte>>;
     static auto get_key(ptr_type ptr) -> std::span<std::byte>;
     static auto get_value(ptr_type ptr) -> std::span<std::byte>;
+    static auto get_size(ptr_type ptr) -> size_t;
+
+    auto insert(std::span<std::byte> key, std::span<std::byte> value)
+        -> ptr_type;
+    auto used() const -> size_t;
+    auto size() const -> size_t;
 
    private:
     arena::ConcurrentArena arena_;
@@ -47,6 +52,14 @@ class KVSkipList {
         -> std::optional<std::span<std::byte>>;
     auto insert(std::span<std::byte> key, std::span<std::byte> value) -> void;
     auto erase(std::span<std::byte> key) -> void;
+
+    auto used() const -> size_t {
+        return kvs_.used();
+    }
+
+    auto size() const -> size_t {
+        return nodes_.size();
+    }
 
     auto begin() {
         return nodes_.begin();
@@ -87,21 +100,34 @@ concept KVMap = requires(const T &t, T &u, std::span<std::byte> key,
     { t.find(key) } -> std::same_as<std::optional<std::span<std::byte>>>;
     { u.insert(key, value) } -> std::same_as<void>;
     { u.erase(key) } -> std::same_as<void>;
+    { u.used() } -> std::same_as<size_t>;
+    { u.size() } -> std::same_as<size_t>;
 };
 
 template <KVMap T>
 class MemTable {
    public:
-    auto find(const std::string &key) const -> std::optional<std::string_view>;
-    auto insert(const std::string &key, const std::string &value) -> void;
-    auto remove(const std::string &key) -> void;
+    auto find(std::string_view key) const -> std::optional<std::string_view>;
+    auto insert(std::string_view key, std::string_view value) -> void;
+    auto erase(std::string_view key) -> void;
+
+    auto used() const -> size_t;
+    auto size() const -> size_t;
+
+    auto begin() {
+        return byte_map_.begin();
+    }
+
+    auto end() {
+        return byte_map_.end();
+    }
 
    private:
     T byte_map_;
 };
 
 template <KVMap T>
-auto MemTable<T>::find(const std::string &key) const
+auto MemTable<T>::find(std::string_view key) const
     -> std::optional<std::string_view> {
     std::optional<std::span<std::byte>> value_opt =
         byte_map_.find({const_cast<std::byte *>(
@@ -115,8 +141,7 @@ auto MemTable<T>::find(const std::string &key) const
 }
 
 template <KVMap T>
-auto MemTable<T>::insert(const std::string &key, const std::string &value)
-    -> void {
+auto MemTable<T>::insert(std::string_view key, std::string_view value) -> void {
     byte_map_.insert({const_cast<std::byte *>(
                           reinterpret_cast<const std::byte *>(key.data())),
                       key.size()},
@@ -126,10 +151,20 @@ auto MemTable<T>::insert(const std::string &key, const std::string &value)
 }
 
 template <KVMap T>
-auto MemTable<T>::remove(const std::string &key) -> void {
+auto MemTable<T>::erase(std::string_view key) -> void {
     byte_map_.erase({const_cast<std::byte *>(
                          reinterpret_cast<const std::byte *>(key.data())),
                      key.size()});
+}
+
+template <KVMap T>
+auto MemTable<T>::used() const -> size_t {
+    return byte_map_.used();
+}
+
+template <KVMap T>
+auto MemTable<T>::size() const -> size_t {
+    return byte_map_.size();
 }
 
 }  // namespace memtable
